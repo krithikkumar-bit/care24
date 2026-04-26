@@ -612,19 +612,30 @@ function loadFallbackData() {
     { _id: 's6', name: 'Palliative Care', icon: 'fa-heart', description: 'Compassionate end-of-life care focusing on comfort, pain management, and emotional support for patients and families.', price: 749, duration: '24 hrs/day', color: '#1E40AF', category: 'support' }
   ];
   caregiversCache = [
-    { _id: 'c1', name: 'Sunita Rao', photo: 'nurse1', specialty: 'Nursing', city: 'Mumbai', rating: 4.9, reviews: 127, experience: 8, hourlyRate: 499, available: true, about: 'GNM qualified nurse with 8 years experience in post-operative care and elderly care.', qualification: 'GNM', languages: 'Hindi, English, Marathi' },
-    { _id: 'c2', name: 'Priya Sharma', photo: 'physio1', specialty: 'Physiotherapy', city: 'Delhi', rating: 4.8, reviews: 89, experience: 6, hourlyRate: 599, available: true, about: 'MPT in Orthopedics. Specialized in post-surgery rehabilitation and stroke recovery.', qualification: 'MPT Ortho', languages: 'Hindi, English, Punjabi' },
-    { _id: 'c3', name: 'Meena Patel', photo: 'caretaker1', specialty: 'Elderly Care', city: 'Bangalore', rating: 4.9, reviews: 203, experience: 12, hourlyRate: 349, available: true, about: 'Experienced elderly caretaker trained in dementia care. Patient and attentive.', qualification: 'Certified Caregiver', languages: 'Hindi, English, Kannada' },
-    { _id: 'c4', name: 'Rajesh Kumar', photo: 'nurse2', specialty: 'Nursing', city: 'Pune', rating: 4.7, reviews: 76, experience: 5, hourlyRate: 449, available: true, about: 'BSc Nursing graduate skilled in critical care and post-operative management.', qualification: 'BSc Nursing', languages: 'Hindi, English, Marathi' },
-    { _id: 'c5', name: 'Anjali Desai', photo: 'physio2', specialty: 'Physiotherapy', city: 'Mumbai', rating: 4.6, reviews: 54, experience: 4, hourlyRate: 549, available: false, about: 'Specialized in neurological physiotherapy and geriatric rehab.', qualification: 'BPT', languages: 'Hindi, English, Gujarati' },
-    { _id: 'c6', name: 'Mohammed Irfan', photo: 'nurse3', specialty: 'Post-Hospital', city: 'Hyderabad', rating: 4.8, reviews: 112, experience: 9, hourlyRate: 549, available: true, about: 'Experienced in post-hospital discharge care. Expert in medication management.', qualification: 'GNM', languages: 'Hindi, English, Telugu, Urdu' },
-    { _id: 'c7', name: 'Kavitha Nair', photo: 'caretaker2', specialty: 'Dementia Care', city: 'Chennai', rating: 4.9, reviews: 167, experience: 10, hourlyRate: 649, available: true, about: 'Specially trained in dementia and Alzheimer\'s care with validated techniques.', qualification: 'Dementia Care Certified', languages: 'Hindi, English, Tamil, Malayalam' },
-    { _id: 'c8', name: 'Deepak Singh', photo: 'nurse4', specialty: 'Nursing', city: 'Delhi', rating: 4.5, reviews: 43, experience: 3, hourlyRate: 399, available: true, about: 'Young nurse focused on patient comfort. Skilled in injections and IV therapy.', qualification: 'GNM', languages: 'Hindi, English' },
-    { _id: 'c9', name: 'Lakshmi Iyer', photo: 'caretaker3', specialty: 'Palliative Care', city: 'Bangalore', rating: 4.9, reviews: 89, experience: 15, hourlyRate: 749, available: true, about: '15 years in palliative care with deep empathy and pain management expertise.', qualification: 'Palliative Care Specialist', languages: 'Hindi, English, Kannada, Tamil' },
-    { _id: 'c10', name: 'Suresh Patil', photo: 'nurse5', specialty: 'Post-Hospital', city: 'Pune', rating: 4.7, reviews: 65, experience: 7, hourlyRate: 499, available: false, about: 'Experienced in managing complex post-discharge cases. Detail-oriented.', qualification: 'BSc Nursing', languages: 'Hindi, English, Marathi' },
-    { _id: 'c11', name: 'Rekha Gupta', photo: 'physio3', specialty: 'Physiotherapy', city: 'Hyderabad', rating: 4.8, reviews: 98, experience: 7, hourlyRate: 579, available: true, about: 'Expert in musculoskeletal conditions and post-fracture rehabilitation.', qualification: 'MPT', languages: 'Hindi, English, Telugu' },
-    { _id: 'c12', name: 'Fatima Begum', photo: 'caretaker4', specialty: 'Elderly Care', city: 'Chennai', rating: 4.6, reviews: 78, experience: 6, hourlyRate: 329, available: true, about: 'Gentle caretaker specializing in elderly daily assistance and companionship.', qualification: 'Certified Caregiver', languages: 'Hindi, English, Tamil, Urdu' }
-  ];
+{ _id:'c1', name:'Sunita Rao', photo:'https://randomuser.me/api/portraits/women/65.jpg', specialty:'Nursing', city:'Mumbai', rating:4.9, reviews:127, experience:8, hourlyRate:499, available:true, about:'GNM qualified nurse with 8 years experience in post-operative care and elderly care.', qualification:'GNM', languages:'Hindi, English, Marathi' },
+
+{ _id:'c2', name:'Priya Sharma', photo:'https://randomuser.me/api/portraits/women/44.jpg', specialty:'Physiotherapy', city:'Delhi', rating:4.8, reviews:89, experience:6, hourlyRate:599, available:true, about:'MPT Orthopedics specialist in stroke rehab and mobility recovery.', qualification:'MPT Ortho', languages:'Hindi, English, Punjabi' },
+
+{ _id:'c3', name:'Meena Patel', photo:'https://randomuser.me/api/portraits/women/32.jpg', specialty:'Elderly Care', city:'Bangalore', rating:4.9, reviews:203, experience:12, hourlyRate:349, available:true, about:'Experienced elderly caretaker trained in dementia support.', qualification:'Certified Caregiver', languages:'Hindi, English, Kannada' },
+
+{ _id:'c4', name:'Rajesh Kumar', photo:'https://randomuser.me/api/portraits/men/51.jpg', specialty:'Nursing', city:'Pune', rating:4.7, reviews:76, experience:5, hourlyRate:449, available:true, about:'Critical-care trained nurse specializing in home ICU support.', qualification:'BSc Nursing', languages:'Hindi, English, Marathi' },
+
+{ _id:'c5', name:'Anjali Desai', photo:'https://randomuser.me/api/portraits/women/68.jpg', specialty:'Physiotherapy', city:'Mumbai', rating:4.6, reviews:54, experience:4, hourlyRate:549, available:false, about:'Neurological physiotherapy expert.', qualification:'BPT', languages:'Hindi, English, Gujarati' },
+
+{ _id:'c6', name:'Mohammed Irfan', photo:'https://randomuser.me/api/portraits/men/33.jpg', specialty:'Post-Hospital', city:'Hyderabad', rating:4.8, reviews:112, experience:9, hourlyRate:549, available:true, about:'Medication management and discharge recovery specialist.', qualification:'GNM', languages:'Hindi, English, Telugu, Urdu' },
+
+{ _id:'c7', name:'Kavitha Nair', photo:'https://randomuser.me/api/portraits/women/12.jpg', specialty:'Dementia Care', city:'Chennai', rating:4.9, reviews:167, experience:10, hourlyRate:649, available:true, about:'Certified Alzheimer’s caregiver.', qualification:'Dementia Specialist', languages:'Hindi, English, Tamil, Malayalam' },
+
+{ _id:'c8', name:'Deepak Singh', photo:'https://randomuser.me/api/portraits/men/22.jpg', specialty:'Nursing', city:'Delhi', rating:4.5, reviews:43, experience:3, hourlyRate:399, available:true, about:'Injection therapy and wound-care specialist.', qualification:'GNM', languages:'Hindi, English' },
+
+{ _id:'c9', name:'Lakshmi Iyer', photo:'https://randomuser.me/api/portraits/women/90.jpg', specialty:'Palliative Care', city:'Bangalore', rating:4.9, reviews:89, experience:15, hourlyRate:749, available:true, about:'Pain-management and hospice-care expert.', qualification:'Palliative Specialist', languages:'Hindi, English, Kannada, Tamil' },
+
+{ _id:'c10', name:'Suresh Patil', photo:'https://randomuser.me/api/portraits/men/76.jpg', specialty:'Post-Hospital', city:'Pune', rating:4.7, reviews:65, experience:7, hourlyRate:499, available:false, about:'Advanced discharge recovery support.', qualification:'BSc Nursing', languages:'Hindi, English, Marathi' },
+
+{ _id:'c11', name:'Rekha Gupta', photo:'https://randomuser.me/api/portraits/women/55.jpg', specialty:'Physiotherapy', city:'Hyderabad', rating:4.8, reviews:98, experience:7, hourlyRate:579, available:true, about:'Musculoskeletal rehabilitation specialist.', qualification:'MPT', languages:'Hindi, English, Telugu' },
+
+{ _id:'c12', name:'Fatima Begum', photo:'https://randomuser.me/api/portraits/women/25.jpg', specialty:'Elderly Care', city:'Chennai', rating:4.6, reviews:78, experience:6, hourlyRate:329, available:true, about:'Compassionate senior-care assistant.', qualification:'Certified Caregiver', languages:'Hindi, English, Tamil, Urdu' }
+];
 }
 
 async function loadPatients() { try { patientCache = await api('GET', '/patients'); } catch(e){} }
@@ -818,12 +829,63 @@ function renderHomeServices() {
 }
 
 function renderHomeCaregivers() {
-  var indices = [0,2,6,9]; var h = '';
-  for (var j = 0; j < indices.length; j++) {
-    var c = caregiversCache[indices[j]]; if (!c) continue;
-    h += '<div class="card-lift bg-white rounded-2xl p-6 border reveal" style="border-color:var(--border);transition-delay:'+(j*.1)+'s"><div style="display:flex;align-items:center;gap:12px;margin-bottom:12px"><img src="https://picsum.photos/seed/'+c.photo+'/100/100.jpg" style="width:52px;height:52px;border-radius:50%;object-fit:cover"><div><h3 style="font-weight:600;font-size:.95rem">'+c.name+' <i class="fa-solid fa-circle-check" style="font-size:.7rem;color:var(--pri)"></i></h3><p style="font-size:.8rem;color:var(--muted)">'+c.specialty+' &bull; '+c.city+'</p></div></div><p style="font-size:.85rem;color:var(--text-light);margin-bottom:12px;line-height:1.5">'+c.about.substring(0,90)+'...</p><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><div style="display:flex;align-items:center;gap:4px"><i class="fa-solid fa-star star" style="font-size:.8rem"></i><span style="font-size:.85rem;font-weight:600">'+c.rating+'</span></div><span style="font-size:.85rem;font-weight:600;color:var(--pri)">Rs.'+c.hourlyRate+'/hr</span></div><button onclick="viewCaregiver(\''+c._id+'\')" class="btn-outline btn-sm" style="width:100%">View Profile</button></div>';
+  if (!caregiversCache.length) return;
+
+  var top = caregiversCache.slice(0, 4); // show 4 caregivers on homepage
+  var html = "";
+
+  for (var i = 0; i < top.length; i++) {
+    var c = top[i];
+
+    var img =
+      c.photo && c.photo.startsWith("http")
+        ? c.photo
+        : "https://picsum.photos/seed/" + c.photo + "/120/120.jpg";
+
+    html +=
+      '<div class="card-lift bg-white rounded-2xl p-6 border">' +
+      '<div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">' +
+
+      '<img src="' + img + '" style="width:56px;height:56px;border-radius:50%;object-fit:cover">' +
+
+      '<div>' +
+      '<h3 style="font-weight:700;font-size:.95rem">' +
+      c.name +
+      '</h3>' +
+
+      '<p style="font-size:.8rem;color:var(--muted)">' +
+      c.specialty +
+      " • " +
+      c.city +
+      "</p>" +
+
+      "</div></div>" +
+
+      '<p style="font-size:.8rem;color:var(--muted);margin-bottom:12px">' +
+      c.about.substring(0, 60) +
+      "..." +
+      "</p>" +
+
+      '<div style="display:flex;justify-content:space-between;align-items:center">' +
+      '<span style="font-size:.85rem;font-weight:600">⭐ ' +
+      c.rating +
+      "</span>" +
+
+      '<span style="color:var(--pri);font-weight:700">Rs.' +
+      c.hourlyRate +
+      "/hr</span>" +
+
+      "</div>" +
+
+      '<button onclick="viewCaregiver(\'' +
+      c._id +
+      '\')" class="btn-outline btn-sm" style="margin-top:12px;width:100%">' +
+      "View Profile</button>" +
+
+      "</div>";
   }
-  document.getElementById('homeCaregiversGrid').innerHTML = h;
+
+  document.getElementById("homeCaregiversGrid").innerHTML = html;
 }
 
 function renderTestimonials() {
