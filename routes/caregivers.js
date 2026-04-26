@@ -5,7 +5,7 @@ const auth = require('../middleware/auth');
 
 router.get('/', async (req, res) => {
   try {
-    let query = { verified: true };
+    let query = {};
     if (req.query.specialty) query.specialty = req.query.specialty;
     if (req.query.city) query.city = req.query.city;
     if (req.query.available !== undefined) query.available = req.query.available === 'true';
