@@ -646,7 +646,14 @@ function loadFallbackData() {
 }
 
 async function loadPatients() { try { patientCache = await api('GET', '/patients'); } catch(e){} }
-async function loadServices() { try { servicesCache = await api('GET', '/services'); } catch(e){} }
+async function loadServices() {
+  try {
+    servicesCache = await api('GET', '/services');
+    renderServicesPage();   // 👈 ADD THIS LINE
+  } catch(e){
+    console.error(e);
+  }
+}
 async function loadCaregivers() { try { caregiversCache = await api('GET', '/caregivers'); } catch(e){} }
 async function loadBookings() { try { bookingsCache = await api('GET', '/bookings'); } catch(e){} }
 async function loadAdminData() { try { adminDashboard = await api('GET', '/admin/stats'); } catch(e){} }
@@ -907,12 +914,58 @@ function renderTestimonials() {
 
 function renderServicesPage(filter) {
   filter = filter || 'all';
-  var fl = filter === 'all' ? servicesCache : servicesCache.filter(function(s){return s.category===filter;});
+
+  var fl = filter === 'all'
+    ? servicesCache
+    : servicesCache.filter(function(s){
+        return s.category === filter;
+      });
+
   var h = '';
+
   for (var i = 0; i < fl.length; i++) {
-    var s = fl[i]; var cb = s.category==='medical'?'badge-active':s.category==='rehab'?'badge-completed':'badge-pending';
-    h += '<div class="card-lift bg-white rounded-2xl border overflow-hidden reveal" style="border-color:var(--border)"><div style="height:6px;background:'+s.color+'"></div><div style="padding:24px"><div style="display:flex;align-items:start;justify-content:space-between;margin-bottom:16px"><div style="width:56px;height:56px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:'+s.color+'12"><i class="fa-solid '+s.icon+'" style="font-size:1.4rem;color:'+s.color+'"></i></div><span class="badge '+cb+'">'+s.category+'</span></div><h3 style="font-size:1.15rem;font-weight:700;margin-bottom:8px">'+s.name+'</h3><p style="font-size:.875rem;color:var(--text-light);margin-bottom:16px;line-height:1.6">'+s.description+'</p><button onclick="startBooking(\''+s._id+'\')" class="btn-pri btn-sm" style="width:100%">Book Now</button></div></div>';
+
+    var s = fl[i];
+
+    // Assign colors manually based on category
+    var color =
+      s.category === 'medical' ? '#059669' :
+      s.category === 'rehab' ? '#2563EB' :
+      '#D97706';
+
+    var cb =
+      s.category === 'medical' ? 'badge-active' :
+      s.category === 'rehab' ? 'badge-completed' :
+      'badge-pending';
+
+    h +=
+      '<div class="card-lift bg-white rounded-2xl border overflow-hidden reveal" style="border-color:var(--border)">' +
+
+      '<div style="height:6px;background:' + color + '"></div>' +
+
+      '<div style="padding:24px">' +
+
+      '<div style="display:flex;align-items:start;justify-content:space-between;margin-bottom:16px">' +
+
+      '<div style="width:56px;height:56px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:' + color + '12">' +
+
+      '<i class="fa-solid ' + s.icon + '" style="font-size:1.4rem;color:' + color + '"></i>' +
+
+      '</div>' +
+
+      '<span class="badge ' + cb + '">' + s.category + '</span>' +
+
+      '</div>' +
+
+      '<h3 style="font-size:1.15rem;font-weight:700;margin-bottom:8px">' + s.name + '</h3>' +
+
+      '<p style="font-size:.875rem;color:var(--text-light);margin-bottom:16px;line-height:1.6">' + s.description + '</p>' +
+
+      '<button onclick="startBooking(\'' + s._id + '\')" class="btn-pri btn-sm" style="width:100%">Book Now</button>' +
+
+      '</div></div>';
   }
+
   document.getElementById('servicesGrid').innerHTML = h;
 }
 function filterServices(filter) {
