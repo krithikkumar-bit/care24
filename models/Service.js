@@ -12,4 +12,4 @@ const serviceSchema = new mongoose.Schema({
   active: { type: Boolean, default: true },
   createdAt: { type: Date, default: Date.now }
 });
-module.exports = mongoose.model('Service', serviceSchema);
+module.exports = mongoose.model('services', serviceSchema);
