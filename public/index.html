@@ -920,25 +920,76 @@ function filterServices(filter) {
   for (var i=0;i<btns.length;i++) btns[i].className = btns[i].getAttribute('data-filter')===filter?'svc-filter btn-sm btn-pri':'svc-filter btn-sm btn-outline';
   renderServicesPage(filter);
 }
+function renderCaregiversPage(list) {
 
-function renderCaregiversPage() {
-  var spec=document.getElementById('cgSpecialtyFilter').value, rating=parseFloat(document.getElementById('cgRatingFilter').value)||0, city=document.getElementById('cgCityFilter').value;
-  var fl=caregiversCache.filter(function(c){if(spec!=='all'&&c.specialty!==spec)return false;if(rating>0&&c.rating<rating)return false;if(city!=='all'&&c.city!==city)return false;return true;});
+  var source = list || caregiversCache;
+
+  var spec=document.getElementById('cgSpecialtyFilter').value,
+      rating=parseFloat(document.getElementById('cgRatingFilter').value)||0,
+      city=document.getElementById('cgCityFilter').value;
+
+  var fl=source.filter(function(c){
+    if(spec!=='all' && c.specialty!==spec) return false;
+    if(rating>0 && c.rating<rating) return false;
+    if(city!=='all' && c.city!==city) return false;
+    return true;
+  });
+
   document.getElementById('caregiversCount').textContent=fl.length;
-  if(!fl.length){document.getElementById('caregiversGrid').innerHTML='<div style="grid-column:1/-1;text-align:center;padding:64px;color:var(--muted)"><i class="fa-solid fa-search" style="font-size:2rem;display:block;margin-bottom:12px;opacity:.3"></i>No caregivers match your filters.</div>';return;}
+
+  if(!fl.length){
+    document.getElementById('caregiversGrid').innerHTML=
+    '<div style="grid-column:1/-1;text-align:center;padding:64px;color:var(--muted)">No caregivers match your filters.</div>';
+    return;
+  }
+
   var h='';
+
   for(var i=0;i<fl.length;i++){
+
     var c = fl[i];
-    console.log("PHOTO:", c.photo);
 
     var dc = c.available ? '#059669' : '#D97706',
-        sf = findServiceForCaregiver(c),
+        sf = (typeof findServiceForCaregiver==="function") ? findServiceForCaregiver(c) : null,
         bid = sf ? sf._id : '';
-    h+='<div class="card-lift bg-white rounded-2xl p-6 border reveal" style="border-color:var(--border);transition-delay:'+(i*.05)+'s"><div style="display:flex;align-items:center;gap:12px;margin-bottom:12px"><div style="position:relative"><img src="'+c.photo+'" style="width:56px;height:56px;border-radius:50%;object-fit:cover"><div style="position:absolute;bottom:-2px;right:-2px;width:14px;height:14px;border-radius:50%;background:'+dc+';border:2px solid #fff"></div></div><div style="flex:1"><h3 style="font-weight:600;font-size:.95rem">'+c.name+' <i class="fa-solid fa-circle-check" style="font-size:.7rem;color:var(--pri)"></i></h3><p style="font-size:.8rem;color:var(--muted)">'+c.specialty+'</p><div style="display:flex;align-items:center;gap:4px;margin-top:2px"><i class="fa-solid fa-star star" style="font-size:.7rem"></i><span style="font-size:.85rem;font-weight:600">'+c.rating+'</span></div></div></div><div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px;text-align:center"><div style="border-radius:8px;padding:8px;background:var(--bg2)"><p style="font-size:.85rem;font-weight:700">'+c.experience+'yr</p></div><div style="border-radius:8px;padding:8px;background:var(--bg2)"><p style="font-size:.85rem;font-weight:700">'+c.city+'</p></div><div style="border-radius:8px;padding:8px;background:var(--pri-light)"><p style="font-size:.85rem;font-weight:700;color:var(--pri)">Rs.'+c.hourlyRate+'</p></div></div><p style="font-size:.8rem;color:var(--muted);margin-bottom:12px">'+c.about.substring(0,80)+'...</p><div style="display:flex;gap:8px"><button onclick="viewCaregiver(\''+c._id+'\')" class="btn-outline btn-sm" style="flex:1">Profile</button>'+(c.available?'<button onclick="startBooking(\''+bid+'\')" class="btn-pri btn-sm" style="flex:1">Book</button>':'')+'</div></div>';
+
+    h+='<div class="card-lift bg-white rounded-2xl p-6 border reveal">'+
+        '<div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">'+
+        '<div style="position:relative">'+
+        '<img src="'+c.photo+'" style="width:56px;height:56px;border-radius:50%;object-fit:cover">'+
+        '<div style="position:absolute;bottom:-2px;right:-2px;width:14px;height:14px;border-radius:50%;background:'+dc+';border:2px solid #fff"></div>'+
+        '</div>'+
+        '<div style="flex:1">'+
+        '<h3 style="font-weight:600;font-size:.95rem">'+c.name+'</h3>'+
+        '<p style="font-size:.8rem;color:var(--muted)">'+c.specialty+'</p>'+
+        '<span>'+c.rating+' ⭐</span>'+
+        '</div></div>'+
+        '<p>'+ (c.about||"").substring(0,80) +'...</p>'+
+        '</div>';
   }
+
   document.getElementById('caregiversGrid').innerHTML=h;
 }
-function filterCaregivers(){renderCaregiversPage();}
+function filterCaregivers(){
+
+  var spec = document.getElementById('cgSpecialtyFilter').value;
+  var rating = parseFloat(document.getElementById('cgRatingFilter').value);
+  var city = document.getElementById('cgCityFilter').value;
+
+  var filtered = caregiversCache.filter(function(c){
+
+    if(spec !== 'all' && c.specialty !== spec) return false;
+
+    if(rating > 0 && c.rating < rating) return false;
+
+    if(city !== 'all' && c.city !== city) return false;
+
+    return true;
+
+  });
+
+  renderCaregiversPage(filtered); // ✅ important line
+}
 
 function viewCaregiver(id) {
   var cg=caregiversCache.find(function(c){return c._id===id;}); if(!cg)return;
