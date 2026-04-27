@@ -152,14 +152,10 @@ input,select,textarea{font-family:var(--font)}
 .step-line{width:40px;height:2px;background:var(--border)}
 .booking-step{display:none}
 .booking-step:not(.hidden){display:block}
-
-/* ===== SOS MODAL — FIXED ===== */
 .sos-modal .modal-box{max-width:480px;border:2px solid var(--error)}
 .sos-header{background:var(--error);color:#fff;padding:20px 24px;border-radius:14px 14px 0 0;text-align:center}
 .sos-header h3{font-size:1.3rem;font-weight:800;margin-bottom:2px}
 .sos-header p{font-size:.85rem;margin-top:4px;opacity:.9}
-
-/* Emergency quick-dial buttons */
 .sos-quick-dial{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px}
 .sos-quick-btn{display:flex;flex-direction:column;align-items:center;gap:4px;padding:14px 8px;border-radius:12px;border:none;cursor:pointer;transition:all .15s;text-decoration:none}
 .sos-quick-btn:active{transform:scale(.95)}
@@ -170,7 +166,6 @@ input,select,textarea{font-family:var(--font)}
 .sos-quick-btn.ambulance{background:#D1FAE5}.sos-quick-btn.ambulance .sqb-icon{background:var(--success);color:#fff}
 .sos-quick-btn.fire{background:#FEF2F2}.sos-quick-btn.fire .sqb-icon{background:var(--error);color:#fff}
 .sos-quick-btn.emergency{background:#FEF2F2}.sos-quick-btn.emergency .sqb-icon{background:#DC2626;color:#fff}
-
 .sos-contact-card{display:flex;align-items:center;gap:12px;padding:12px;border-radius:10px;background:var(--bg2);cursor:pointer;transition:all .15s;margin-bottom:8px;text-decoration:none;color:inherit}
 .sos-contact-card:hover{background:var(--error-light)}
 .sos-contact-card .scc-icon{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
@@ -181,7 +176,6 @@ input,select,textarea{font-family:var(--font)}
 .sos-location-box.found{background:rgba(5,150,105,.1);color:var(--success)}
 .sos-location-box .loc-main{font-weight:600;font-size:.9rem}
 .sos-location-box .loc-sub{font-size:.75rem;opacity:.8;margin-top:2px}
-
 .footer{background:var(--text);color:rgba(255,255,255,.7);padding:48px 24px 24px}
 .footer-inner{max-width:1200px;margin:auto;display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:32px}
 @media(max-width:768px){.footer-inner{grid-template-columns:1fr 1fr;gap:24px}}
@@ -193,7 +187,6 @@ input,select,textarea{font-family:var(--font)}
 .testimonial-card .stars{color:#F59E0B;margin-bottom:8px;font-size:.85rem}
 .testimonial-card p{font-size:.9rem;color:var(--text-light);margin-bottom:12px;font-style:italic}
 .testimonial-card .author{font-size:.85rem;font-weight:600}
-
 @keyframes sos-pulse{0%,100%{box-shadow:0 0 0 0 rgba(220,38,38,.4)}70%{box-shadow:0 0 0 12px rgba(220,38,38,0)}}
 .sos-trigger-btn{animation:sos-pulse 2s infinite}
 </style>
@@ -201,10 +194,8 @@ input,select,textarea{font-family:var(--font)}
 <body>
 
 <div id="toastContainer"></div>
-
 <button class="sos-fab" onclick="openSOS()" title="Emergency SOS"><i class="fa-solid fa-phone"></i></button>
 
-<!-- NAV -->
 <nav class="nav" id="mainNav">
   <div class="nav-inner">
     <a href="#" class="nav-logo" onclick="navigate('home')"><i class="fa-solid fa-heart-pulse"></i> Care24</a>
@@ -232,7 +223,6 @@ input,select,textarea{font-family:var(--font)}
   </div>
 </nav>
 
-<!-- HOME PAGE -->
 <div class="page active" id="page-home">
   <section class="hero">
     <canvas id="heroCanvas"></canvas>
@@ -273,7 +263,6 @@ input,select,textarea{font-family:var(--font)}
   </section>
 </div>
 
-<!-- SERVICES PAGE -->
 <div class="page" id="page-services">
   <section class="section" style="padding-top:100px">
     <div class="section-header"><span class="overline">All Services</span><h2>Choose What You Need</h2><p>From basic care to critical ICU-level support at home.</p></div>
@@ -287,7 +276,6 @@ input,select,textarea{font-family:var(--font)}
   </section>
 </div>
 
-<!-- CAREGIVERS PAGE -->
 <div class="page" id="page-caregivers">
   <section class="section" style="padding-top:100px">
     <div class="section-header"><span class="overline">Our Caregivers</span><h2>Find the Right Match</h2></div>
@@ -301,7 +289,6 @@ input,select,textarea{font-family:var(--font)}
   </section>
 </div>
 
-<!-- DASHBOARD PAGE -->
 <div class="page" id="page-dashboard">
   <section class="section" style="padding-top:100px">
     <div class="dash-header">
@@ -361,7 +348,6 @@ input,select,textarea{font-family:var(--font)}
   </section>
 </div>
 
-<!-- LOGIN MODAL -->
 <div class="modal-overlay" id="loginModal">
   <div class="modal-box">
     <div class="modal-header"><h3>Sign In</h3><button class="modal-close" onclick="closeModal('loginModal')"><i class="fa-solid fa-xmark"></i></button></div>
@@ -376,7 +362,6 @@ input,select,textarea{font-family:var(--font)}
   </div>
 </div>
 
-<!-- REGISTER MODAL -->
 <div class="modal-overlay" id="registerModal">
   <div class="modal-box">
     <div class="modal-header"><h3>Create Account</h3><button class="modal-close" onclick="closeModal('registerModal')"><i class="fa-solid fa-xmark"></i></button></div>
@@ -394,7 +379,6 @@ input,select,textarea{font-family:var(--font)}
   </div>
 </div>
 
-<!-- ADD PATIENT MODAL -->
 <div class="modal-overlay" id="patientModal">
   <div class="modal-box">
     <div class="modal-header"><h3>Add Patient</h3><button class="modal-close" onclick="closeModal('patientModal')"><i class="fa-solid fa-xmark"></i></button></div>
@@ -412,7 +396,6 @@ input,select,textarea{font-family:var(--font)}
   </div>
 </div>
 
-<!-- BOOKING MODAL -->
 <div class="modal-overlay" id="bookingModal">
   <div class="modal-box" style="max-width:600px">
     <div class="modal-header"><h3>Book a Service</h3><button class="modal-close" onclick="closeModal('bookingModal')"><i class="fa-solid fa-xmark"></i></button></div>
@@ -438,83 +421,34 @@ input,select,textarea{font-family:var(--font)}
   </div>
 </div>
 
-<!-- CAREGIVER DETAIL MODAL -->
 <div class="modal-overlay" id="caregiverDetailModal">
   <div class="modal-box" style="max-width:520px;padding:0;overflow:hidden"><div id="cgDetailContent"></div></div>
 </div>
 
-<!-- ===== SOS MODAL — COMPLETELY FIXED ===== -->
 <div class="modal-overlay sos-modal" id="sosModal">
   <div class="modal-box">
-    <div class="sos-header">
-      <h3><i class="fa-solid fa-triangle-exclamation"></i> EMERGENCY SOS</h3>
-      <p>Tap a button to call immediately</p>
-    </div>
+    <div class="sos-header"><h3><i class="fa-solid fa-triangle-exclamation"></i> EMERGENCY SOS</h3><p>Tap a button to call immediately</p></div>
     <div class="modal-body">
-
-      <!-- EMERGENCY QUICK DIAL BUTTONS -->
       <div class="sos-quick-dial">
-        <a href="tel:+91112" class="sos-quick-btn emergency">
-          <div class="sqb-icon"><i class="fa-solid fa-phone-volume"></i></div>
-          <div class="sqb-label">Emergency</div>
-          <div class="sqb-number">112</div>
-        </a>
-        <a href="tel:+91108" class="sos-quick-btn ambulance">
-          <div class="sqb-icon"><i class="fa-solid fa-truck-medical"></i></div>
-          <div class="sqb-label">Ambulance</div>
-          <div class="sqb-number">108</div>
-        </a>
-        <a href="tel:+91100" class="sos-quick-btn police">
-          <div class="sqb-icon"><i class="fa-solid fa-shield-halved"></i></div>
-          <div class="sqb-label">Police</div>
-          <div class="sqb-number">100</div>
-        </a>
-        <a href="tel:+91101" class="sos-quick-btn fire">
-          <div class="sqb-icon"><i class="fa-solid fa-fire-extinguisher"></i></div>
-          <div class="sqb-label">Fire</div>
-          <div class="sqb-number">101</div>
-        </a>
-        <a href="tel:+91102" class="sos-quick-btn ambulance">
-          <div class="sqb-icon"><i class="fa-solid fa-hospital"></i></div>
-          <div class="sqb-label">Health Helpline</div>
-          <div class="sqb-number">102</div>
-        </a>
-        <a href="tel:+91186" class="sos-quick-btn police">
-          <div class="sqb-icon"><i class="fa-solid fa-children"></i></div>
-          <div class="sqb-label">Child Helpline</div>
-          <div class="sqb-number">1098</div>
-        </a>
+        <a href="tel:+91112" class="sos-quick-btn emergency"><div class="sqb-icon"><i class="fa-solid fa-phone-volume"></i></div><div class="sqb-label">Emergency</div><div class="sqb-number">112</div></a>
+        <a href="tel:+91108" class="sos-quick-btn ambulance"><div class="sqb-icon"><i class="fa-solid fa-truck-medical"></i></div><div class="sqb-label">Ambulance</div><div class="sqb-number">108</div></a>
+        <a href="tel:+91100" class="sos-quick-btn police"><div class="sqb-icon"><i class="fa-solid fa-shield-halved"></i></div><div class="sqb-label">Police</div><div class="sqb-number">100</div></a>
+        <a href="tel:+91101" class="sos-quick-btn fire"><div class="sqb-icon"><i class="fa-solid fa-fire-extinguisher"></i></div><div class="sqb-label">Fire</div><div class="sqb-number">101</div></a>
+        <a href="tel:+91102" class="sos-quick-btn ambulance"><div class="sqb-icon"><i class="fa-solid fa-hospital"></i></div><div class="sqb-label">Health</div><div class="sqb-number">102</div></a>
+        <a href="tel:+91186" class="sos-quick-btn police"><div class="sqb-icon"><i class="fa-solid fa-children"></i></div><div class="sqb-label">Child</div><div class="sqb-number">1098</div></a>
       </div>
-
-      <!-- LOCATION STATUS -->
-      <div class="sos-location-box detecting" id="sosLocationBox">
-        <div class="loc-main"><i class="fa-solid fa-spinner fa-spin" style="margin-right:6px"></i>Detecting your location...</div>
-        <div class="loc-sub">This helps us send help to your exact position</div>
-      </div>
-
-      <!-- EMERGENCY CONTACTS -->
+      <div class="sos-location-box detecting" id="sosLocationBox"><div class="loc-main"><i class="fa-solid fa-spinner fa-spin" style="margin-right:6px"></i>Detecting your location...</div><div class="loc-sub">This helps us send help to your exact position</div></div>
       <h4 style="font-weight:700;margin-bottom:10px;font-size:.9rem;display:flex;align-items:center;gap:6px"><i class="fa-solid fa-address-book" style="color:var(--pri)"></i> Emergency Contacts</h4>
       <div id="sosContactsList"></div>
-
-      <!-- NEARBY HOSPITALS -->
       <h4 style="font-weight:700;margin:16px 0 10px;font-size:.9rem;display:flex;align-items:center;gap:6px"><i class="fa-solid fa-hospital" style="color:var(--error)"></i> Nearby Hospitals</h4>
       <div id="sosHospitalsList"></div>
-
-      <!-- SEND SOS BUTTON -->
-      <button onclick="triggerSOS()" id="sosTriggerBtn" class="sos-trigger-btn" style="width:100%;padding:16px;background:var(--error);color:#fff;border-radius:12px;font-size:1.05rem;font-weight:800;margin-top:20px;display:flex;align-items:center;justify-content:center;gap:8px">
-        <i class="fa-solid fa-bell"></i> Send SOS Alert to All Contacts
-      </button>
-
-      <div id="sosStatus" style="display:none;text-align:center;margin-top:12px;padding:12px;background:#D1FAE5;border-radius:8px;font-size:.85rem;font-weight:600;color:#065F46">
-        <i class="fa-solid fa-check-circle"></i> SOS sent! Help is on the way. Stay calm.
-      </div>
-
+      <button onclick="triggerSOS()" id="sosTriggerBtn" class="sos-trigger-btn" style="width:100%;padding:16px;background:var(--error);color:#fff;border-radius:12px;font-size:1.05rem;font-weight:800;margin-top:20px;display:flex;align-items:center;justify-content:center;gap:8px"><i class="fa-solid fa-bell"></i> Send SOS Alert to All Contacts</button>
+      <div id="sosStatus" style="display:none;text-align:center;margin-top:12px;padding:12px;background:#D1FAE5;border-radius:8px;font-size:.85rem;font-weight:600;color:#065F46"><i class="fa-solid fa-check-circle"></i> SOS sent! Help is on the way. Stay calm.</div>
       <button onclick="closeSOS()" style="width:100%;padding:10px;margin-top:10px;background:var(--bg2);border-radius:8px;font-size:.85rem;color:var(--text-light);font-weight:500">Close</button>
     </div>
   </div>
 </div>
 
-<!-- FOOTER -->
 <footer class="footer">
   <div class="footer-inner">
     <div>
@@ -531,17 +465,37 @@ input,select,textarea{font-family:var(--font)}
 
 <script>
 /* ===== API CONFIG ===== */
-var API =  API = "https://care24.onrender.com/api";
+var API = "https://care24.onrender.com/api";
 var TOKEN = localStorage.getItem('care24_token') || '';
 var appState = { currentPage: 'home', currentRole: 'user', loggedIn: false, userName: '', bookingData: { serviceId: null, caregiverId: null } };
+
+/* FIX #1: specialtyMap now covers BOTH API names AND fallback names */
 var specialtyMap = {
+  'Nursing Care': ['Nursing'],
   'Nursing': ['Nursing'],
+  'Elderly Attendant': ['Elderly Care'],
   'Elderly Care': ['Elderly Care'],
   'Physiotherapy': ['Physiotherapy'],
+  'Post-Hospital Care': ['Post-Hospital'],
   'Post-Hospital': ['Post-Hospital'],
   'Dementia Care': ['Dementia Care'],
   'Palliative Care': ['Palliative Care']
 };
+
+/* Helper: resolve a photo URL safely */
+function resolvePhoto(photo, size) {
+  if (!photo) return 'https://picsum.photos/seed/default/120/120.jpg';
+  if (photo.startsWith('http')) return photo;
+  return 'https://picsum.photos/seed/' + photo + '/' + (size || '120') + '/' + (size || '120') + '.jpg';
+}
+
+/* Helper: get color for a service (API or fallback) */
+function getServiceColor(s) {
+  if (s.color) return s.color;
+  if (s.category === 'medical') return '#059669';
+  if (s.category === 'rehab') return '#2563EB';
+  return '#D97706';
+}
 
 async function api(method, path, body) {
   var opts = { method: method, headers: { 'Content-Type': 'application/json' } };
@@ -592,17 +546,14 @@ var adminComplaints = [
   { _id: 'CMP03', user: 'Arun Khanna', caregiver: 'Mohammed Irfan', issue: 'Quality issues', date: '2025-01-12', status: 'Resolved', priority: 'Low' }
 ];
 var sosContacts = [];
-
-/* ===== NEARBY HOSPITALS — PHONE NUMBERS FIXED TO INTERNATIONAL FORMAT ===== */
 var nearbyHospitals = [
-  { name: 'Lilavati Hospital',  address: 'Bandra, Mumbai',    phone: '+912226407777', distance: '2.3 km' },
-  { name: 'Apollo Hospital',    address: 'Sarita Vihar, Delhi', phone: '+911126925888', distance: '3.1 km' },
-  { name: 'Manipal Hospital',   address: 'Old Airport Rd, Bangalore', phone: '+918025024444', distance: '1.8 km' },
-  { name: 'Ruby Hall Clinic',   address: 'Pune Cantonment',  phone: '+912026136363', distance: '2.7 km' },
-  { name: 'KIMS Hospital',      address: 'Secunderabad, Hyderabad', phone: '+914044885000', distance: '4.2 km' },
+  { name: 'Lilavati Hospital', address: 'Bandra, Mumbai', phone: '+912226407777', distance: '2.3 km' },
+  { name: 'Apollo Hospital', address: 'Sarita Vihar, Delhi', phone: '+91126925888', distance: '3.1 km' },
+  { name: 'Manipal Hospital', address: 'Old Airport Rd, Bangalore', phone: '+918025024444', distance: '1.8 km' },
+  { name: 'Ruby Hall Clinic', address: 'Pune Cantonment', phone: '+912026136363', distance: '2.7 km' },
+  { name: 'KIMS Hospital', address: 'Secunderabad, Hyderabad', phone: '+914044885000', distance: '4.2 km' },
   { name: 'MIOT International', address: 'Manapakkam, Chennai', phone: '+914422492288', distance: '3.5 km' }
 ];
-
 var testimonials = [
   { name: 'Ramesh Agarwal', relation: 'Son', text: 'Care24 made it easy to find a trusted nurse for my father after bypass surgery. Sunita was exceptional.', rating: 5 },
   { name: 'Lakshmi V.', relation: 'Daughter', text: 'Finding the right caregiver for my mother with dementia felt impossible until Care24 matched us with Meena.', rating: 5 },
@@ -619,42 +570,24 @@ function loadFallbackData() {
     { _id: 's6', name: 'Palliative Care', icon: 'fa-heart', description: 'Compassionate end-of-life care focusing on comfort, pain management, and emotional support for patients and families.', price: 749, duration: '24 hrs/day', color: '#1E40AF', category: 'support' }
   ];
   caregiversCache = [
-{ _id:'c1', name:'Sunita Rao', photo:'https://randomuser.me/api/portraits/women/65.jpg', specialty:'Nursing', city:'Mumbai', rating:4.9, reviews:127, experience:8, hourlyRate:499, available:true, about:'GNM qualified nurse with 8 years experience in post-operative care and elderly care.', qualification:'GNM', languages:'Hindi, English, Marathi' },
-
-{ _id:'c2', name:'Priya Sharma', photo:'https://randomuser.me/api/portraits/women/44.jpg', specialty:'Physiotherapy', city:'Delhi', rating:4.8, reviews:89, experience:6, hourlyRate:599, available:true, about:'MPT Orthopedics specialist in stroke rehab and mobility recovery.', qualification:'MPT Ortho', languages:'Hindi, English, Punjabi' },
-
-{ _id:'c3', name:'Meena Patel', photo:'https://randomuser.me/api/portraits/women/32.jpg', specialty:'Elderly Care', city:'Bangalore', rating:4.9, reviews:203, experience:12, hourlyRate:349, available:true, about:'Experienced elderly caretaker trained in dementia support.', qualification:'Certified Caregiver', languages:'Hindi, English, Kannada' },
-
-{ _id:'c4', name:'Rajesh Kumar', photo:'https://randomuser.me/api/portraits/men/51.jpg', specialty:'Nursing', city:'Pune', rating:4.7, reviews:76, experience:5, hourlyRate:449, available:true, about:'Critical-care trained nurse specializing in home ICU support.', qualification:'BSc Nursing', languages:'Hindi, English, Marathi' },
-
-{ _id:'c5', name:'Anjali Desai', photo:'https://randomuser.me/api/portraits/women/68.jpg', specialty:'Physiotherapy', city:'Mumbai', rating:4.6, reviews:54, experience:4, hourlyRate:549, available:false, about:'Neurological physiotherapy expert.', qualification:'BPT', languages:'Hindi, English, Gujarati' },
-
-{ _id:'c6', name:'Mohammed Irfan', photo:'https://randomuser.me/api/portraits/men/33.jpg', specialty:'Post-Hospital', city:'Hyderabad', rating:4.8, reviews:112, experience:9, hourlyRate:549, available:true, about:'Medication management and discharge recovery specialist.', qualification:'GNM', languages:'Hindi, English, Telugu, Urdu' },
-
-{ _id:'c7', name:'Kavitha Nair', photo:'https://randomuser.me/api/portraits/women/12.jpg', specialty:'Dementia Care', city:'Chennai', rating:4.9, reviews:167, experience:10, hourlyRate:649, available:true, about:'Certified Alzheimer’s caregiver.', qualification:'Dementia Specialist', languages:'Hindi, English, Tamil, Malayalam' },
-
-{ _id:'c8', name:'Deepak Singh', photo:'https://randomuser.me/api/portraits/men/22.jpg', specialty:'Nursing', city:'Delhi', rating:4.5, reviews:43, experience:3, hourlyRate:399, available:true, about:'Injection therapy and wound-care specialist.', qualification:'GNM', languages:'Hindi, English' },
-
-{ _id:'c9', name:'Lakshmi Iyer', photo:'https://randomuser.me/api/portraits/women/90.jpg', specialty:'Palliative Care', city:'Bangalore', rating:4.9, reviews:89, experience:15, hourlyRate:749, available:true, about:'Pain-management and hospice-care expert.', qualification:'Palliative Specialist', languages:'Hindi, English, Kannada, Tamil' },
-
-{ _id:'c10', name:'Suresh Patil', photo:'https://randomuser.me/api/portraits/men/76.jpg', specialty:'Post-Hospital', city:'Pune', rating:4.7, reviews:65, experience:7, hourlyRate:499, available:false, about:'Advanced discharge recovery support.', qualification:'BSc Nursing', languages:'Hindi, English, Marathi' },
-
-{ _id:'c11', name:'Rekha Gupta', photo:'https://randomuser.me/api/portraits/women/55.jpg', specialty:'Physiotherapy', city:'Hyderabad', rating:4.8, reviews:98, experience:7, hourlyRate:579, available:true, about:'Musculoskeletal rehabilitation specialist.', qualification:'MPT', languages:'Hindi, English, Telugu' },
-
-{ _id:'c12', name:'Fatima Begum', photo:'https://randomuser.me/api/portraits/women/25.jpg', specialty:'Elderly Care', city:'Chennai', rating:4.6, reviews:78, experience:6, hourlyRate:329, available:true, about:'Compassionate senior-care assistant.', qualification:'Certified Caregiver', languages:'Hindi, English, Tamil, Urdu' }
-];
+    { _id:'c1', name:'Sunita Rao', photo:'https://randomuser.me/api/portraits/women/65.jpg', specialty:'Nursing', city:'Mumbai', rating:4.9, reviews:127, experience:8, hourlyRate:499, available:true, about:'GNM qualified nurse with 8 years experience in post-operative care and elderly care.', qualification:'GNM', languages:'Hindi, English, Marathi' },
+    { _id:'c2', name:'Priya Sharma', photo:'https://randomuser.me/api/portraits/women/44.jpg', specialty:'Physiotherapy', city:'Delhi', rating:4.8, reviews:89, experience:6, hourlyRate:599, available:true, about:'MPT Orthopedics specialist in stroke rehab and mobility recovery.', qualification:'MPT Ortho', languages:'Hindi, English, Punjabi' },
+    { _id:'c3', name:'Meena Patel', photo:'https://randomuser.me/api/portraits/women/32.jpg', specialty:'Elderly Care', city:'Bangalore', rating:4.9, reviews:203, experience:12, hourlyRate:349, available:true, about:'Experienced elderly caretaker trained in dementia support.', qualification:'Certified Caregiver', languages:'Hindi, English, Kannada' },
+    { _id:'c4', name:'Rajesh Kumar', photo:'https://randomuser.me/api/portraits/men/51.jpg', specialty:'Nursing', city:'Pune', rating:4.7, reviews:76, experience:5, hourlyRate:449, available:true, about:'Critical-care trained nurse specializing in home ICU support.', qualification:'BSc Nursing', languages:'Hindi, English, Marathi' },
+    { _id:'c5', name:'Anjali Desai', photo:'https://randomuser.me/api/portraits/women/68.jpg', specialty:'Physiotherapy', city:'Mumbai', rating:4.6, reviews:54, experience:4, hourlyRate:549, available:false, about:'Neurological physiotherapy expert.', qualification:'BPT', languages:'Hindi, English, Gujarati' },
+    { _id:'c6', name:'Mohammed Irfan', photo:'https://randomuser.me/api/portraits/men/33.jpg', specialty:'Post-Hospital', city:'Hyderabad', rating:4.8, reviews:112, experience:9, hourlyRate:549, available:true, about:'Medication management and discharge recovery specialist.', qualification:'GNM', languages:'Hindi, English, Telugu, Urdu' },
+    { _id:'c7', name:'Kavitha Nair', photo:'https://randomuser.me/api/portraits/women/12.jpg', specialty:'Dementia Care', city:'Chennai', rating:4.9, reviews:167, experience:10, hourlyRate:649, available:true, about:'Certified Alzheimer\'s caregiver with validated behavioral techniques.', qualification:'Dementia Specialist', languages:'Hindi, English, Tamil, Malayalam' },
+    { _id:'c8', name:'Deepak Singh', photo:'https://randomuser.me/api/portraits/men/22.jpg', specialty:'Nursing', city:'Delhi', rating:4.5, reviews:43, experience:3, hourlyRate:399, available:true, about:'Injection therapy and wound-care specialist.', qualification:'GNM', languages:'Hindi, English' },
+    { _id:'c9', name:'Lakshmi Iyer', photo:'https://randomuser.me/api/portraits/women/90.jpg', specialty:'Palliative Care', city:'Bangalore', rating:4.9, reviews:89, experience:15, hourlyRate:749, available:true, about:'Pain-management and hospice-care expert with deep empathy.', qualification:'Palliative Specialist', languages:'Hindi, English, Kannada, Tamil' },
+    { _id:'c10', name:'Suresh Patil', photo:'https://randomuser.me/api/portraits/men/76.jpg', specialty:'Post-Hospital', city:'Pune', rating:4.7, reviews:65, experience:7, hourlyRate:499, available:false, about:'Advanced discharge recovery support for cardiac and orthopedic patients.', qualification:'BSc Nursing', languages:'Hindi, English, Marathi' },
+    { _id:'c11', name:'Rekha Gupta', photo:'https://randomuser.me/api/portraits/women/55.jpg', specialty:'Physiotherapy', city:'Hyderabad', rating:4.8, reviews:98, experience:7, hourlyRate:579, available:true, about:'Musculoskeletal rehabilitation specialist using evidence-based techniques.', qualification:'MPT', languages:'Hindi, English, Telugu' },
+    { _id:'c12', name:'Fatima Begum', photo:'https://randomuser.me/api/portraits/women/25.jpg', specialty:'Elderly Care', city:'Chennai', rating:4.6, reviews:78, experience:6, hourlyRate:329, available:true, about:'Gentle and patient caretaker specializing in elderly daily assistance and companionship.', qualification:'Certified Caregiver', languages:'Hindi, English, Tamil, Urdu' }
+  ];
 }
 
 async function loadPatients() { try { patientCache = await api('GET', '/patients'); } catch(e){} }
-async function loadServices() {
-  try {
-    servicesCache = await api('GET', '/services');
-    renderServicesPage();   // 👈 ADD THIS LINE
-  } catch(e){
-    console.error(e);
-  }
-}
-async function loadCaregivers() { try { caregiversCache = await api('GET', '/caregivers'); } catch(e){} }
+async function loadServices() { try { servicesCache = await api('GET', '/services'); } catch(e){ console.error('Services load error:', e); } }
+async function loadCaregivers() { try { caregiversCache = await api('GET', '/caregivers'); } catch(e){ console.error('Caregivers load error:', e); } }
 async function loadBookings() { try { bookingsCache = await api('GET', '/bookings'); } catch(e){} }
 async function loadAdminData() { try { adminDashboard = await api('GET', '/admin/stats'); } catch(e){} }
 
@@ -672,6 +605,7 @@ async function confirmBooking() {
   if (!document.getElementById('bookTerms').checked) { showToast('Please accept the terms.', 'warning'); return; }
   var svc = servicesCache.find(function(s){return s._id===appState.bookingData.serviceId;});
   var cg = caregiversCache.find(function(c){return c._id===appState.bookingData.caregiverId;});
+  if (!svc || !cg) { showToast('Missing service or caregiver data.', 'error'); return; }
   var dur = document.getElementById('bookDuration').value;
   var costs = {hourly:svc.price*4,daily:svc.price*10,weekly:svc.price*70,monthly:svc.price*300};
   try {
@@ -694,133 +628,23 @@ async function handleVerify(id, approve) {
   renderDashboard(); showToast(approve?'Caregiver approved.':'Application rejected.',approve?'success':'info');
 }
 
-/* ================================================================
-   SOS — COMPLETELY FIXED
-   ================================================================ */
+/* ===== SOS ===== */
 var currentLat = null, currentLng = null;
-var sosLocationSuccess = false;
-
 function detectLocation() {
   var box = document.getElementById('sosLocationBox');
   box.className = 'sos-location-box detecting';
   box.innerHTML = '<div class="loc-main"><i class="fa-solid fa-spinner fa-spin" style="margin-right:6px"></i>Detecting your location...</div><div class="loc-sub">This helps us send help to your exact position</div>';
-
-  if (!navigator.geolocation) {
-    box.className = 'sos-location-box unavailable';
-    box.innerHTML = '<div class="loc-main"><i class="fa-solid fa-triangle-exclamation" style="margin-right:6px"></i>Geolocation not supported by your browser</div><div class="loc-sub">Please call 112 directly or share your address verbally</div>';
-    sosLocationSuccess = false;
-    return;
-  }
-
-  navigator.geolocation.getCurrentPosition(
-    function(pos) {
-      currentLat = pos.coords.latitude;
-      currentLng = pos.coords.longitude;
-      sosLocationSuccess = true;
-      box.className = 'sos-location-box found';
-      box.innerHTML = '<div class="loc-main"><i class="fa-solid fa-location-dot" style="margin-right:6px"></i>Location detected successfully</div><div class="loc-sub">Lat: ' + currentLat.toFixed(4) + ', Lng: ' + currentLng.toFixed(4) + ' &bull; Accuracy: ~' + Math.round(pos.coords.accuracy) + 'm</div>';
-    },
-    function(error) {
-      sosLocationSuccess = false;
-      box.className = 'sos-location-box unavailable';
-      var reason = '';
-      switch(error.code) {
-        case error.PERMISSION_DENIED:
-          reason = 'Location permission was denied. Please enable it in browser settings.';
-          break;
-        case error.POSITION_UNAVAILABLE:
-          reason = 'Location information unavailable. Try moving to an open area.';
-          break;
-        case error.TIMEOUT:
-          reason = 'Location request timed out. Try again.';
-          break;
-        default:
-          reason = 'Could not fetch location.';
-      }
-      // Check if on HTTP (needs HTTPS for geolocation)
-      var isSecure = location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1';
-      if (!isSecure) {
-        reason += ' Note: Geolocation requires HTTPS — your current URL (' + location.protocol + '//' + location.hostname + ') may not support it. The emergency buttons below still work without location.';
-      }
-      box.innerHTML = '<div class="loc-main"><i class="fa-solid fa-triangle-exclamation" style="margin-right:6px"></i>' + reason + '</div><div class="loc-sub">You can still call emergency numbers below — they work without location</div>';
-    },
-    { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
-  );
+  if (!navigator.geolocation) { box.className='sos-location-box unavailable'; box.innerHTML='<div class="loc-main"><i class="fa-solid fa-triangle-exclamation" style="margin-right:6px"></i>Geolocation not supported</div><div class="loc-sub">Please call 112 directly</div>'; return; }
+  navigator.geolocation.getCurrentPosition(function(pos){ currentLat=pos.coords.latitude; currentLng=pos.coords.longitude; box.className='sos-location-box found'; box.innerHTML='<div class="loc-main"><i class="fa-solid fa-location-dot" style="margin-right:6px"></i>Location detected</div><div class="loc-sub">Lat: '+currentLat.toFixed(4)+', Lng: '+currentLng.toFixed(4)+'</div>'; },function(error){ box.className='sos-location-box unavailable'; var r='Could not fetch location.'; if(!isSecure()){r+=' Geolocation requires HTTPS.';} box.innerHTML='<div class="loc-main"><i class="fa-solid fa-triangle-exclamation" style="margin-right:6px"></i>'+r+'</div><div class="loc-sub">Emergency buttons below still work without location</div>'; }, {enableHighAccuracy:true,timeout:15000,maximumAge:0});
 }
+var isSecure=function(){return location.protocol==='https:'||location.hostname==='localhost'||location.hostname==='127.0.0.1';};
+function renderSOSContacts(){var list=sosContacts.length>0?sosContacts:[{name:'Vikram Agarwal',relation:'Son',phone:'+919820012345'},{name:'Amit Gupta',relation:'Son',phone:'+919910056789'}];var h='';for(var i=0;i<list.length;i++){var c=list[i];h+='<a href="tel:'+c.phone+'" class="sos-contact-card"><div class="scc-icon" style="background:rgba(15,118,110,.1)"><i class="fa-solid fa-user" style="color:var(--pri)"></i></div><div style="flex:1"><p style="font-weight:600;font-size:.9rem">'+c.name+'</p><p style="font-size:.75rem;color:var(--muted)">'+c.relation+'</p></div><div class="scc-call" style="background:var(--success)"><i class="fa-solid fa-phone" style="color:#fff;font-size:.8rem"></i></div></a>';}document.getElementById('sosContactsList').innerHTML=h;}
+function renderSOSHospitals(){var h='';for(var i=0;i<nearbyHospitals.length;i++){var ho=nearbyHospitals[i];h+='<a href="tel:'+ho.phone+'" class="sos-contact-card"><div class="scc-icon" style="background:rgba(220,38,38,.1)"><i class="fa-solid fa-hospital" style="color:var(--error)"></i></div><div style="flex:1"><p style="font-weight:600;font-size:.9rem">'+ho.name+'</p><p style="font-size:.75rem;color:var(--muted)">'+ho.address+' &bull; '+ho.distance+'</p></div><div class="scc-call" style="background:var(--success)"><i class="fa-solid fa-phone" style="color:#fff;font-size:.8rem"></i></div></a>';}document.getElementById('sosHospitalsList').innerHTML=h;}
+async function triggerSOS(){var btn=document.getElementById('sosTriggerBtn');btn.disabled=true;btn.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i> Sending SOS...';btn.style.opacity='0.7';try{var pat=patientCache.length>0?patientCache[0]:null;await api('POST','/sos/trigger',{patientId:pat?pat._id:null,latitude:currentLat,longitude:currentLng});}catch(e){}document.getElementById('sosStatus').style.display='block';btn.innerHTML='<i class="fa-solid fa-check-circle"></i> SOS Sent!';btn.style.background='var(--success)';btn.style.opacity='1';showToast('SOS alert sent!','error');if(navigator.vibrate)navigator.vibrate([200,100,200,100,200]);}
+function openSOS(){document.getElementById('sosModal').classList.add('open');document.body.style.overflow='hidden';renderSOSContacts();renderSOSHospitals();detectLocation();var btn=document.getElementById('sosTriggerBtn');btn.disabled=false;btn.innerHTML='<i class="fa-solid fa-bell"></i> Send SOS Alert to All Contacts';btn.style.background='var(--error)';btn.style.opacity='1';document.getElementById('sosStatus').style.display='none';}
+function closeSOS(){document.getElementById('sosModal').classList.remove('open');document.body.style.overflow='';}
 
-function renderSOSContacts() {
-  var list = sosContacts.length > 0 ? sosContacts : [
-    { name: 'Vikram Agarwal', relation: 'Son', phone: '+919820012345' },
-    { name: 'Amit Gupta', relation: 'Son', phone: '+919910056789' }
-  ];
-  var h = '';
-  for (var i = 0; i < list.length; i++) {
-    var c = list[i];
-    h += '<a href="tel:' + c.phone + '" class="sos-contact-card">' +
-      '<div class="scc-icon" style="background:rgba(15,118,110,.1)"><i class="fa-solid fa-user" style="color:var(--pri)"></i></div>' +
-      '<div style="flex:1"><p style="font-weight:600;font-size:.9rem">' + c.name + '</p><p style="font-size:.75rem;color:var(--muted)">' + c.relation + '</p></div>' +
-      '<div class="scc-call" style="background:var(--success)"><i class="fa-solid fa-phone" style="color:#fff;font-size:.8rem"></i></div>' +
-      '</a>';
-  }
-  document.getElementById('sosContactsList').innerHTML = h;
-}
-
-function renderSOSHospitals() {
-  var h = '';
-  for (var i = 0; i < nearbyHospitals.length; i++) {
-    var ho = nearbyHospitals[i];
-    h += '<a href="tel:' + ho.phone + '" class="sos-contact-card">' +
-      '<div class="scc-icon" style="background:rgba(220,38,38,.1)"><i class="fa-solid fa-hospital" style="color:var(--error)"></i></div>' +
-      '<div style="flex:1"><p style="font-weight:600;font-size:.9rem">' + ho.name + '</p><p style="font-size:.75rem;color:var(--muted)">' + ho.address + ' &bull; ' + ho.distance + '</p></div>' +
-      '<div class="scc-call" style="background:var(--success)"><i class="fa-solid fa-phone" style="color:#fff;font-size:.8rem"></i></div>' +
-      '</a>';
-  }
-  document.getElementById('sosHospitalsList').innerHTML = h;
-}
-
-async function triggerSOS() {
-  // Disable button to prevent double-tap
-  var btn = document.getElementById('sosTriggerBtn');
-  btn.disabled = true;
-  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Sending SOS...';
-  btn.style.opacity = '0.7';
-
-  try {
-    var pat = patientCache.length > 0 ? patientCache[0] : null;
-    await api('POST', '/sos/trigger', { patientId: pat ? pat._id : null, latitude: currentLat, longitude: currentLng });
-  } catch(e) { /* offline — continue anyway */ }
-
-  // Show success regardless (user needs to know help is coming)
-  document.getElementById('sosStatus').style.display = 'block';
-  btn.innerHTML = '<i class="fa-solid fa-check-circle"></i> SOS Sent!';
-  btn.style.background = 'var(--success)';
-  btn.style.opacity = '1';
-
-  showToast('SOS alert sent to all contacts!', 'error');
-  if (navigator.vibrate) navigator.vibrate([200, 100, 200, 100, 200]);
-}
-
-function openSOS() {
-  document.getElementById('sosModal').classList.add('open');
-  document.body.style.overflow = 'hidden';
-  renderSOSContacts();
-  renderSOSHospitals();
-  detectLocation();
-  // Reset trigger button state when reopening
-  var btn = document.getElementById('sosTriggerBtn');
-  btn.disabled = false;
-  btn.innerHTML = '<i class="fa-solid fa-bell"></i> Send SOS Alert to All Contacts';
-  btn.style.background = 'var(--error)';
-  btn.style.opacity = '1';
-  document.getElementById('sosStatus').style.display = 'none';
-}
-
-function closeSOS() {
-  document.getElementById('sosModal').classList.remove('open');
-  document.body.style.overflow = '';
-}
-
-/* ===== SPECIALTY MATCH HELPER ===== */
+/* ===== SPECIALTY MATCH ===== */
 function specialtyMatches(caregiver, serviceName) {
   var map = specialtyMap[serviceName];
   if (!map) return caregiver.specialty.indexOf(serviceName) !== -1;
@@ -832,80 +656,30 @@ function findServiceForCaregiver(cg) {
   return null;
 }
 
-/* ===== RENDER FUNCTIONS ===== */
+/* ===== RENDER: HOME ===== */
 function renderHomeServices() {
   var h = '';
   for (var i = 0; i < servicesCache.length; i++) {
-    var s = servicesCache[i];
-    h += '<div class="card-lift bg-white rounded-2xl p-6 border reveal" style="border-color:var(--border);transition-delay:'+(i*.1)+'s"><div style="width:56px;height:56px;border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:16px;background:'+s.color+'12"><i class="fa-solid '+s.icon+'" style="font-size:1.4rem;color:'+s.color+'"></i></div><h3 style="font-size:1.15rem;font-weight:700;margin-bottom:8px">'+s.name+'</h3><p style="font-size:.875rem;color:var(--text-light);margin-bottom:16px;line-height:1.6">'+s.description.substring(0,90)+'...</p><div style="display:flex;justify-content:space-between;align-items:center;padding-top:12px;border-top:1px solid var(--border)"><span style="font-size:.85rem;color:var(--muted)">'+s.duration+'</span><span style="font-weight:700;color:var(--pri)">Rs.'+s.price+'/hr</span></div></div>';
+    var s = servicesCache[i], color = getServiceColor(s);
+    h += '<div class="card-lift bg-white rounded-2xl p-6 border reveal" style="border-color:var(--border);transition-delay:'+(i*.1)+'s"><div style="width:56px;height:56px;border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:16px;background:'+color+'12"><i class="fa-solid '+s.icon+'" style="font-size:1.4rem;color:'+color+'"></i></div><h3 style="font-size:1.15rem;font-weight:700;margin-bottom:8px">'+s.name+'</h3><p style="font-size:.875rem;color:var(--text-light);margin-bottom:16px;line-height:1.6">'+s.description.substring(0,90)+'...</p><div style="display:flex;justify-content:space-between;align-items:center;padding-top:12px;border-top:1px solid var(--border)"><span style="font-size:.85rem;color:var(--muted)">'+s.duration+'</span><span style="font-weight:700;color:var(--pri)">Rs.'+s.price+'/hr</span></div></div>';
   }
   document.getElementById('homeServicesGrid').innerHTML = h;
 }
 
 function renderHomeCaregivers() {
   if (!caregiversCache.length) return;
-
-  var top = caregiversCache.slice(0, 4); // show 4 caregivers on homepage
-  var html = "";
-
+  var top = caregiversCache.slice(0, 4), html = "";
   for (var i = 0; i < top.length; i++) {
-    var c = top[i];
-
-    var img =
-      c.photo && c.photo.startsWith("http")
-        ? c.photo
-        : "https://picsum.photos/seed/" + c.photo + "/120/120.jpg";
-
-    html +=
-      '<div class="card-lift bg-white rounded-2xl p-6 border">' +
-      '<div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">' +
-
-      '<img src="' + img + '" style="width:56px;height:56px;border-radius:50%;object-fit:cover">' +
-
-      '<div>' +
-      '<h3 style="font-weight:700;font-size:.95rem">' +
-      c.name +
-      '</h3>' +
-
-      '<p style="font-size:.8rem;color:var(--muted)">' +
-      c.specialty +
-      " • " +
-      c.city +
-      "</p>" +
-
-      "</div></div>" +
-
-      '<p style="font-size:.8rem;color:var(--muted);margin-bottom:12px">' +
-      c.about.substring(0, 60) +
-      "..." +
-      "</p>" +
-
-      '<div style="display:flex;justify-content:space-between;align-items:center">' +
-      '<span style="font-size:.85rem;font-weight:600">⭐ ' +
-      c.rating +
-      "</span>" +
-
-      '<span style="color:var(--pri);font-weight:700">Rs.' +
-      c.hourlyRate +
-      "/hr</span>" +
-
-      "</div>" +
-
-      '<button onclick="viewCaregiver(\'' +
-      c._id +
-      '\')" class="btn-outline btn-sm" style="margin-top:12px;width:100%">' +
-      "View Profile</button>" +
-
-      "</div>";
+    var c = top[i], img = resolvePhoto(c.photo, 120);
+    html += '<div class="card-lift bg-white rounded-2xl p-6 border reveal" style="border-color:var(--border);transition-delay:'+(i*.1)+'s"><div style="display:flex;align-items:center;gap:12px;margin-bottom:12px"><img src="'+img+'" style="width:56px;height:56px;border-radius:50%;object-fit:cover"><div><h3 style="font-weight:700;font-size:.95rem">'+c.name+'</h3><p style="font-size:.8rem;color:var(--muted)">'+c.specialty+' &bull; '+c.city+'</p></div></div><p style="font-size:.8rem;color:var(--muted);margin-bottom:12px">'+c.about.substring(0,60)+'...</p><div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:.85rem;font-weight:600">⭐ '+c.rating+'</span><span style="color:var(--pri);font-weight:700">Rs.'+c.hourlyRate+'/hr</span></div><button onclick="viewCaregiver(\''+c._id+'\')" class="btn-outline btn-sm" style="margin-top:12px;width:100%">View Profile</button></div>';
   }
-
   document.getElementById("homeCaregiversGrid").innerHTML = html;
 }
 
 function renderTestimonials() {
   var h = '';
   for (var i = 0; i < testimonials.length; i++) {
-    var t = testimonials[i]; var stars = '';
+    var t = testimonials[i], stars = '';
     for (var s = 0; s < t.rating; s++) stars += '<i class="fa-solid fa-star"></i> ';
     h += '<div class="testimonial-card reveal" style="transition-delay:'+(i*.1)+'s"><div class="stars">'+stars+'</div><p>"'+t.text+'"</p><div class="author">'+t.name+' <span style="color:var(--muted);font-weight:400">('+t.relation+')</span></div></div>';
   }
@@ -914,58 +688,13 @@ function renderTestimonials() {
 
 function renderServicesPage(filter) {
   filter = filter || 'all';
-
-  var fl = filter === 'all'
-    ? servicesCache
-    : servicesCache.filter(function(s){
-        return s.category === filter;
-      });
-
+  var fl = filter === 'all' ? servicesCache : servicesCache.filter(function(s){ return s.category === filter; });
   var h = '';
-
   for (var i = 0; i < fl.length; i++) {
-
-    var s = fl[i];
-
-    // Assign colors manually based on category
-    var color =
-      s.category === 'medical' ? '#059669' :
-      s.category === 'rehab' ? '#2563EB' :
-      '#D97706';
-
-    var cb =
-      s.category === 'medical' ? 'badge-active' :
-      s.category === 'rehab' ? 'badge-completed' :
-      'badge-pending';
-
-    h +=
-      '<div class="card-lift bg-white rounded-2xl border overflow-hidden reveal" style="border-color:var(--border)">' +
-
-      '<div style="height:6px;background:' + color + '"></div>' +
-
-      '<div style="padding:24px">' +
-
-      '<div style="display:flex;align-items:start;justify-content:space-between;margin-bottom:16px">' +
-
-      '<div style="width:56px;height:56px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:' + color + '12">' +
-
-      '<i class="fa-solid ' + s.icon + '" style="font-size:1.4rem;color:' + color + '"></i>' +
-
-      '</div>' +
-
-      '<span class="badge ' + cb + '">' + s.category + '</span>' +
-
-      '</div>' +
-
-      '<h3 style="font-size:1.15rem;font-weight:700;margin-bottom:8px">' + s.name + '</h3>' +
-
-      '<p style="font-size:.875rem;color:var(--text-light);margin-bottom:16px;line-height:1.6">' + s.description + '</p>' +
-
-      '<button onclick="startBooking(\'' + s._id + '\')" class="btn-pri btn-sm" style="width:100%">Book Now</button>' +
-
-      '</div></div>';
+    var s = fl[i], color = getServiceColor(s);
+    var cb = s.category === 'medical' ? 'badge-active' : s.category === 'rehab' ? 'badge-completed' : 'badge-pending';
+    h += '<div class="card-lift bg-white rounded-2xl border overflow-hidden reveal" style="border-color:var(--border)"><div style="height:6px;background:'+color+'"></div><div style="padding:24px"><div style="display:flex;align-items:start;justify-content:space-between;margin-bottom:16px"><div style="width:56px;height:56px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:'+color+'12"><i class="fa-solid '+(s.icon||'fa-circle')+'" style="font-size:1.4rem;color:'+color+'"></i></div><span class="badge '+cb+'">'+s.category+'</span></div><h3 style="font-size:1.15rem;font-weight:700;margin-bottom:8px">'+s.name+'</h3><p style="font-size:.875rem;color:var(--text-light);margin-bottom:16px;line-height:1.6">'+s.description+'</p><button onclick="startBooking(\''+s._id+'\')" class="btn-pri btn-sm" style="width:100%">Book Now</button></div></div>';
   }
-
   document.getElementById('servicesGrid').innerHTML = h;
 }
 function filterServices(filter) {
@@ -973,191 +702,175 @@ function filterServices(filter) {
   for (var i=0;i<btns.length;i++) btns[i].className = btns[i].getAttribute('data-filter')===filter?'svc-filter btn-sm btn-pri':'svc-filter btn-sm btn-outline';
   renderServicesPage(filter);
 }
-function filterCaregivers(){
-  renderCaregiversPage();
-}
 
-
+/* ===== RENDER: CAREGIVERS PAGE ===== */
 function renderCaregiversPage() {
-
-  var spec = document.getElementById('cgSpecialtyFilter').value;
-  var rating = parseFloat(document.getElementById('cgRatingFilter').value) || 0;
-  var city = document.getElementById('cgCityFilter').value;
-
-  if(!caregiversCache || caregiversCache.length === 0){
-    document.getElementById('caregiversGrid').innerHTML =
-      '<div style="grid-column:1/-1;text-align:center;padding:64px;color:var(--muted)">Loading caregivers...</div>';
-    return;
-  }
-
-  var fl = caregiversCache.filter(function(c){
-
-    if(spec !== 'all' && c.specialty !== spec) return false;
-
-    if(rating > 0 && Number(c.rating) < rating) return false;
-
-    if(city !== 'all' && c.city !== city) return false;
-
-    return true;
-  });
-
-  document.getElementById('caregiversCount').textContent = fl.length;
-
-  if(!fl.length){
-    document.getElementById('caregiversGrid').innerHTML =
-      '<div style="grid-column:1/-1;text-align:center;padding:64px;color:var(--muted)">No caregivers match your filters.</div>';
-    return;
-  }
-
-  var h = '';
-
+  var spec=document.getElementById('cgSpecialtyFilter').value, rating=parseFloat(document.getElementById('cgRatingFilter').value)||0, city=document.getElementById('cgCityFilter').value;
+  if(!caregiversCache||!caregiversCache.length){document.getElementById('caregiversGrid').innerHTML='<div style="grid-column:1/-1;text-align:center;padding:64px;color:var(--muted)">Loading caregivers...</div>';document.getElementById('caregiversCount').textContent='0';return;}
+  var fl=caregiversCache.filter(function(c){if(spec!=='all'&&c.specialty!==spec)return false;if(rating>0&&Number(c.rating)<rating)return false;if(city!=='all'&&c.city!==city)return false;return true;});
+  document.getElementById('caregiversCount').textContent=fl.length;
+  if(!fl.length){document.getElementById('caregiversGrid').innerHTML='<div style="grid-column:1/-1;text-align:center;padding:64px;color:var(--muted)">No caregivers match your filters.</div>';return;}
+  var h='';
   for(var i=0;i<fl.length;i++){
-
-    var c = fl[i];
-
-    var dc = c.available ? '#059669' : '#D97706';
-
-    var aboutText = (c.about || '').substring(0,80);
-
-    h += `
-      <div class="card-lift bg-white rounded-2xl p-6 border reveal">
-        
-        <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
-          
-          <div style="position:relative">
-            <img src="${c.photo || 'https://via.placeholder.com/56'}"
-                 style="width:56px;height:56px;border-radius:50%;object-fit:cover">
-            <div style="position:absolute;bottom:-2px;right:-2px;width:14px;height:14px;border-radius:50%;background:${dc};border:2px solid #fff"></div>
-          </div>
-
-          <div style="flex:1">
-            <h3 style="font-weight:600;font-size:.95rem">
-              ${c.name || 'Caregiver'}
-              <i class="fa-solid fa-circle-check" style="font-size:.7rem;color:var(--pri)"></i>
-            </h3>
-
-            <p style="font-size:.8rem;color:var(--muted)">
-              ${c.specialty || ''}
-            </p>
-
-            <div style="display:flex;align-items:center;gap:4px;margin-top:2px">
-              <i class="fa-solid fa-star star" style="font-size:.7rem"></i>
-              <span style="font-size:.85rem;font-weight:600">
-                ${c.rating || '4.5'}
-              </span>
-            </div>
-          </div>
-
-        </div>
-
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px;text-align:center">
-
-          <div style="border-radius:8px;padding:8px;background:var(--bg2)">
-            <p style="font-size:.85rem;font-weight:700">
-              ${c.experience || 0}yr
-            </p>
-          </div>
-
-          <div style="border-radius:8px;padding:8px;background:var(--bg2)">
-            <p style="font-size:.85rem;font-weight:700">
-              ${c.city || ''}
-            </p>
-          </div>
-
-          <div style="border-radius:8px;padding:8px;background:var(--pri-light)">
-            <p style="font-size:.85rem;font-weight:700;color:var(--pri)">
-              Rs.${c.hourlyRate || 0}
-            </p>
-          </div>
-
-        </div>
-
-        <p style="font-size:.8rem;color:var(--muted);margin-bottom:12px">
-          ${aboutText}...
-        </p>
-
-        <div style="display:flex;gap:8px">
-
-          <button onclick="viewCaregiver('${c._id}')"
-                  class="btn-outline btn-sm"
-                  style="flex:1">
-            Profile
-          </button>
-
-          ${
-            c.available
-              ? `<button onclick="startBooking('${c._id}')"
-                         class="btn-pri btn-sm"
-                         style="flex:1">
-                   Book
-                 </button>`
-              : ''
-          }
-
-        </div>
-
-      </div>
-    `;
+    var c=fl[i],dc=c.available?'#059669':'#D97706',img=resolvePhoto(c.photo,100);
+    /* FIX #2: findServiceForCaregiver used for Book button — passes service ID, NOT caregiver ID */
+    var sf=findServiceForCaregiver(c),bid=sf?sf._id:'';
+    h+='<div class="card-lift bg-white rounded-2xl p-6 border reveal" style="border-color:var(--border);transition-delay:'+(i*.05)+'s"><div style="display:flex;align-items:center;gap:12px;margin-bottom:12px"><div style="position:relative"><img src="'+img+'" style="width:56px;height:56px;border-radius:50%;object-fit:cover"><div style="position:absolute;bottom:-2px;right:-2px;width:14px;height:14px;border-radius:50%;background:'+dc+';border:2px solid #fff"></div></div><div style="flex:1"><h3 style="font-weight:600;font-size:.95rem">'+c.name+' <i class="fa-solid fa-circle-check" style="font-size:.7rem;color:var(--pri)"></i></h3><p style="font-size:.8rem;color:var(--muted)">'+c.specialty+'</p><div style="display:flex;align-items:center;gap:4px;margin-top:2px"><i class="fa-solid fa-star star" style="font-size:.7rem"></i><span style="font-size:.85rem;font-weight:600">'+c.rating+'</span></div></div></div><div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px;text-align:center"><div style="border-radius:8px;padding:8px;background:var(--bg2)"><p style="font-size:.85rem;font-weight:700">'+c.experience+'yr</p></div><div style="border-radius:8px;padding:8px;background:var(--bg2)"><p style="font-size:.85rem;font-weight:700">'+c.city+'</p></div><div style="border-radius:8px;padding:8px;background:var(--pri-light)"><p style="font-size:.85rem;font-weight:700;color:var(--pri)">Rs.'+c.hourlyRate+'</p></div></div><p style="font-size:.8rem;color:var(--muted);margin-bottom:12px">'+(c.about||'').substring(0,80)+'...</p><div style="display:flex;gap:8px"><button onclick="viewCaregiver(\''+c._id+'\')" class="btn-outline btn-sm" style="flex:1">Profile</button>'+(c.available?'<button onclick="startBooking(\''+bid+'\')" class="btn-pri btn-sm" style="flex:1">Book</button>':'')+'</div></div>';
   }
-
-  document.getElementById('caregiversGrid').innerHTML = h;
+  document.getElementById('caregiversGrid').innerHTML=h;
 }
+function filterCaregivers(){renderCaregiversPage();}
 
+/* ===== FIX #3: viewCaregiver — broken second image (was 100%x160px, now 72x72) ===== */
 function viewCaregiver(id) {
   var cg=caregiversCache.find(function(c){return c._id===id;}); if(!cg)return;
   var sf=findServiceForCaregiver(cg),bid=sf?sf._id:'';
-  document.getElementById('cgDetailContent').innerHTML='<div style="position:relative"><img src="'+cg.photo+'" style="width:100%;height:160px;object-fit:cover"><div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.6),transparent)"></div><button onclick="closeModal(\'caregiverDetailModal\')" style="position:absolute;top:12px;right:12px;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.2);color:#fff;border:none;cursor:pointer"><i class="fa-solid fa-xmark"></i></button><div style="position:absolute;bottom:16px;left:20px;display:flex;align-items:end;gap:14px"><img src="'+cg.photo+'" style="width:100%;height:160px;object-fit:cover";border:4px solid #fff"><div style="padding-bottom:4px"><h3 style="font-size:1.2rem;font-weight:800;color:#fff">'+cg.name+'</h3><p style="color:rgba(255,255,255,.8);font-size:.875rem">'+cg.specialty+'</p></div></div></div><div style="padding:20px"><div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px"><div style="text-align:center;padding:12px;border-radius:8px;background:var(--pri-light)"><i class="fa-solid fa-star star" style="font-size:.75rem"></i><span style="font-weight:700"> '+cg.rating+'</span><p style="font-size:.7rem;color:var(--muted)">'+cg.reviews+' reviews</p></div><div style="text-align:center;padding:12px;border-radius:8px;background:var(--accent-light)"><div style="font-weight:700">'+cg.experience+'yr</div><p style="font-size:.7rem;color:var(--muted)">Experience</p></div><div style="text-align:center;padding:12px;border-radius:8px;background:var(--success-light)"><div style="font-weight:700">'+cg.city+'</div><p style="font-size:.7rem;color:var(--muted)">City</p></div><div style="text-align:center;padding:12px;border-radius:8px;background:var(--info-light)"><div style="font-weight:700">Rs.'+cg.hourlyRate+'</div><p style="font-size:.7rem;color:var(--muted)">Per hour</p></div></div><p style="font-size:.9rem;color:var(--text-light);margin-bottom:16px;line-height:1.6">'+cg.about+'</p><p style="font-size:.85rem;color:var(--text-light);margin-bottom:6px"><b>Qualification:</b> '+cg.qualification+'</p><p style="font-size:.85rem;color:var(--text-light);margin-bottom:16px"><b>Languages:</b> '+cg.languages+'</p><span class="badge '+(cg.available?'badge-active':'badge-pending')+'">'+(cg.available?'Available Now':'Unavailable')+'</span>'+(cg.available?'<button onclick="closeModal(\'caregiverDetailModal\');startBooking(\''+bid+'\')" class="btn-pri" style="width:100%;margin-top:16px;padding:12px"><i class="fa-solid fa-calendar-check"></i> Book '+cg.name+'</button>':'')+'</div>';
+  var img=resolvePhoto(c.photo,580),imgSm=resolvePhoto(c.photo,120);
+  document.getElementById('cgDetailContent').innerHTML=
+    '<div style="position:relative"><img src="'+img+'" style="width:100%;height:160px;object-fit:cover"><div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.6),transparent)"></div><button onclick="closeModal(\'caregiverDetailModal\')" style="position:absolute;top:12px;right:12px;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.2);color:#fff;border:none;cursor:pointer"><i class="fa-solid fa-xmark"></i></button><div style="position:absolute;bottom:16px;left:20px;display:flex;align-items:end;gap:14px"><img src="'+imgSm+'" style="width:72px;height:72px;border-radius:12px;object-fit:cover;border:4px solid #fff;box-shadow:var(--shadow-lg)"><div style="padding-bottom:4px"><h3 style="font-size:1.2rem;font-weight:800;color:#fff">'+cg.name+'</h3><p style="color:rgba(255,255,255,.8);font-size:.875rem">'+cg.specialty+'</p></div></div></div><div style="padding:20px"><div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px"><div style="text-align:center;padding:12px;border-radius:8px;background:var(--pri-light)"><i class="fa-solid fa-star star" style="font-size:.75rem"></i><span style="font-weight:700"> '+cg.rating+'</span><p style="font-size:.7rem;color:var(--muted)">'+cg.reviews+' reviews</p></div><div style="text-align:center;padding:12px;border-radius:8px;background:var(--accent-light)"><div style="font-weight:700">'+cg.experience+'yr</div><p style="font-size:.7rem;color:var(--muted)">Experience</p></div><div style="text-align:center;padding:12px;border-radius:8px;background:var(--success-light)"><div style="font-weight:700">'+cg.city+'</div><p style="font-size:.7rem;color:var(--muted)">City</p></div><div style="text-align:center;padding:12px;border-radius:8px;background:var(--info-light)"><div style="font-weight:700">Rs.'+cg.hourlyRate+'</div><p style="font-size:.7rem;color:var(--muted)">Per hour</p></div></div><p style="font-size:.9rem;color:var(--text-light);margin-bottom:16px;line-height:1.6">'+cg.about+'</p><p style="font-size:.85rem;color:var(--text-light);margin-bottom:6px"><b>Qualification:</b> '+cg.qualification+'</p><p style="font-size:.85rem;color:var(--text-light);margin-bottom:16px"><b>Languages:</b> '+cg.languages+'</p><span class="badge '+(cg.available?'badge-active':'badge-pending')+'">'+(cg.available?'Available Now':'Unavailable')+'</span>'+(cg.available?'<button onclick="closeModal(\'caregiverDetailModal\');startBooking(\''+bid+'\')" class="btn-pri" style="width:100%;margin-top:16px;padding:12px"><i class="fa-solid fa-calendar-check"></i> Book '+cg.name+'</button>':'')+'</div>';
   openModal('caregiverDetailModal');
 }
 
-function startBooking(sid){appState.bookingData={serviceId:sid,caregiverId:null};goToStep(1);openModal('bookingModal');}
-function goToStep(step){
-  if(step===2&&!appState.bookingData.serviceId){showToast('Select a service.','warning');return;}
-  if(step===3&&!appState.bookingData.caregiverId){showToast('Choose a caregiver.','warning');return;}
-  if(step===2)renderBookingStep2();if(step===3)renderBookingStep3();if(step===4)renderBookingStep4();
-  var steps=document.querySelectorAll('.booking-step');for(var i=0;i<steps.length;i++)steps[i].classList.add('hidden');
-  document.getElementById('bookStep'+step).classList.remove('hidden');
-  var dots=document.querySelectorAll('.step-dot');for(var i=0;i<dots.length;i++){var s=parseInt(dots[i].getAttribute('data-step'));dots[i].classList.remove('active','done');if(s<step)dots[i].classList.add('done');if(s===step)dots[i].classList.add('active');}
+/* ===== FIX #4: startBooking — now correctly handles BOTH caregiver IDs and service IDs ===== */
+function startBooking(sid) {
+  /* Detect if sid is a caregiver ID or a service ID */
+  var matchedServiceId = null;
+  var matchedCaregiverId = null;
+
+  /* Check if this ID belongs to a caregiver */
+  var cgMatch = caregiversCache.find(function(c) { return c._id === sid; });
+  if (cgMatch) {
+    /* This was called from a caregiver card/button — find the matching service */
+    var sf = findServiceForCaregiver(cgMatch);
+    matchedServiceId = sf ? sf._id : null;
+    matchedCaregiverId = sid; /* Pre-select this caregiver in step 2 */
+  } else {
+    /* This was called from a service card — it's a service ID */
+    matchedServiceId = sid;
+  }
+
+  appState.bookingData = { serviceId: matchedServiceId, caregiverId: matchedCaregiverId };
+
+  /* FIX #5: Always render step 1 so services show up */
+  renderBookingStep1();
+  goToStep(1);
+  openModal('bookingModal');
 }
-function renderBookingStep1(){
-  var h='';for(var i=0;i<servicesCache.length;i++){var s=servicesCache[i],sel=appState.bookingData.serviceId===s._id;
-  h+='<label style="display:flex;align-items:center;gap:14px;padding:14px;border-radius:10px;border:1.5px solid '+(sel?'var(--pri)':'var(--border)')+';cursor:pointer;background:'+(sel?'var(--pri-light)':'#fff')+'"><input type="radio" name="bookSvc" value="'+s._id+'" '+(sel?'checked':'')+' onchange="appState.bookingData.serviceId=\''+s._id+'\';renderBookingStep1()" style="accent-color:var(--pri);width:18px;height:18px"><div style="width:40px;height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:'+s.color+'12"><i class="fa-solid '+s.icon+'" style="color:'+s.color+'"></i></div><div style="flex:1"><p style="font-weight:600;font-size:.9rem">'+s.name+'</p><p style="font-size:.75rem;color:var(--muted)">'+s.duration+'</p></div><p style="font-weight:700;font-size:.85rem;color:var(--pri)">Rs.'+s.price+'/hr</p></label>';}
-  document.getElementById('bookServiceList').innerHTML=h;
+
+/* ===== FIX #6: goToStep — now renders step 1 (was completely missing) ===== */
+function goToStep(step) {
+  if (step === 2 && !appState.bookingData.serviceId) { showToast('Please select a service.', 'warning'); return; }
+  if (step === 3 && !appState.bookingData.caregiverId) { showToast('Please choose a caregiver.', 'warning'); return; }
+
+  /* THIS WAS THE BIG BUG — step 1 was never rendered */
+  if (step === 1) renderBookingStep1();
+  if (step === 2) renderBookingStep2();
+  if (step === 3) renderBookingStep3();
+  if (step === 4) renderBookingStep4();
+
+  var steps = document.querySelectorAll('.booking-step');
+  for (var i = 0; i < steps.length; i++) steps[i].classList.add('hidden');
+  document.getElementById('bookStep' + step).classList.remove('hidden');
+
+  var dots = document.querySelectorAll('.step-dot');
+  for (var i = 0; i < dots.length; i++) {
+    var s = parseInt(dots[i].getAttribute('data-step'));
+    dots[i].classList.remove('active', 'done');
+    if (s < step) dots[i].classList.add('done');
+    if (s === step) dots[i].classList.add('active');
+  }
 }
-function renderBookingStep2(){
-  var svc=servicesCache.find(function(s){return s._id===appState.bookingData.serviceId;});if(!svc)return;
-  var fl=caregiversCache.filter(function(c){return specialtyMatches(c,svc.name);});if(!fl.length)fl=caregiversCache.filter(function(c){return c.available;});
-  if(!fl.length){document.getElementById('bookCaregiverList').innerHTML='<p style="text-align:center;padding:32px;color:var(--muted)">No caregivers available.</p>';return;}
-  var h='';for(var i=0;i<fl.length;i++){var c=fl[i],sel=appState.bookingData.caregiverId===c._id;
-  h+='<label style="display:flex;align-items:center;gap:14px;padding:14px;border-radius:10px;border:1.5px solid '+(sel?'var(--pri)':'var(--border)')+';cursor:pointer;background:'+(sel?'var(--pri-light)':'#fff')+'"><input type="radio" name="bookCg" value="'+c._id+'" '+(sel?'checked':'')+' onchange="appState.bookingData.caregiverId=\''+c._id+'\';renderBookingStep2()" style="accent-color:var(--pri);width:18px;height:18px"><img src="https://picsum.photos/seed/'+c.photo+'/80/80.jpg" style="width:44px;height:44px;border-radius:50%;object-fit:cover;flex-shrink:0"><div style="flex:1;min-width:0"><p style="font-weight:600;font-size:.9rem">'+c.name+' <i class="fa-solid fa-circle-check" style="font-size:.65rem;color:var(--pri)"></i></p><p style="font-size:.75rem;color:var(--muted)">'+c.specialty+' &bull; '+c.experience+'yrs</p></div><div style="text-align:right;flex-shrink:0"><i class="fa-solid fa-star star" style="font-size:.7rem"></i><span style="font-size:.85rem;font-weight:600"> '+c.rating+'</span><p style="font-size:.75rem;font-weight:600;color:var(--pri);margin-top:2px">Rs.'+c.hourlyRate+'/hr</p></div></label>';}
-  document.getElementById('bookCaregiverList').innerHTML=h;
+
+function renderBookingStep1() {
+  if (!servicesCache.length) {
+    document.getElementById('bookServiceList').innerHTML = '<p style="text-align:center;padding:24px;color:var(--muted)">Loading services...</p>';
+    return;
+  }
+  var h = '';
+  for (var i = 0; i < servicesCache.length; i++) {
+    var s = servicesCache[i], sel = appState.bookingData.serviceId === s._id, color = getServiceColor(s);
+    h += '<label style="display:flex;align-items:center;gap:14px;padding:14px;border-radius:10px;border:1.5px solid '+(sel?'var(--pri)':'var(--border)')+';cursor:pointer;background:'+(sel?'var(--pri-light)':'#fff')+'"><input type="radio" name="bookSvc" value="'+s._id+'" '+(sel?'checked':'')+' onchange="appState.bookingData.serviceId=\''+s._id+'\';renderBookingStep1()" style="accent-color:var(--pri);width:18px;height:18px"><div style="width:40px;height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:'+color+'12"><i class="fa-solid '+(s.icon||'fa-circle')+'" style="color:'+color+'"></i></div><div style="flex:1"><p style="font-weight:600;font-size:.9rem">'+s.name+'</p><p style="font-size:.75rem;color:var(--muted)">'+s.duration+'</p></div><p style="font-weight:700;font-size:.85rem;color:var(--pri)">Rs.'+s.price+'/hr</p></label>';
+  }
+  document.getElementById('bookServiceList').innerHTML = h;
 }
-function renderBookingStep3(){
-  var today=new Date().toISOString().split('T')[0],dateEl=document.getElementById('bookDate');dateEl.min=today;if(!dateEl.value)dateEl.value=today;
-  var ph='';for(var i=0;i<patientCache.length;i++)ph+='<option value="'+patientCache[i]._id+'">'+patientCache[i].name+' ('+patientCache[i].age+'y)</option>';
-  document.getElementById('bookPatient').innerHTML=ph||'<option value="">No patients — add one first</option>';updateBookingCost();
+
+function renderBookingStep2() {
+  var svc = servicesCache.find(function(s) { return s._id === appState.bookingData.serviceId; });
+  if (!svc) { document.getElementById('bookCaregiverList').innerHTML = '<p style="text-align:center;padding:24px;color:var(--muted)">No service selected.</p>'; return; }
+
+  var fl = caregiversCache.filter(function(c) { return specialtyMatches(c, svc.name); });
+  if (!fl.length) fl = caregiversCache.filter(function(c) { return c.available; });
+
+  if (!fl.length) { document.getElementById('bookCaregiverList').innerHTML = '<p style="text-align:center;padding:32px;color:var(--muted)">No caregivers available for this service.</p>'; return; }
+
+  /* FIX: handle both URL and seed-based photos */
+  var h = '';
+  for (var i = 0; i < fl.length; i++) {
+    var c = fl[i], sel = appState.bookingData.caregiverId === c._id, photo = resolvePhoto(c.photo, 80);
+    h += '<label style="display:flex;align-items:center;gap:14px;padding:14px;border-radius:10px;border:1.5px solid '+(sel?'var(--pri)':'var(--border)')+';cursor:pointer;background:'+(sel?'var(--pri-light)':'#fff')+'"><input type="radio" name="bookCg" value="'+c._id+'" '+(sel?'checked':'')+' onchange="appState.bookingData.caregiverId=\''+c._id+'\';renderBookingStep2()" style="accent-color:var(--pri);width:18px;height:18px"><img src="'+photo+'" style="width:44px;height:44px;border-radius:50%;object-fit:cover;flex-shrink:0"><div style="flex:1;min-width:0"><p style="font-weight:600;font-size:.9rem">'+c.name+' <i class="fa-solid fa-circle-check" style="font-size:.65rem;color:var(--pri)"></i></p><p style="font-size:.75rem;color:var(--muted)">'+c.specialty+' &bull; '+c.experience+'yrs</p></div><div style="text-align:right;flex-shrink:0"><i class="fa-solid fa-star star" style="font-size:.7rem"></i><span style="font-size:.85rem;font-weight:600"> '+c.rating+'</span><p style="font-size:.75rem;font-weight:600;color:var(--pri);margin-top:2px">Rs.'+c.hourlyRate+'/hr</p></div></label>';
+  }
+  document.getElementById('bookCaregiverList').innerHTML = h;
+
+  /* If a caregiver was pre-selected from startBooking, auto-advance to step 2 */
+  if (appState.bookingData.caregiverId && fl.length) {
+    var preSelected = fl.find(function(c) { return c._id === appState.bookingData.caregiverId; });
+    if (!preSelected) {
+      /* Pre-selected caregiver not in filtered list — clear it */
+      appState.bookingData.caregiverId = null;
+    }
+  }
 }
-function updateBookingCost(){var svc=servicesCache.find(function(s){return s._id===appState.bookingData.serviceId;});if(!svc)return;var dur=document.getElementById('bookDuration').value;var costs={hourly:svc.price*4,daily:svc.price*10,weekly:svc.price*70,monthly:svc.price*300};document.getElementById('bookEstCost').textContent='Rs. '+(costs[dur]||0).toLocaleString('en-IN');}
-function renderBookingStep4(){
-  var svc=servicesCache.find(function(s){return s._id===appState.bookingData.serviceId;}),cg=caregiversCache.find(function(c){return c._id===appState.bookingData.caregiverId;}),pat=patientCache.find(function(p){return p._id===document.getElementById('bookPatient').value;}),date=document.getElementById('bookDate').value,time=document.getElementById('bookTime').value||'--',dur=document.getElementById('bookDuration').value,dl={hourly:'Hourly (4 hrs)',daily:'Daily (10 hrs)',weekly:'Weekly (7 days)',monthly:'Monthly (30 days)'},costs={hourly:svc.price*4,daily:svc.price*10,weekly:svc.price*70,monthly:svc.price*300};
-  document.getElementById('bookSummary').innerHTML='<div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">Service</span><span style="font-weight:600">'+svc.name+'</span></div><div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">Caregiver</span><span style="font-weight:600">'+cg.name+'</span></div><div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">Patient</span><span style="font-weight:600">'+(pat?pat.name:'N/A')+'</span></div><div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">Schedule</span><span style="font-weight:600">'+date+' '+time+'</span></div><div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">Duration</span><span style="font-weight:600">'+dl[dur]+'</span></div><div style="border-top:1px solid var(--border);padding-top:10px;margin-top:4px;display:flex;justify-content:space-between;font-size:1.1rem"><span style="font-weight:700">Total</span><span style="font-weight:800;color:var(--pri)">Rs. '+costs[dur].toLocaleString('en-IN')+'</span></div>';
+
+function renderBookingStep3() {
+  var today = new Date().toISOString().split('T')[0], dateEl = document.getElementById('bookDate');
+  dateEl.min = today; if (!dateEl.value) dateEl.value = today;
+  var ph = '';
+  for (var i = 0; i < patientCache.length; i++) ph += '<option value="'+patientCache[i]._id+'">'+patientCache[i].name+' ('+patientCache[i].age+'y)</option>';
+  document.getElementById('bookPatient').innerHTML = ph || '<option value="">No patients — add one first</option>';
+  updateBookingCost();
+}
+
+function updateBookingCost() {
+  var svc = servicesCache.find(function(s) { return s._id === appState.bookingData.serviceId; });
+  if (!svc) return;
+  var dur = document.getElementById('bookDuration').value;
+  var costs = {hourly:svc.price*4, daily:svc.price*10, weekly:svc.price*70, monthly:svc.price*300};
+  document.getElementById('bookEstCost').textContent = 'Rs. ' + (costs[dur] || 0).toLocaleString('en-IN');
+}
+
+function renderBookingStep4() {
+  var svc=servicesCache.find(function(s){return s._id===appState.bookingData.serviceId;});
+  var cg=caregiversCache.find(function(c){return c._id===appState.bookingData.caregiverId;});
+  var pat=patientCache.find(function(p){return p._id===document.getElementById('bookPatient').value;});
+  var date=document.getElementById('bookDate').value, time=document.getElementById('bookTime').value||'--';
+  var dur=document.getElementById('bookDuration').value;
+  var dl={hourly:'Hourly (4 hrs)',daily:'Daily (10 hrs)',weekly:'Weekly (7 days)',monthly:'Monthly (30 days)'};
+  var costs={hourly:svc.price*4,daily:svc.price*10,weekly:svc.price*70,monthly:svc.price*300};
+  document.getElementById('bookSummary').innerHTML='<div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">Service</span><span style="font-weight:600">'+(svc?svc.name:'N/A')+'</span></div><div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">Caregiver</span><span style="font-weight:600">'+(cg?cg.name:'N/A')+'</span></div><div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">Patient</span><span style="font-weight:600">'+(pat?pat.name:'N/A')+'</span></div><div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">Schedule</span><span style="font-weight:600">'+date+' '+time+'</span></div><div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">Duration</span><span style="font-weight:600">'+dl[dur]+'</span></div><div style="border-top:1px solid var(--border);padding-top:10px;margin-top:4px;display:flex;justify-content:space-between;font-size:1.1rem"><span style="font-weight:700">Total</span><span style="font-weight:800;color:var(--pri)">Rs. '+costs[dur].toLocaleString('en-IN')+'</span></div>';
 }
 
 /* ===== DASHBOARD ===== */
-function renderDashboard(){
-  document.getElementById('patCountDash').textContent=patientCache.length;document.getElementById('sosCountDash').textContent=sosContacts.length;document.getElementById('cgPendingCount').textContent=cgRequests.length;document.getElementById('bookingCountDash').textContent=bookingsCache.length;
+function renderDashboard() {
+  document.getElementById('patCountDash').textContent=patientCache.length;
+  document.getElementById('sosCountDash').textContent=sosContacts.length;
+  document.getElementById('cgPendingCount').textContent=cgRequests.length;
+  document.getElementById('bookingCountDash').textContent=bookingsCache.length;
   document.getElementById('noPatientMsg').style.display=patientCache.length?'none':'block';
   var ppH='';for(var i=0;i<patientCache.length;i++){var p=patientCache[i];ppH+='<div style="background:#fff;border-radius:var(--radius);padding:16px;border:1px solid var(--border);display:flex;align-items:start;gap:14px"><div style="width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:var(--pri-light)"><i class="fa-solid fa-user" style="color:var(--pri)"></i></div><div style="flex:1;min-width:0"><h4 style="font-weight:600">'+p.name+' <span style="font-size:.8rem;color:var(--muted)">'+p.age+'y, '+p.gender+'</span></h4><p style="font-size:.85rem;color:var(--muted)">'+(p.conditions||'None')+'</p><p style="font-size:.8rem;color:var(--error);margin-top:4px"><i class="fa-solid fa-phone" style="margin-right:4px"></i>SOS: '+(p.emergencyName||'N/A')+' — '+(p.emergencyPhone||'N/A')+'</p></div></div>';}
   document.getElementById('patientProfilesList').innerHTML=ppH;
   if(bookingsCache.length){var ubH='<thead><tr><th>ID</th><th>Service</th><th>Caregiver</th><th>Date</th><th>Status</th><th>Cost</th></tr></thead><tbody>';for(var i=0;i<bookingsCache.length;i++){var b=bookingsCache[i],svc=servicesCache.find(function(s){return s._id===b.serviceId;}),cg=caregiversCache.find(function(c){return c._id===b.caregiverId;}),bsc='badge-pending';if(b.status==='confirmed')bsc='badge-active';if(b.status==='completed')bsc='badge-completed';if(b.status==='cancelled')bsc='badge-cancelled';ubH+='<tr><td style="font-family:monospace;font-size:.8rem;font-weight:600">'+(b.bookingId||b._id)+'</td><td>'+(svc?svc.name:'N/A')+'</td><td>'+(cg?cg.name:'N/A')+'</td><td>'+b.date+'</td><td><span class="badge '+bsc+'">'+(b.status||'pending').charAt(0).toUpperCase()+(b.status||'pending').slice(1)+'</span></td><td style="font-weight:600">Rs. '+(b.cost||0).toLocaleString('en-IN')+'</td></tr>';}ubH+='</tbody>';document.getElementById('userBookingsTable').innerHTML=ubH;}
   if(cgRequests.length){var crH='';for(var i=0;i<cgRequests.length;i++){var r=cgRequests[i];crH+='<div style="background:#fff;border-radius:var(--radius);padding:16px;border:1px solid var(--border);display:flex;flex-wrap:wrap;align-items:center;gap:12px"><div style="flex:1;min-width:200px"><h4 style="font-weight:600">'+(r.patient||'Patient')+'</h4><p style="font-size:.85rem;color:var(--muted)">'+r.service+' &bull; '+r.duration+'</p></div><div style="display:flex;gap:8px"><button onclick="handleCgRequest(\''+r._id+'\',true)" class="btn-pri btn-sm"><i class="fa-solid fa-check" style="margin-right:4px"></i>Accept</button><button onclick="handleCgRequest(\''+r._id+'\',false)" class="btn-ghost btn-sm" style="color:var(--error)"><i class="fa-solid fa-xmark" style="margin-right:4px"></i>Decline</button></div></div>';}document.getElementById('cgRequestsList').innerHTML=crH;}
   var whH='<thead><tr><th>Patient</th><th>Service</th><th>Date</th><th>Duration</th><th>Rating</th><th>Earnings</th></tr></thead><tbody>';for(var i=0;i<cgWorkHistory.length;i++){var w=cgWorkHistory[i];whH+='<tr><td>'+w.patient+'</td><td>'+w.service+'</td><td>'+w.date+'</td><td>'+w.duration+'</td><td><i class="fa-solid fa-star star" style="font-size:.7rem"></i> '+w.rating+'</td><td style="font-weight:600;color:var(--success)">Rs. '+w.earned.toLocaleString('en-IN')+'</td></tr>';}whH+='</tbody>';document.getElementById('cgWorkTable').innerHTML=whH;
-  document.getElementById('adminUsers').textContent=adminDashboard.users||0;document.getElementById('adminCGs').textContent=adminDashboard.caregivers||0;document.getElementById('adminPending').textContent=adminDashboard.pendingVerifications||0;document.getElementById('adminBookings').textContent=adminDashboard.totalBookings||0;
+  document.getElementById('adminUsers').textContent=adminDashboard.users||0;
+  document.getElementById('adminCGs').textContent=adminDashboard.caregivers||0;
+  document.getElementById('adminPending').textContent=adminDashboard.pendingVerifications||0;
+  document.getElementById('adminBookings').textContent=adminDashboard.totalBookings||0;
   if(adminPendingVerify.length){var avH='<thead><tr><th>Name</th><th>Qualification</th><th>Exp.</th><th>City</th><th>Action</th></tr></thead><tbody>';for(var i=0;i<adminPendingVerify.length;i++){var v=adminPendingVerify[i];avH+='<tr><td style="font-weight:600">'+v.name+'</td><td>'+v.qualification+'</td><td>'+v.experience+'y</td><td>'+v.city+'</td><td><div style="display:flex;gap:6px"><button onclick="handleVerify(\''+v._id+'\',true)" class="btn-pri btn-sm"><i class="fa-solid fa-check" style="margin-right:3px"></i>Approve</button><button onclick="handleVerify(\''+v._id+'\',false)" class="btn-ghost btn-sm" style="color:var(--error)"><i class="fa-solid fa-xmark" style="margin-right:3px"></i>Reject</button></div></td></tr>';}avH+='</tbody>';document.getElementById('adminVerifyTable').innerHTML=avH;}
   var acH='<thead><tr><th>ID</th><th>User</th><th>Caregiver</th><th>Issue</th><th>Priority</th><th>Status</th><th>Action</th></tr></thead><tbody>';for(var i=0;i<adminComplaints.length;i++){var c=adminComplaints[i],pc=c.priority==='High'?'badge-cancelled':c.priority==='Medium'?'badge-pending':'badge-active',sc=c.status==='Resolved'?'badge-completed':c.status==='In Progress'?'badge-pending':'badge-active';acH+='<tr><td style="font-family:monospace;font-size:.8rem">'+c._id+'</td><td>'+c.user+'</td><td>'+c.caregiver+'</td><td style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+c.issue+'</td><td><span class="badge '+pc+'">'+c.priority+'</span></td><td><span class="badge '+sc+'">'+c.status+'</span></td><td><button onclick="showToast(\'Reviewed\',\'info\')" class="btn-ghost btn-sm"><i class="fa-solid fa-eye" style="margin-right:3px"></i>View</button></td></tr>';}acH+='</tbody>';document.getElementById('adminComplaintsTable').innerHTML=acH;
   renderAdminCharts();
 }
 
+/* ===== ADMIN CHARTS ===== */
 var bCI=null,sdCI=null;
 function renderAdminCharts(){
   if(document.getElementById('dash-admin').classList.contains('hidden'))return;
@@ -1199,10 +912,19 @@ function initNavScroll(){window.addEventListener('scroll',function(){var nav=doc
 
 /* ===== INIT ===== */
 document.addEventListener('DOMContentLoaded', function() {
-  loadFallbackData(); updateAuthUI();
-  Promise.all([loadServices(),loadCaregivers(),loadPatients(),loadBookings(),loadAdminData()])
-    .catch(function(){console.log('API offline — using fallback data');})
-    .finally(function(){renderHomeServices();renderHomeCaregivers();renderTestimonials();initHeroCanvas();initReveal();initStatCounters();initNavScroll();});
+  loadFallbackData();
+  updateAuthUI();
+  Promise.all([loadServices(), loadCaregivers(), loadPatients(), loadBookings(), loadAdminData()])
+    .catch(function(){ console.log('API offline — using fallback data'); })
+    .finally(function(){
+      renderHomeServices();
+      renderHomeCaregivers();
+      renderTestimonials();
+      initHeroCanvas();
+      initReveal();
+      initStatCounters();
+      initNavScroll();
+    });
 });
 </script>
 </body>
