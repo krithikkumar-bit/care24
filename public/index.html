@@ -189,6 +189,10 @@ input,select,textarea{font-family:var(--font)}
 .testimonial-card .author{font-size:.85rem;font-weight:600}
 @keyframes sos-pulse{0%,100%{box-shadow:0 0 0 0 rgba(220,38,38,.4)}70%{box-shadow:0 0 0 12px rgba(220,38,38,0)}}
 .sos-trigger-btn{animation:sos-pulse 2s infinite}
+.role-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+.role-badge-admin{background:var(--error-light);color:var(--error)}
+.role-badge-user{background:var(--pri-light);color:var(--pri)}
+.role-badge-caregiver{background:var(--accent-light);color:var(--accent)}
 </style>
 </head>
 <body>
@@ -292,17 +296,20 @@ input,select,textarea{font-family:var(--font)}
 <div class="page" id="page-dashboard">
   <section class="section" style="padding-top:100px">
     <div class="dash-header">
-      <div><h2 style="font-size:1.5rem;font-weight:800" id="dashTitle">My Dashboard</h2><p style="color:var(--muted);font-size:.9rem" id="dashSubtitle">Manage your care journey</p></div>
-      <button class="btn-pri" onclick="openModal('patientModal')"><i class="fa-solid fa-plus"></i> Add Patient</button>
+      <div>
+        <h2 style="font-size:1.5rem;font-weight:800" id="dashTitle">My Dashboard</h2>
+        <p style="color:var(--muted);font-size:.9rem" id="dashSubtitle">Manage your care journey</p>
+      </div>
+      <button class="btn-pri" id="addPatientDashBtn" onclick="openModal('patientModal')"><i class="fa-solid fa-plus"></i> Add Patient</button>
     </div>
     <div class="dash-cards" id="dashCards">
       <div class="dash-card"><div class="dc-icon" style="background:var(--pri-light);color:var(--pri)"><i class="fa-solid fa-users"></i></div><div class="dc-val" id="patCountDash">0</div><div class="dc-lbl">Patients</div></div>
       <div class="dash-card"><div class="dc-icon" style="background:var(--accent-light);color:var(--accent)"><i class="fa-solid fa-calendar-check"></i></div><div class="dc-val" id="bookingCountDash">0</div><div class="dc-lbl">Bookings</div></div>
-      <div class="dash-card"><div class="dc-icon" style="background:var(--error-light);color:var(--error)"><i class="fa-solid fa-phone"></i></div><div class="dc-val" id="sosCountDash">0</div><div class="dc-lbl">SOS Contacts</div></div>
-      <div class="dash-card"><div class="dc-icon" style="background:var(--success-light);color:var(--success)"><i class="fa-solid fa-bell"></i></div><div class="dc-val" id="cgPendingCount">0</div><div class="dc-lbl">Pending Requests</div></div>
+      <div class="dash-card" id="sosCardDash"><div class="dc-icon" style="background:var(--error-light);color:var(--error)"><i class="fa-solid fa-phone"></i></div><div class="dc-val" id="sosCountDash">0</div><div class="dc-lbl">SOS Contacts</div></div>
+      <div class="dash-card" id="pendingCardDash"><div class="dc-icon" style="background:var(--success-light);color:var(--success)"><i class="fa-solid fa-bell"></i></div><div class="dc-val" id="cgPendingCount">0</div><div class="dc-lbl">Pending Requests</div></div>
     </div>
     <div class="tab-bar" id="dashTabBar">
-      <button class="tab-btn active" data-dtab="user" onclick="switchDashTab('user')">Patient Profiles</button>
+      <button class="tab-btn" data-dtab="user" onclick="switchDashTab('user')">Patient Profiles</button>
       <button class="tab-btn" data-dtab="bookings" onclick="switchDashTab('bookings')">My Bookings</button>
       <button class="tab-btn" data-dtab="cg-requests" onclick="switchDashTab('cg-requests')">Requests</button>
       <button class="tab-btn" data-dtab="cg-work" onclick="switchDashTab('cg-work')">Work History</button>
@@ -469,16 +476,31 @@ var API = "https://care24.onrender.com/api";
 var TOKEN = localStorage.getItem('care24_token') || '';
 var appState = { currentPage: 'home', currentRole: 'user', loggedIn: false, userName: '', bookingData: { serviceId: null, caregiverId: null } };
 
+/* ===== ROLE PERMISSIONS MAP ===== */
+var ROLE_TABS = {
+  user:       ['user', 'bookings'],
+  caregiver:  ['cg-requests', 'cg-work', 'bookings'],
+  admin:      ['user', 'bookings', 'cg-requests', 'cg-work', 'admin']
+};
+
+/* Get the default first tab for a role */
+function getDefaultTab(role) {
+  var tabs = ROLE_TABS[role] || ROLE_TABS.user;
+  return tabs[0];
+}
+
+/* Check if a role can access a specific tab */
+function canAccessTab(role, tab) {
+  var tabs = ROLE_TABS[role] || ROLE_TABS.user;
+  return tabs.indexOf(tab) !== -1;
+}
+
 var specialtyMap = {
-  'Nursing Care': ['Nursing'],
-  'Nursing': ['Nursing'],
-  'Elderly Attendant': ['Elderly Care'],
-  'Elderly Care': ['Elderly Care'],
+  'Nursing Care': ['Nursing'], 'Nursing': ['Nursing'],
+  'Elderly Attendant': ['Elderly Care'], 'Elderly Care': ['Elderly Care'],
   'Physiotherapy': ['Physiotherapy'],
-  'Post-Hospital Care': ['Post-Hospital'],
-  'Post-Hospital': ['Post-Hospital'],
-  'Dementia Care': ['Dementia Care'],
-  'Palliative Care': ['Palliative Care']
+  'Post-Hospital Care': ['Post-Hospital'], 'Post-Hospital': ['Post-Hospital'],
+  'Dementia Care': ['Dementia Care'], 'Palliative Care': ['Palliative Care']
 };
 
 function resolvePhoto(photo, size) {
@@ -486,7 +508,6 @@ function resolvePhoto(photo, size) {
   if (photo.startsWith('http')) return photo;
   return 'https://picsum.photos/seed/' + photo + '/' + (size || '120') + '/' + (size || '120') + '.jpg';
 }
-
 function getServiceColor(s) {
   if (s.color) return s.color;
   if (s.category === 'medical') return '#059669';
@@ -509,8 +530,13 @@ async function handleLogin(e) {
   try {
     var data = await api('POST', '/auth/login', { email: document.getElementById('loginEmail').value, password: document.getElementById('loginPass').value });
     localStorage.setItem('care24_token', data.token); TOKEN = data.token;
-    appState.loggedIn = true; appState.userName = data.user.firstName + ' ' + data.user.lastName; appState.currentRole = data.user.role;
-    updateAuthUI(); closeModal('loginModal'); showToast('Welcome back, ' + appState.userName + '!', 'success');
+    appState.loggedIn = true;
+    appState.userName = data.user.firstName + ' ' + data.user.lastName;
+    /* ROLE COMES FROM SERVER TOKEN — not from client-side buttons */
+    appState.currentRole = data.user.role || 'user';
+    updateAuthUI(); closeModal('loginModal');
+    showToast('Welcome back, ' + appState.userName + '!', 'success');
+    navigate('dashboard');
   } catch (err) { showToast(err.message || 'Login failed', 'error'); }
 }
 async function handleRegister(e) {
@@ -518,15 +544,41 @@ async function handleRegister(e) {
   try {
     var data = await api('POST', '/auth/register', { firstName: document.getElementById('regFirst').value, lastName: document.getElementById('regLast').value, email: document.getElementById('regEmail').value, phone: document.getElementById('regPhone').value, password: document.getElementById('regPass').value, role: document.getElementById('regRole').value });
     localStorage.setItem('care24_token', data.token); TOKEN = data.token;
-    appState.loggedIn = true; appState.userName = data.user.firstName + ' ' + data.user.lastName; appState.currentRole = data.user.role;
+    appState.loggedIn = true;
+    appState.userName = data.user.firstName + ' ' + data.user.lastName;
+    appState.currentRole = data.user.role || 'user';
     updateAuthUI(); closeModal('registerModal'); showToast('Account created!', 'success');
+    navigate('dashboard');
   } catch (err) { showToast(err.message || 'Registration failed', 'error'); }
 }
-function handleLogout() { localStorage.removeItem('care24_token'); TOKEN = ''; appState.loggedIn = false; appState.userName = ''; appState.currentRole = 'user'; updateAuthUI(); navigate('home'); showToast('Signed out.', 'info'); }
+function handleLogout() {
+  localStorage.removeItem('care24_token'); TOKEN = '';
+  appState.loggedIn = false; appState.userName = ''; appState.currentRole = 'user';
+  updateAuthUI(); navigate('home'); showToast('Signed out.', 'info');
+}
+
+/* ===== UPDATED: updateAuthUI — hides role switcher when logged in, shows role badge ===== */
 function updateAuthUI() {
   var b1 = document.getElementById('authBtn'), b2 = document.getElementById('authBtn2');
-  if (appState.loggedIn) { b1.textContent = appState.userName.split(' ')[0]; b1.onclick = handleLogout; b1.className = 'btn-ghost'; b2.textContent = 'Logout'; b2.onclick = handleLogout; b2.className = 'btn-login'; }
-  else { b1.textContent = 'Sign In'; b1.onclick = function() { openModal('loginModal'); }; b1.className = 'btn-login'; b2.textContent = 'Sign Up'; b2.onclick = function() { openModal('registerModal'); }; b2.className = 'btn-signup'; }
+  var roleBtns = document.querySelectorAll('.role-btn');
+
+  if (appState.loggedIn) {
+    /* SECURITY: Hide role switcher when logged in — role is locked from JWT */
+    for (var i = 0; i < roleBtns.length; i++) roleBtns[i].style.display = 'none';
+
+    var roleClass = 'role-badge-user';
+    if (appState.currentRole === 'admin') roleClass = 'role-badge-admin';
+    if (appState.currentRole === 'caregiver') roleClass = 'role-badge-caregiver';
+
+    b1.innerHTML = '<span class="role-badge ' + roleClass + '"><i class="fa-solid fa-' + (appState.currentRole === 'admin' ? 'shield-halved' : appState.currentRole === 'caregiver' ? 'user-nurse' : 'user') + '"></i> ' + appState.currentRole + '</span> ' + appState.userName.split(' ')[0];
+    b1.onclick = handleLogout; b1.className = 'btn-ghost';
+    b2.textContent = 'Logout'; b2.onclick = handleLogout; b2.className = 'btn-login';
+  } else {
+    /* Show role switcher only when NOT logged in (for pre-login demo only) */
+    for (var i = 0; i < roleBtns.length; i++) roleBtns[i].style.display = '';
+    b1.textContent = 'Sign In'; b1.onclick = function() { openModal('loginModal'); }; b1.className = 'btn-login';
+    b2.textContent = 'Sign Up'; b2.onclick = function() { openModal('registerModal'); }; b2.className = 'btn-signup';
+  }
 }
 
 /* ===== DATA CACHES ===== */
@@ -583,12 +635,12 @@ function loadFallbackData() {
 }
 
 async function loadPatients() { try { patientCache = await api('GET', '/patients'); } catch(e){} }
-async function loadServices() { try { servicesCache = await api('GET', '/services'); } catch(e){ console.error('Services load error:', e); } }
-async function loadCaregivers() { try { caregiversCache = await api('GET', '/caregivers'); } catch(e){ console.error('Caregivers load error:', e); } }
+async function loadServices() { try { servicesCache = await api('GET', '/services'); } catch(e){} }
+async function loadCaregivers() { try { caregiversCache = await api('GET', '/caregivers'); } catch(e){} }
 async function loadBookings() { try { bookingsCache = await api('GET', '/bookings'); } catch(e){} }
 async function loadAdminData() { try { adminDashboard = await api('GET', '/admin/stats'); } catch(e){} }
 
-/* ===== PATIENT CRUD (UPDATED) ===== */
+/* ===== PATIENT CRUD ===== */
 async function handleAddPatient(e) {
   e.preventDefault();
   var payload = { name: document.getElementById('patName').value, age: parseInt(document.getElementById('patAge').value), gender: document.getElementById('patGender').value, bloodGroup: document.getElementById('patBlood').value||'', conditions: document.getElementById('patConditions').value||'None', specialRequirements: document.getElementById('patSpecial').value||'', address: document.getElementById('patAddress').value, emergencyName: document.getElementById('patEmerName').value, emergencyPhone: document.getElementById('patEmerPhone').value };
@@ -596,112 +648,37 @@ async function handleAddPatient(e) {
   catch(e) { payload._id = 'p' + Date.now(); patientCache.push(payload); showToast('Patient saved locally (API offline)', 'warning'); }
   closeModal('patientModal'); e.target.reset();
   if (appState.currentPage === 'dashboard') renderDashboard();
-  /* If we came from booking flow, refresh and go back */
-  if (window._returnToBooking) {
-    window._returnToBooking = false;
-    openModal('bookingModal');
-    renderBookingStep3();
-    goToStep(3);
-  }
+  if (window._returnToBooking) { window._returnToBooking = false; openModal('bookingModal'); renderBookingStep3(); goToStep(3); }
 }
-
-/* ===== NEW: Open full patient modal from booking flow ===== */
-function openPatientFromBooking() {
-  window._returnToBooking = true;
-  openModal('patientModal');
-}
-
-/* ===== NEW: Quick add patient from booking flow ===== */
+function openPatientFromBooking() { window._returnToBooking = true; openModal('patientModal'); }
 function quickAddPatient() {
-  var nameEl = document.getElementById('quickPatName');
-  var ageEl = document.getElementById('quickPatAge');
-  var msgEl = document.getElementById('quickAddMsg');
-  var name = nameEl.value.trim();
-  var age = parseInt(ageEl.value);
-
-  if (!name) {
-    msgEl.style.display = 'block';
-    msgEl.innerHTML = '<p style="color:var(--error);font-size:.8rem;margin-bottom:8px"><i class="fa-solid fa-triangle-exclamation" style="margin-right:4px"></i>Please enter patient name</p>';
-    nameEl.focus();
-    return;
-  }
-  if (!age || age < 0 || age > 150) {
-    msgEl.style.display = 'block';
-    msgEl.innerHTML = '<p style="color:var(--error);font-size:.8rem;margin-bottom:8px"><i class="fa-solid fa-triangle-exclamation" style="margin-right:4px"></i>Please enter valid age</p>';
-    ageEl.focus();
-    return;
-  }
-
-  var newPatient = {
-    _id: 'p' + Date.now(),
-    name: name,
-    age: age,
-    gender: 'Other',
-    bloodGroup: '',
-    conditions: 'None',
-    specialRequirements: '',
-    address: 'To be updated',
-    emergencyName: 'To be updated',
-    emergencyPhone: '0000000000'
-  };
-
-  patientCache.push(newPatient);
-  api('POST', '/patients', newPatient).catch(function() {});
-  showToast('Patient "' + name + '" added!', 'success');
-
-  /* Switch from inline quick-add to normal dropdown */
-  var quickSection = document.getElementById('quickAddSection');
-  var selectSection = document.getElementById('patientSelectSection');
-  if (quickSection && selectSection) {
-    quickSection.style.display = 'none';
-    selectSection.style.display = 'block';
-    var ph = '';
-    for (var i = 0; i < patientCache.length; i++) {
-      ph += '<option value="' + patientCache[i]._id + '">' + patientCache[i].name + ' (' + patientCache[i].age + 'y)</option>';
-    }
-    var sel = document.getElementById('bookPatient');
-    if (sel) { sel.innerHTML = ph; sel.value = newPatient._id; }
-  }
+  var nameEl = document.getElementById('quickPatName'), ageEl = document.getElementById('quickPatAge'), msgEl = document.getElementById('quickAddMsg');
+  var name = nameEl.value.trim(), age = parseInt(ageEl.value);
+  if (!name) { msgEl.style.display='block'; msgEl.innerHTML='<p style="color:var(--error);font-size:.8rem;margin-bottom:8px"><i class="fa-solid fa-triangle-exclamation" style="margin-right:4px"></i>Please enter patient name</p>'; nameEl.focus(); return; }
+  if (!age||age<0||age>150) { msgEl.style.display='block'; msgEl.innerHTML='<p style="color:var(--error);font-size:.8rem;margin-bottom:8px"><i class="fa-solid fa-triangle-exclamation" style="margin-right:4px"></i>Please enter valid age</p>'; ageEl.focus(); return; }
+  var newPatient = { _id:'p'+Date.now(), name:name, age:age, gender:'Other', bloodGroup:'', conditions:'None', specialRequirements:'', address:'To be updated', emergencyName:'To be updated', emergencyPhone:'0000000000' };
+  patientCache.push(newPatient); api('POST','/patients',newPatient).catch(function(){});
+  showToast('Patient "'+name+'" added!','success');
+  var qs=document.getElementById('quickAddSection'), ps=document.getElementById('patientSelectSection');
+  if(qs&&ps){qs.style.display='none';ps.style.display='block';var ph='';for(var i=0;i<patientCache.length;i++)ph+='<option value="'+patientCache[i]._id+'">'+patientCache[i].name+' ('+patientCache[i].age+'y)</option>';var sel=document.getElementById('bookPatient');if(sel){sel.innerHTML=ph;sel.value=newPatient._id;}}
 }
 
 /* ===== BOOKING ===== */
 async function confirmBooking() {
   if (!document.getElementById('bookTerms').checked) { showToast('Please accept the terms.', 'warning'); return; }
-  var svc = servicesCache.find(function(s){return s._id===appState.bookingData.serviceId;});
-  var cg = caregiversCache.find(function(c){return c._id===appState.bookingData.caregiverId;});
-  if (!svc || !cg) { showToast('Missing service or caregiver data.', 'error'); return; }
-  var dur = document.getElementById('bookDuration').value;
-  var costs = {hourly:svc.price*4,daily:svc.price*10,weekly:svc.price*70,monthly:svc.price*300};
-  try {
-    var data = await api('POST','/bookings',{serviceId:appState.bookingData.serviceId,caregiverId:appState.bookingData.caregiverId,date:document.getElementById('bookDate').value,time:document.getElementById('bookTime').value||'--',durationType:dur});
-    bookingsCache.unshift(data.booking); showToast('Booking confirmed! Assigned to '+cg.name+'.','success');
-  } catch(e) {
-    bookingsCache.unshift({_id:'b'+Date.now(),bookingId:'BK'+Math.floor(Math.random()*90000+10000),serviceId:appState.bookingData.serviceId,caregiverId:appState.bookingData.caregiverId,date:document.getElementById('bookDate').value,status:'pending',cost:costs[dur]});
-    showToast('Booking saved locally (API offline)','warning');
-  }
-  closeModal('bookingModal'); if (appState.currentPage==='dashboard') renderDashboard();
+  var svc = servicesCache.find(function(s){return s._id===appState.bookingData.serviceId;}), cg = caregiversCache.find(function(c){return c._id===appState.bookingData.caregiverId;});
+  if (!svc||!cg) { showToast('Missing service or caregiver data.', 'error'); return; }
+  var dur = document.getElementById('bookDuration').value, costs = {hourly:svc.price*4,daily:svc.price*10,weekly:svc.price*70,monthly:svc.price*300};
+  try { var data = await api('POST','/bookings',{serviceId:appState.bookingData.serviceId,caregiverId:appState.bookingData.caregiverId,date:document.getElementById('bookDate').value,time:document.getElementById('bookTime').value||'--',durationType:dur}); bookingsCache.unshift(data.booking); showToast('Booking confirmed! Assigned to '+cg.name+'.','success'); }
+  catch(e) { bookingsCache.unshift({_id:'b'+Date.now(),bookingId:'BK'+Math.floor(Math.random()*90000+10000),serviceId:appState.bookingData.serviceId,caregiverId:appState.bookingData.caregiverId,date:document.getElementById('bookDate').value,status:'pending',cost:costs[dur]}); showToast('Booking saved locally (API offline)','warning'); }
+  closeModal('bookingModal'); if(appState.currentPage==='dashboard') renderDashboard();
 }
-async function handleCgRequest(id, accept) {
-  try { await api('PUT','/bookings/'+id+'/status',{status:accept?'accepted':'cancelled'}); } catch(e){}
-  var idx = cgRequests.findIndex(function(r){return r._id===id;}); if(idx>-1) cgRequests.splice(idx,1);
-  renderDashboard(); showToast(accept?'Request accepted.':'Request declined.',accept?'success':'info');
-}
-async function handleVerify(id, approve) {
-  try { if(approve) await api('PUT','/admin/caregivers/'+id+'/verify'); else await api('PUT','/admin/caregivers/'+id+'/reject'); } catch(e){}
-  var idx = adminPendingVerify.findIndex(function(v){return v._id===id;}); if(idx>-1) adminPendingVerify.splice(idx,1);
-  renderDashboard(); showToast(approve?'Caregiver approved.':'Application rejected.',approve?'success':'info');
-}
+async function handleCgRequest(id, accept) { try{await api('PUT','/bookings/'+id+'/status',{status:accept?'accepted':'cancelled'});}catch(e){} var idx=cgRequests.findIndex(function(r){return r._id===id;});if(idx>-1)cgRequests.splice(idx,1); renderDashboard(); showToast(accept?'Request accepted.':'Request declined.',accept?'success':'info'); }
+async function handleVerify(id, approve) { try{if(approve)await api('PUT','/admin/caregivers/'+id+'/verify');else await api('PUT','/admin/caregivers/'+id+'/reject');}catch(e){} var idx=adminPendingVerify.findIndex(function(v){return v._id===id;});if(idx>-1)adminPendingVerify.splice(idx,1); renderDashboard(); showToast(approve?'Caregiver approved.':'Application rejected.',approve?'success':'info'); }
 
 /* ===== SOS ===== */
-var currentLat = null, currentLng = null;
-function detectLocation() {
-  var box = document.getElementById('sosLocationBox');
-  box.className = 'sos-location-box detecting';
-  box.innerHTML = '<div class="loc-main"><i class="fa-solid fa-spinner fa-spin" style="margin-right:6px"></i>Detecting your location...</div><div class="loc-sub">This helps us send help to your exact position</div>';
-  if (!navigator.geolocation) { box.className='sos-location-box unavailable'; box.innerHTML='<div class="loc-main"><i class="fa-solid fa-triangle-exclamation" style="margin-right:6px"></i>Geolocation not supported</div><div class="loc-sub">Please call 112 directly</div>'; return; }
-  navigator.geolocation.getCurrentPosition(function(pos){ currentLat=pos.coords.latitude; currentLng=pos.coords.longitude; box.className='sos-location-box found'; box.innerHTML='<div class="loc-main"><i class="fa-solid fa-location-dot" style="margin-right:6px"></i>Location detected</div><div class="loc-sub">Lat: '+currentLat.toFixed(4)+', Lng: '+currentLng.toFixed(4)+'</div>'; },function(error){ box.className='sos-location-box unavailable'; var r='Could not fetch location.'; if(!isSecure()){r+=' Geolocation requires HTTPS.';} box.innerHTML='<div class="loc-main"><i class="fa-solid fa-triangle-exclamation" style="margin-right:6px"></i>'+r+'</div><div class="loc-sub">Emergency buttons below still work without location</div>'; }, {enableHighAccuracy:true,timeout:15000,maximumAge:0});
-}
-var isSecure=function(){return location.protocol==='https:'||location.hostname==='localhost'||location.hostname==='127.0.0.1';};
+var currentLat=null,currentLng=null;
+function detectLocation(){var box=document.getElementById('sosLocationBox');box.className='sos-location-box detecting';box.innerHTML='<div class="loc-main"><i class="fa-solid fa-spinner fa-spin" style="margin-right:6px"></i>Detecting your location...</div><div class="loc-sub">This helps us send help to your exact position</div>';if(!navigator.geolocation){box.className='sos-location-box unavailable';box.innerHTML='<div class="loc-main"><i class="fa-solid fa-triangle-exclamation" style="margin-right:6px"></i>Geolocation not supported</div><div class="loc-sub">Please call 112 directly</div>';return;}navigator.geolocation.getCurrentPosition(function(pos){currentLat=pos.coords.latitude;currentLng=pos.coords.longitude;box.className='sos-location-box found';box.innerHTML='<div class="loc-main"><i class="fa-solid fa-location-dot" style="margin-right:6px"></i>Location detected</div><div class="loc-sub">Lat: '+currentLat.toFixed(4)+', Lng: '+currentLng.toFixed(4)+'</div>';},function(){box.className='sos-location-box unavailable';box.innerHTML='<div class="loc-main"><i class="fa-solid fa-triangle-exclamation" style="margin-right:6px"></i>Could not fetch location.</div><div class="loc-sub">Emergency buttons below still work without location</div>';},{enableHighAccuracy:true,timeout:15000,maximumAge:0});}
 function renderSOSContacts(){var list=sosContacts.length>0?sosContacts:[{name:'Vikram Agarwal',relation:'Son',phone:'+919820012345'},{name:'Amit Gupta',relation:'Son',phone:'+919910056789'}];var h='';for(var i=0;i<list.length;i++){var c=list[i];h+='<a href="tel:'+c.phone+'" class="sos-contact-card"><div class="scc-icon" style="background:rgba(15,118,110,.1)"><i class="fa-solid fa-user" style="color:var(--pri)"></i></div><div style="flex:1"><p style="font-weight:600;font-size:.9rem">'+c.name+'</p><p style="font-size:.75rem;color:var(--muted)">'+c.relation+'</p></div><div class="scc-call" style="background:var(--success)"><i class="fa-solid fa-phone" style="color:#fff;font-size:.8rem"></i></div></a>';}document.getElementById('sosContactsList').innerHTML=h;}
 function renderSOSHospitals(){var h='';for(var i=0;i<nearbyHospitals.length;i++){var ho=nearbyHospitals[i];h+='<a href="tel:'+ho.phone+'" class="sos-contact-card"><div class="scc-icon" style="background:rgba(220,38,38,.1)"><i class="fa-solid fa-hospital" style="color:var(--error)"></i></div><div style="flex:1"><p style="font-weight:600;font-size:.9rem">'+ho.name+'</p><p style="font-size:.75rem;color:var(--muted)">'+ho.address+' &bull; '+ho.distance+'</p></div><div class="scc-call" style="background:var(--success)"><i class="fa-solid fa-phone" style="color:#fff;font-size:.8rem"></i></div></a>';}document.getElementById('sosHospitalsList').innerHTML=h;}
 async function triggerSOS(){var btn=document.getElementById('sosTriggerBtn');btn.disabled=true;btn.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i> Sending SOS...';btn.style.opacity='0.7';try{var pat=patientCache.length>0?patientCache[0]:null;await api('POST','/sos/trigger',{patientId:pat?pat._id:null,latitude:currentLat,longitude:currentLng});}catch(e){}document.getElementById('sosStatus').style.display='block';btn.innerHTML='<i class="fa-solid fa-check-circle"></i> SOS Sent!';btn.style.background='var(--success)';btn.style.opacity='1';showToast('SOS alert sent!','error');if(navigator.vibrate)navigator.vibrate([200,100,200,100,200]);}
@@ -709,296 +686,230 @@ function openSOS(){document.getElementById('sosModal').classList.add('open');doc
 function closeSOS(){document.getElementById('sosModal').classList.remove('open');document.body.style.overflow='';}
 
 /* ===== SPECIALTY MATCH ===== */
-function specialtyMatches(caregiver, serviceName) {
-  var map = specialtyMap[serviceName];
-  if (!map) return caregiver.specialty.indexOf(serviceName) !== -1;
-  for (var j = 0; j < map.length; j++) { if (caregiver.specialty.indexOf(map[j]) !== -1) return true; }
-  return false;
-}
-function findServiceForCaregiver(cg) {
-  for (var i = 0; i < servicesCache.length; i++) { if (specialtyMatches(cg, servicesCache[i].name)) return servicesCache[i]; }
-  return null;
-}
+function specialtyMatches(caregiver,serviceName){var map=specialtyMap[serviceName];if(!map)return caregiver.specialty.indexOf(serviceName)!==-1;for(var j=0;j<map.length;j++){if(caregiver.specialty.indexOf(map[j])!==-1)return true;}return false;}
+function findServiceForCaregiver(cg){for(var i=0;i<servicesCache.length;i++){if(specialtyMatches(cg,servicesCache[i].name))return servicesCache[i];}return null;}
 
 /* ===== RENDER: HOME ===== */
-function renderHomeServices() {
-  var h = '';
-  for (var i = 0; i < servicesCache.length; i++) {
-    var s = servicesCache[i], color = getServiceColor(s);
-    h += '<div class="card-lift bg-white rounded-2xl p-6 border reveal" style="border-color:var(--border);transition-delay:'+(i*.1)+'s"><div style="width:56px;height:56px;border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:16px;background:'+color+'12"><i class="fa-solid '+s.icon+'" style="font-size:1.4rem;color:'+color+'"></i></div><h3 style="font-size:1.15rem;font-weight:700;margin-bottom:8px">'+s.name+'</h3><p style="font-size:.875rem;color:var(--text-light);margin-bottom:16px;line-height:1.6">'+s.description.substring(0,90)+'...</p><div style="display:flex;justify-content:space-between;align-items:center;padding-top:12px;border-top:1px solid var(--border)"><span style="font-size:.85rem;color:var(--muted)">'+s.duration+'</span><span style="font-weight:700;color:var(--pri)">Rs.'+s.price+'/hr</span></div></div>';
-  }
-  document.getElementById('homeServicesGrid').innerHTML = h;
-}
-
-function renderHomeCaregivers() {
-  if (!caregiversCache.length) return;
-  var top = caregiversCache.slice(0, 4), html = "";
-  for (var i = 0; i < top.length; i++) {
-    var c = top[i], img = resolvePhoto(c.photo, 120);
-    html += '<div class="card-lift bg-white rounded-2xl p-6 border reveal" style="border-color:var(--border);transition-delay:'+(i*.1)+'s"><div style="display:flex;align-items:center;gap:12px;margin-bottom:12px"><img src="'+img+'" style="width:56px;height:56px;border-radius:50%;object-fit:cover"><div><h3 style="font-weight:700;font-size:.95rem">'+c.name+'</h3><p style="font-size:.8rem;color:var(--muted)">'+c.specialty+' &bull; '+c.city+'</p></div></div><p style="font-size:.8rem;color:var(--muted);margin-bottom:12px">'+c.about.substring(0,60)+'...</p><div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:.85rem;font-weight:600">⭐ '+c.rating+'</span><span style="color:var(--pri);font-weight:700">Rs.'+c.hourlyRate+'/hr</span></div><button onclick="viewCaregiver(\''+c._id+'\')" class="btn-outline btn-sm" style="margin-top:12px;width:100%">View Profile</button></div>';
-  }
-  document.getElementById("homeCaregiversGrid").innerHTML = html;
-}
-
-function renderTestimonials() {
-  var h = '';
-  for (var i = 0; i < testimonials.length; i++) {
-    var t = testimonials[i], stars = '';
-    for (var s = 0; s < t.rating; s++) stars += '<i class="fa-solid fa-star"></i> ';
-    h += '<div class="testimonial-card reveal" style="transition-delay:'+(i*.1)+'s"><div class="stars">'+stars+'</div><p>"'+t.text+'"</p><div class="author">'+t.name+' <span style="color:var(--muted);font-weight:400">('+t.relation+')</span></div></div>';
-  }
-  document.getElementById('testimonialsGrid').innerHTML = h;
-}
-
-function renderServicesPage(filter) {
-  filter = filter || 'all';
-  var fl = filter === 'all' ? servicesCache : servicesCache.filter(function(s){ return s.category === filter; });
-  var h = '';
-  for (var i = 0; i < fl.length; i++) {
-    var s = fl[i], color = getServiceColor(s);
-    var cb = s.category === 'medical' ? 'badge-active' : s.category === 'rehab' ? 'badge-completed' : 'badge-pending';
-    h += '<div class="card-lift bg-white rounded-2xl border overflow-hidden reveal" style="border-color:var(--border)"><div style="height:6px;background:'+color+'"></div><div style="padding:24px"><div style="display:flex;align-items:start;justify-content:space-between;margin-bottom:16px"><div style="width:56px;height:56px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:'+color+'12"><i class="fa-solid '+(s.icon||'fa-circle')+'" style="font-size:1.4rem;color:'+color+'"></i></div><span class="badge '+cb+'">'+s.category+'</span></div><h3 style="font-size:1.15rem;font-weight:700;margin-bottom:8px">'+s.name+'</h3><p style="font-size:.875rem;color:var(--text-light);margin-bottom:16px;line-height:1.6">'+s.description+'</p><button onclick="startBooking(\''+s._id+'\')" class="btn-pri btn-sm" style="width:100%">Book Now</button></div></div>';
-  }
-  document.getElementById('servicesGrid').innerHTML = h;
-}
-function filterServices(filter) {
-  var btns = document.querySelectorAll('.svc-filter');
-  for (var i=0;i<btns.length;i++) btns[i].className = btns[i].getAttribute('data-filter')===filter?'svc-filter btn-sm btn-pri':'svc-filter btn-sm btn-outline';
-  renderServicesPage(filter);
-}
+function renderHomeServices(){var h='';for(var i=0;i<servicesCache.length;i++){var s=servicesCache[i],color=getServiceColor(s);h+='<div class="card-lift bg-white rounded-2xl p-6 border reveal" style="border-color:var(--border);transition-delay:'+(i*.1)+'s"><div style="width:56px;height:56px;border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:16px;background:'+color+'12"><i class="fa-solid '+s.icon+'" style="font-size:1.4rem;color:'+color+'"></i></div><h3 style="font-size:1.15rem;font-weight:700;margin-bottom:8px">'+s.name+'</h3><p style="font-size:.875rem;color:var(--text-light);margin-bottom:16px;line-height:1.6">'+s.description.substring(0,90)+'...</p><div style="display:flex;justify-content:space-between;align-items:center;padding-top:12px;border-top:1px solid var(--border)"><span style="font-size:.85rem;color:var(--muted)">'+s.duration+'</span><span style="font-weight:700;color:var(--pri)">Rs.'+s.price+'/hr</span></div></div>';}document.getElementById('homeServicesGrid').innerHTML=h;}
+function renderHomeCaregivers(){if(!caregiversCache.length)return;var top=caregiversCache.slice(0,4),html="";for(var i=0;i<top.length;i++){var c=top[i],img=resolvePhoto(c.photo,120);html+='<div class="card-lift bg-white rounded-2xl p-6 border reveal" style="border-color:var(--border);transition-delay:'+(i*.1)+'s"><div style="display:flex;align-items:center;gap:12px;margin-bottom:12px"><img src="'+img+'" style="width:56px;height:56px;border-radius:50%;object-fit:cover"><div><h3 style="font-weight:700;font-size:.95rem">'+c.name+'</h3><p style="font-size:.8rem;color:var(--muted)">'+c.specialty+' &bull; '+c.city+'</p></div></div><p style="font-size:.8rem;color:var(--muted);margin-bottom:12px">'+c.about.substring(0,60)+'...</p><div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:.85rem;font-weight:600">⭐ '+c.rating+'</span><span style="color:var(--pri);font-weight:700">Rs.'+c.hourlyRate+'/hr</span></div><button onclick="viewCaregiver(\''+c._id+'\')" class="btn-outline btn-sm" style="margin-top:12px;width:100%">View Profile</button></div>';}document.getElementById("homeCaregiversGrid").innerHTML=html;}
+function renderTestimonials(){var h='';for(var i=0;i<testimonials.length;i++){var t=testimonials[i],stars='';for(var s=0;s<t.rating;s++)stars+='<i class="fa-solid fa-star"></i> ';h+='<div class="testimonial-card reveal" style="transition-delay:'+(i*.1)+'s"><div class="stars">'+stars+'</div><p>"'+t.text+'"</p><div class="author">'+t.name+' <span style="color:var(--muted);font-weight:400">('+t.relation+')</span></div></div>';}document.getElementById('testimonialsGrid').innerHTML=h;}
+function renderServicesPage(filter){filter=filter||'all';var fl=filter==='all'?servicesCache:servicesCache.filter(function(s){return s.category===filter;});var h='';for(var i=0;i<fl.length;i++){var s=fl[i],color=getServiceColor(s),cb=s.category==='medical'?'badge-active':s.category==='rehab'?'badge-completed':'badge-pending';h+='<div class="card-lift bg-white rounded-2xl border overflow-hidden reveal" style="border-color:var(--border)"><div style="height:6px;background:'+color+'"></div><div style="padding:24px"><div style="display:flex;align-items:start;justify-content:space-between;margin-bottom:16px"><div style="width:56px;height:56px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:'+color+'12"><i class="fa-solid '+(s.icon||'fa-circle')+'" style="font-size:1.4rem;color:'+color+'"></i></div><span class="badge '+cb+'">'+s.category+'</span></div><h3 style="font-size:1.15rem;font-weight:700;margin-bottom:8px">'+s.name+'</h3><p style="font-size:.875rem;color:var(--text-light);margin-bottom:16px;line-height:1.6">'+s.description+'</p><button onclick="startBooking(\''+s._id+'\')" class="btn-pri btn-sm" style="width:100%">Book Now</button></div></div>';}document.getElementById('servicesGrid').innerHTML=h;}
+function filterServices(filter){var btns=document.querySelectorAll('.svc-filter');for(var i=0;i<btns.length;i++)btns[i].className=btns[i].getAttribute('data-filter')===filter?'svc-filter btn-sm btn-pri':'svc-filter btn-sm btn-outline';renderServicesPage(filter);}
 
 /* ===== RENDER: CAREGIVERS PAGE ===== */
-function renderCaregiversPage() {
-  var spec=document.getElementById('cgSpecialtyFilter').value, rating=parseFloat(document.getElementById('cgRatingFilter').value)||0, city=document.getElementById('cgCityFilter').value;
-  if(!caregiversCache||!caregiversCache.length){document.getElementById('caregiversGrid').innerHTML='<div style="grid-column:1/-1;text-align:center;padding:64px;color:var(--muted)">Loading caregivers...</div>';document.getElementById('caregiversCount').textContent='0';return;}
-  var fl=caregiversCache.filter(function(c){if(spec!=='all'&&c.specialty!==spec)return false;if(rating>0&&Number(c.rating)<rating)return false;if(city!=='all'&&c.city!==city)return false;return true;});
-  document.getElementById('caregiversCount').textContent=fl.length;
-  if(!fl.length){document.getElementById('caregiversGrid').innerHTML='<div style="grid-column:1/-1;text-align:center;padding:64px;color:var(--muted)">No caregivers match your filters.</div>';return;}
-  var h='';
-  for(var i=0;i<fl.length;i++){
-    var c=fl[i],dc=c.available?'#059669':'#D97706',img=resolvePhoto(c.photo,100);
-    var sf=findServiceForCaregiver(c),bid=sf?sf._id:'';
-    h+='<div class="card-lift bg-white rounded-2xl p-6 border reveal" style="border-color:var(--border);transition-delay:'+(i*.05)+'s"><div style="display:flex;align-items:center;gap:12px;margin-bottom:12px"><div style="position:relative"><img src="'+img+'" style="width:56px;height:56px;border-radius:50%;object-fit:cover"><div style="position:absolute;bottom:-2px;right:-2px;width:14px;height:14px;border-radius:50%;background:'+dc+';border:2px solid #fff"></div></div><div style="flex:1"><h3 style="font-weight:600;font-size:.95rem">'+c.name+' <i class="fa-solid fa-circle-check" style="font-size:.7rem;color:var(--pri)"></i></h3><p style="font-size:.8rem;color:var(--muted)">'+c.specialty+'</p><div style="display:flex;align-items:center;gap:4px;margin-top:2px"><i class="fa-solid fa-star star" style="font-size:.7rem"></i><span style="font-size:.85rem;font-weight:600">'+c.rating+'</span></div></div></div><div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px;text-align:center"><div style="border-radius:8px;padding:8px;background:var(--bg2)"><p style="font-size:.85rem;font-weight:700">'+c.experience+'yr</p></div><div style="border-radius:8px;padding:8px;background:var(--bg2)"><p style="font-size:.85rem;font-weight:700">'+c.city+'</p></div><div style="border-radius:8px;padding:8px;background:var(--pri-light)"><p style="font-size:.85rem;font-weight:700;color:var(--pri)">Rs.'+c.hourlyRate+'</p></div></div><p style="font-size:.8rem;color:var(--muted);margin-bottom:12px">'+(c.about||'').substring(0,80)+'...</p><div style="display:flex;gap:8px"><button onclick="viewCaregiver(\''+c._id+'\')" class="btn-outline btn-sm" style="flex:1">Profile</button>'+(c.available?'<button onclick="startBooking(\''+bid+'\')" class="btn-pri btn-sm" style="flex:1">Book</button>':'')+'</div></div>';
-  }
-  document.getElementById('caregiversGrid').innerHTML=h;
-}
+function renderCaregiversPage(){var spec=document.getElementById('cgSpecialtyFilter').value,rating=parseFloat(document.getElementById('cgRatingFilter').value)||0,city=document.getElementById('cgCityFilter').value;if(!caregiversCache||!caregiversCache.length){document.getElementById('caregiversGrid').innerHTML='<div style="grid-column:1/-1;text-align:center;padding:64px;color:var(--muted)">Loading caregivers...</div>';document.getElementById('caregiversCount').textContent='0';return;}var fl=caregiversCache.filter(function(c){if(spec!=='all'&&c.specialty!==spec)return false;if(rating>0&&Number(c.rating)<rating)return false;if(city!=='all'&&c.city!==city)return false;return true;});document.getElementById('caregiversCount').textContent=fl.length;if(!fl.length){document.getElementById('caregiversGrid').innerHTML='<div style="grid-column:1/-1;text-align:center;padding:64px;color:var(--muted)">No caregivers match your filters.</div>';return;}var h='';for(var i=0;i<fl.length;i++){var c=fl[i],dc=c.available?'#059669':'#D97706',img=resolvePhoto(c.photo,100),sf=findServiceForCaregiver(c),bid=sf?sf._id:'';h+='<div class="card-lift bg-white rounded-2xl p-6 border reveal" style="border-color:var(--border);transition-delay:'+(i*.05)+'s"><div style="display:flex;align-items:center;gap:12px;margin-bottom:12px"><div style="position:relative"><img src="'+img+'" style="width:56px;height:56px;border-radius:50%;object-fit:cover"><div style="position:absolute;bottom:-2px;right:-2px;width:14px;height:14px;border-radius:50%;background:'+dc+';border:2px solid #fff"></div></div><div style="flex:1"><h3 style="font-weight:600;font-size:.95rem">'+c.name+' <i class="fa-solid fa-circle-check" style="font-size:.7rem;color:var(--pri)"></i></h3><p style="font-size:.8rem;color:var(--muted)">'+c.specialty+'</p><div style="display:flex;align-items:center;gap:4px;margin-top:2px"><i class="fa-solid fa-star star" style="font-size:.7rem"></i><span style="font-size:.85rem;font-weight:600">'+c.rating+'</span></div></div></div><div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px;text-align:center"><div style="border-radius:8px;padding:8px;background:var(--bg2)"><p style="font-size:.85rem;font-weight:700">'+c.experience+'yr</p></div><div style="border-radius:8px;padding:8px;background:var(--bg2)"><p style="font-size:.85rem;font-weight:700">'+c.city+'</p></div><div style="border-radius:8px;padding:8px;background:var(--pri-light)"><p style="font-size:.85rem;font-weight:700;color:var(--pri)">Rs.'+c.hourlyRate+'</p></div></div><p style="font-size:.8rem;color:var(--muted);margin-bottom:12px">'+(c.about||'').substring(0,80)+'...</p><div style="display:flex;gap:8px"><button onclick="viewCaregiver(\''+c._id+'\')" class="btn-outline btn-sm" style="flex:1">Profile</button>'+(c.available?'<button onclick="startBooking(\''+bid+'\')" class="btn-pri btn-sm" style="flex:1">Book</button>':'')+'</div></div>';}document.getElementById('caregiversGrid').innerHTML=h;}
 function filterCaregivers(){renderCaregiversPage();}
 
-function viewCaregiver(id) {
-  var cg=caregiversCache.find(function(c){return c._id===id;}); if(!cg)return;
-  var sf=findServiceForCaregiver(cg),bid=sf?sf._id:'';
-  var img=resolvePhoto(cg.photo,580),imgSm=resolvePhoto(cg.photo,120);
-  document.getElementById('cgDetailContent').innerHTML=
-    '<div style="position:relative"><img src="'+img+'" style="width:100%;height:160px;object-fit:cover"><div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.6),transparent)"></div><button onclick="closeModal(\'caregiverDetailModal\')" style="position:absolute;top:12px;right:12px;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.2);color:#fff;border:none;cursor:pointer"><i class="fa-solid fa-xmark"></i></button><div style="position:absolute;bottom:16px;left:20px;display:flex;align-items:end;gap:14px"><img src="'+imgSm+'" style="width:72px;height:72px;border-radius:12px;object-fit:cover;border:4px solid #fff;box-shadow:var(--shadow-lg)"><div style="padding-bottom:4px"><h3 style="font-size:1.2rem;font-weight:800;color:#fff">'+cg.name+'</h3><p style="color:rgba(255,255,255,.8);font-size:.875rem">'+cg.specialty+'</p></div></div></div><div style="padding:20px"><div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px"><div style="text-align:center;padding:12px;border-radius:8px;background:var(--pri-light)"><i class="fa-solid fa-star star" style="font-size:.75rem"></i><span style="font-weight:700"> '+cg.rating+'</span><p style="font-size:.7rem;color:var(--muted)">'+cg.reviews+' reviews</p></div><div style="text-align:center;padding:12px;border-radius:8px;background:var(--accent-light)"><div style="font-weight:700">'+cg.experience+'yr</div><p style="font-size:.7rem;color:var(--muted)">Experience</p></div><div style="text-align:center;padding:12px;border-radius:8px;background:var(--success-light)"><div style="font-weight:700">'+cg.city+'</div><p style="font-size:.7rem;color:var(--muted)">City</p></div><div style="text-align:center;padding:12px;border-radius:8px;background:var(--info-light)"><div style="font-weight:700">Rs.'+cg.hourlyRate+'</div><p style="font-size:.7rem;color:var(--muted)">Per hour</p></div></div><p style="font-size:.9rem;color:var(--text-light);margin-bottom:16px;line-height:1.6">'+cg.about+'</p><p style="font-size:.85rem;color:var(--text-light);margin-bottom:6px"><b>Qualification:</b> '+cg.qualification+'</p><p style="font-size:.85rem;color:var(--text-light);margin-bottom:16px"><b>Languages:</b> '+cg.languages+'</p><span class="badge '+(cg.available?'badge-active':'badge-pending')+'">'+(cg.available?'Available Now':'Unavailable')+'</span>'+(cg.available?'<button onclick="closeModal(\'caregiverDetailModal\');startBooking(\''+bid+'\')" class="btn-pri" style="width:100%;margin-top:16px;padding:12px"><i class="fa-solid fa-calendar-check"></i> Book '+cg.name+'</button>':'')+'</div>';
-  openModal('caregiverDetailModal');
-}
+function viewCaregiver(id){var cg=caregiversCache.find(function(c){return c._id===id;});if(!cg)return;var sf=findServiceForCaregiver(cg),bid=sf?sf._id:'';var img=resolvePhoto(cg.photo,580),imgSm=resolvePhoto(cg.photo,120);document.getElementById('cgDetailContent').innerHTML='<div style="position:relative"><img src="'+img+'" style="width:100%;height:160px;object-fit:cover"><div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.6),transparent)"></div><button onclick="closeModal(\'caregiverDetailModal\')" style="position:absolute;top:12px;right:12px;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.2);color:#fff;border:none;cursor:pointer"><i class="fa-solid fa-xmark"></i></button><div style="position:absolute;bottom:16px;left:20px;display:flex;align-items:end;gap:14px"><img src="'+imgSm+'" style="width:72px;height:72px;border-radius:12px;object-fit:cover;border:4px solid #fff;box-shadow:var(--shadow-lg)"><div style="padding-bottom:4px"><h3 style="font-size:1.2rem;font-weight:800;color:#fff">'+cg.name+'</h3><p style="color:rgba(255,255,255,.8);font-size:.875rem">'+cg.specialty+'</p></div></div></div><div style="padding:20px"><div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px"><div style="text-align:center;padding:12px;border-radius:8px;background:var(--pri-light)"><i class="fa-solid fa-star star" style="font-size:.75rem"></i><span style="font-weight:700"> '+cg.rating+'</span><p style="font-size:.7rem;color:var(--muted)">'+cg.reviews+' reviews</p></div><div style="text-align:center;padding:12px;border-radius:8px;background:var(--accent-light)"><div style="font-weight:700">'+cg.experience+'yr</div><p style="font-size:.7rem;color:var(--muted)">Experience</p></div><div style="text-align:center;padding:12px;border-radius:8px;background:var(--success-light)"><div style="font-weight:700">'+cg.city+'</div><p style="font-size:.7rem;color:var(--muted)">City</p></div><div style="text-align:center;padding:12px;border-radius:8px;background:var(--info-light)"><div style="font-weight:700">Rs.'+cg.hourlyRate+'</div><p style="font-size:.7rem;color:var(--muted)">Per hour</p></div></div><p style="font-size:.9rem;color:var(--text-light);margin-bottom:16px;line-height:1.6">'+cg.about+'</p><p style="font-size:.85rem;color:var(--text-light);margin-bottom:6px"><b>Qualification:</b> '+cg.qualification+'</p><p style="font-size:.85rem;color:var(--text-light);margin-bottom:16px"><b>Languages:</b> '+cg.languages+'</p><span class="badge '+(cg.available?'badge-active':'badge-pending')+'">'+(cg.available?'Available Now':'Unavailable')+'</span>'+(cg.available?'<button onclick="closeModal(\'caregiverDetailModal\');startBooking(\''+bid+'\')" class="btn-pri" style="width:100%;margin-top:16px;padding:12px"><i class="fa-solid fa-calendar-check"></i> Book '+cg.name+'</button>':'')+'</div>';openModal('caregiverDetailModal');}
 
-function startBooking(sid) {
-  var matchedServiceId = null;
-  var matchedCaregiverId = null;
-  var cgMatch = caregiversCache.find(function(c) { return c._id === sid; });
-  if (cgMatch) {
-    var sf = findServiceForCaregiver(cgMatch);
-    matchedServiceId = sf ? sf._id : null;
-    matchedCaregiverId = sid;
-  } else {
-    matchedServiceId = sid;
+function startBooking(sid){var matchedServiceId=null,matchedCaregiverId=null;var cgMatch=caregiversCache.find(function(c){return c._id===sid;});if(cgMatch){var sf=findServiceForCaregiver(cgMatch);matchedServiceId=sf?sf._id:null;matchedCaregiverId=sid;}else{matchedServiceId=sid;}appState.bookingData={serviceId:matchedServiceId,caregiverId:matchedCaregiverId};renderBookingStep1();goToStep(1);openModal('bookingModal');}
+
+function goToStep(step){if(step===2&&!appState.bookingData.serviceId){showToast('Please select a service.','warning');return;}if(step===3&&!appState.bookingData.caregiverId){showToast('Please choose a caregiver.','warning');return;}if(step===1)renderBookingStep1();if(step===2)renderBookingStep2();if(step===3)renderBookingStep3();if(step===4)renderBookingStep4();var steps=document.querySelectorAll('.booking-step');for(var i=0;i<steps.length;i++)steps[i].classList.add('hidden');document.getElementById('bookStep'+step).classList.remove('hidden');var dots=document.querySelectorAll('.step-dot');for(var i=0;i<dots.length;i++){var s=parseInt(dots[i].getAttribute('data-step'));dots[i].classList.remove('active','done');if(s<step)dots[i].classList.add('done');if(s===step)dots[i].classList.add('active');}}
+
+function renderBookingStep1(){if(!servicesCache.length){document.getElementById('bookServiceList').innerHTML='<p style="text-align:center;padding:24px;color:var(--muted)">Loading services...</p>';return;}var h='';for(var i=0;i<servicesCache.length;i++){var s=servicesCache[i],sel=appState.bookingData.serviceId===s._id,color=getServiceColor(s);h+='<label style="display:flex;align-items:center;gap:14px;padding:14px;border-radius:10px;border:1.5px solid '+(sel?'var(--pri)':'var(--border)')+';cursor:pointer;background:'+(sel?'var(--pri-light)':'#fff')+'"><input type="radio" name="bookSvc" value="'+s._id+'" '+(sel?'checked':'')+' onchange="appState.bookingData.serviceId=\''+s._id+'\';renderBookingStep1()" style="accent-color:var(--pri);width:18px;height:18px"><div style="width:40px;height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:'+color+'12"><i class="fa-solid '+(s.icon||'fa-circle')+'" style="color:'+color+'"></i></div><div style="flex:1"><p style="font-weight:600;font-size:.9rem">'+s.name+'</p><p style="font-size:.75rem;color:var(--muted)">'+s.duration+'</p></div><p style="font-weight:700;font-size:.85rem;color:var(--pri)">Rs.'+s.price+'/hr</p></label>';}document.getElementById('bookServiceList').innerHTML=h;}
+function renderBookingStep2(){var svc=servicesCache.find(function(s){return s._id===appState.bookingData.serviceId;});if(!svc){document.getElementById('bookCaregiverList').innerHTML='<p style="text-align:center;padding:24px;color:var(--muted)">No service selected.</p>';return;}var fl=caregiversCache.filter(function(c){return specialtyMatches(c,svc.name);});if(!fl.length)fl=caregiversCache.filter(function(c){return c.available;});if(!fl.length){document.getElementById('bookCaregiverList').innerHTML='<p style="text-align:center;padding:32px;color:var(--muted)">No caregivers available for this service.</p>';return;}var h='';for(var i=0;i<fl.length;i++){var c=fl[i],sel=appState.bookingData.caregiverId===c._id,photo=resolvePhoto(c.photo,80);h+='<label style="display:flex;align-items:center;gap:14px;padding:14px;border-radius:10px;border:1.5px solid '+(sel?'var(--pri)':'var(--border)')+';cursor:pointer;background:'+(sel?'var(--pri-light)':'#fff')+'"><input type="radio" name="bookCg" value="'+c._id+'" '+(sel?'checked':'')+' onchange="appState.bookingData.caregiverId=\''+c._id+'\';renderBookingStep2()" style="accent-color:var(--pri);width:18px;height:18px"><img src="'+photo+'" style="width:44px;height:44px;border-radius:50%;object-fit:cover;flex-shrink:0"><div style="flex:1;min-width:0"><p style="font-weight:600;font-size:.9rem">'+c.name+' <i class="fa-solid fa-circle-check" style="font-size:.65rem;color:var(--pri)"></i></p><p style="font-size:.75rem;color:var(--muted)">'+c.specialty+' &bull; '+c.experience+'yrs</p></div><div style="text-align:right;flex-shrink:0"><i class="fa-solid fa-star star" style="font-size:.7rem"></i><span style="font-size:.85rem;font-weight:600"> '+c.rating+'</span><p style="font-size:.75rem;font-weight:600;color:var(--pri);margin-top:2px">Rs.'+c.hourlyRate+'/hr</p></div></label>';}document.getElementById('bookCaregiverList').innerHTML=h;if(appState.bookingData.caregiverId&&fl.length){var preSelected=fl.find(function(c){return c._id===appState.bookingData.caregiverId;});if(!preSelected)appState.bookingData.caregiverId=null;}}
+
+function renderBookingStep3(){var today=new Date().toISOString().split('T')[0];var ph='';for(var i=0;i<patientCache.length;i++)ph+='<option value="'+patientCache[i]._id+'">'+patientCache[i].name+' ('+patientCache[i].age+'y)</option>';var patientSectionHTML='';if(patientCache.length>0){patientSectionHTML='<div class="form-group"><label>Patient</label><div style="display:flex;gap:8px;align-items:end"><select id="bookPatient" style="flex:1">'+ph+'</select><button type="button" onclick="openPatientFromBooking()" class="btn-outline btn-sm" style="height:42px;white-space:nowrap;flex-shrink:0"><i class="fa-solid fa-plus"></i> New</button></div></div>';}else{patientSectionHTML='<div class="form-group"><label>Patient <span style="color:var(--error);font-weight:400">(required — add a patient first)</span></label><div id="quickAddSection"><div style="display:flex;gap:8px;margin-bottom:10px"><input type="text" id="quickPatName" placeholder="Enter patient name" style="flex:1;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:.875rem;outline:none;font-family:var(--font)" onfocus="this.style.borderColor=\'var(--pri)\';this.style.boxShadow=\'0 0 0 3px rgba(15,118,110,.1)\'" onblur="this.style.borderColor=\'var(--border)\';this.style.boxShadow=\'none\'"><input type="number" id="quickPatAge" placeholder="Age" min="0" max="150" style="width:70px;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:.875rem;outline:none;font-family:var(--font)" onfocus="this.style.borderColor=\'var(--pri)\';this.style.boxShadow=\'0 0 0 3px rgba(15,118,110,.1)\'" onblur="this.style.borderColor=\'var(--border)\';this.style.boxShadow=\'none\'"><button type="button" onclick="quickAddPatient()" class="btn-pri btn-sm" style="white-space:nowrap;flex-shrink:0"><i class="fa-solid fa-plus"></i> Add</button></div><div id="quickAddMsg" style="display:none"></div><p style="font-size:.75rem;color:var(--muted)"><i class="fa-solid fa-info-circle" style="margin-right:4px"></i>Or <a href="#" onclick="event.preventDefault();openPatientFromBooking()" style="color:var(--pri);font-weight:600;text-decoration:underline">add full patient details</a></p></div><div id="patientSelectSection" style="display:none"><div style="display:flex;gap:8px;align-items:end"><select id="bookPatient" style="flex:1;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:.875rem;font-family:var(--font)">'+ph+'</select><button type="button" onclick="openPatientFromBooking()" class="btn-outline btn-sm" style="height:42px;white-space:nowrap;flex-shrink:0"><i class="fa-solid fa-plus"></i> New</button></div></div></div>';}document.getElementById('bookStep3').innerHTML='<h4 style="font-weight:700;margin-bottom:16px">Schedule Details</h4><div class="form-row"><div class="form-group"><label>Date</label><input type="date" id="bookDate" value="'+today+'" min="'+today+'"></div><div class="form-group"><label>Time</label><input type="time" id="bookTime"></div></div>'+patientSectionHTML+'<div class="form-group"><label>Duration</label><select id="bookDuration" onchange="updateBookingCost()"><option value="hourly">Hourly (4 hrs)</option><option value="daily">Daily (10 hrs)</option><option value="weekly">Weekly (7 days)</option><option value="monthly" selected>Monthly (30 days)</option></select></div><div style="background:var(--pri-light);padding:14px;border-radius:8px;margin-bottom:16px;display:flex;justify-content:space-between"><span style="font-weight:600">Estimated Cost</span><span style="font-weight:800;color:var(--pri);font-size:1.1rem" id="bookEstCost">Rs. 0</span></div><div style="display:flex;gap:8px"><button class="btn-outline" style="flex:1" onclick="goToStep(2)"><i class="fa-solid fa-arrow-left"></i> Back</button><button class="btn-pri" style="flex:1" onclick="goToStep(4)">Review <i class="fa-solid fa-arrow-right"></i></button></div>';updateBookingCost();}
+
+function updateBookingCost(){var svc=servicesCache.find(function(s){return s._id===appState.bookingData.serviceId;});if(!svc)return;var durEl=document.getElementById('bookDuration');if(!durEl)return;var dur=durEl.value;var costs={hourly:svc.price*4,daily:svc.price*10,weekly:svc.price*70,monthly:svc.price*300};document.getElementById('bookEstCost').textContent='Rs. '+(costs[dur]||0).toLocaleString('en-IN');}
+
+function renderBookingStep4(){var svc=servicesCache.find(function(s){return s._id===appState.bookingData.serviceId;}),cg=caregiversCache.find(function(c){return c._id===appState.bookingData.caregiverId;}),patEl=document.getElementById('bookPatient'),pat=patEl?patientCache.find(function(p){return p._id===patEl.value;}):null,date=document.getElementById('bookDate').value,time=document.getElementById('bookTime').value||'--',dur=document.getElementById('bookDuration').value,dl={hourly:'Hourly (4 hrs)',daily:'Daily (10 hrs)',weekly:'Weekly (7 days)',monthly:'Monthly (30 days)'},costs={hourly:svc.price*4,daily:svc.price*10,weekly:svc.price*70,monthly:svc.price*300};document.getElementById('bookSummary').innerHTML='<div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">Service</span><span style="font-weight:600">'+(svc?svc.name:'N/A')+'</span></div><div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">Caregiver</span><span style="font-weight:600">'+(cg?cg.name:'N/A')+'</span></div><div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">Patient</span><span style="font-weight:600">'+(pat?pat.name:'N/A')+'</span></div><div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">Schedule</span><span style="font-weight:600">'+date+' '+time+'</span></div><div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">Duration</span><span style="font-weight:600">'+dl[dur]+'</span></div><div style="border-top:1px solid var(--border);padding-top:10px;margin-top:4px;display:flex;justify-content:space-between;font-size:1.1rem"><span style="font-weight:700">Total</span><span style="font-weight:800;color:var(--pri)">Rs. '+costs[dur].toLocaleString('en-IN')+'</span></div>';}
+
+/* ===== NEW: updateTabVisibility — hides tabs based on role ===== */
+function updateTabVisibility() {
+  var role = appState.currentRole;
+  var tabs = document.querySelectorAll('#dashTabBar .tab-btn');
+  for (var i = 0; i < tabs.length; i++) {
+    var tab = tabs[i].getAttribute('data-dtab');
+    tabs[i].style.display = canAccessTab(role, tab) ? '' : 'none';
   }
-  appState.bookingData = { serviceId: matchedServiceId, caregiverId: matchedCaregiverId };
-  renderBookingStep1();
-  goToStep(1);
-  openModal('bookingModal');
+  /* Also show/hide elements that are role-specific */
+  var addPatBtn = document.getElementById('addPatientDashBtn');
+  addPatBtn.style.display = (role === 'user' || role === 'admin') ? '' : 'none';
+  document.getElementById('sosCardDash').style.display = (role === 'user') ? '' : 'none';
+  document.getElementById('pendingCardDash').style.display = (role === 'caregiver' || role === 'admin') ? '' : 'none';
+
+  /* Update dashboard title and subtitle based on role */
+  var titles = { user: 'My Dashboard', caregiver: 'Caregiver Dashboard', admin: 'Admin Dashboard' };
+  var subs = { user: 'Manage your care journey', caregiver: 'Manage your assignments', admin: 'System overview & management' };
+  document.getElementById('dashTitle').textContent = titles[role] || titles.user;
+  document.getElementById('dashSubtitle').textContent = subs[role] || subs.user;
 }
 
-function goToStep(step) {
-  if (step === 2 && !appState.bookingData.serviceId) { showToast('Please select a service.', 'warning'); return; }
-  if (step === 3 && !appState.bookingData.caregiverId) { showToast('Please choose a caregiver.', 'warning'); return; }
-  if (step === 1) renderBookingStep1();
-  if (step === 2) renderBookingStep2();
-  if (step === 3) renderBookingStep3();
-  if (step === 4) renderBookingStep4();
-  var steps = document.querySelectorAll('.booking-step');
-  for (var i = 0; i < steps.length; i++) steps[i].classList.add('hidden');
-  document.getElementById('bookStep' + step).classList.remove('hidden');
-  var dots = document.querySelectorAll('.step-dot');
-  for (var i = 0; i < dots.length; i++) {
-    var s = parseInt(dots[i].getAttribute('data-step'));
-    dots[i].classList.remove('active', 'done');
-    if (s < step) dots[i].classList.add('done');
-    if (s === step) dots[i].classList.add('active');
+/* ===== UPDATED: switchDashTab — permission guard ===== */
+function switchDashTab(tab) {
+  var role = appState.currentRole;
+  /* SECURITY: Block access if role doesn't have permission */
+  if (!canAccessTab(role, tab)) {
+    tab = getDefaultTab(role);
   }
+  var tabs = document.querySelectorAll('.tab-btn');
+  for (var i = 0; i < tabs.length; i++) tabs[i].classList.remove('active');
+  var at = document.querySelector('[data-dtab="' + tab + '"]');
+  if (at) at.classList.add('active');
+  var panels = document.querySelectorAll('.dash-panel');
+  for (var i = 0; i < panels.length; i++) panels[i].classList.add('hidden');
+  var ap = document.getElementById('dash-' + tab);
+  if (ap) ap.classList.remove('hidden');
+  renderDashboard();
 }
 
-function renderBookingStep1() {
-  if (!servicesCache.length) {
-    document.getElementById('bookServiceList').innerHTML = '<p style="text-align:center;padding:24px;color:var(--muted)">Loading services...</p>';
+/* ===== UPDATED: switchRole — respects login state ===== */
+function switchRole(role) {
+  /* SECURITY: When logged in, role is locked from JWT — cannot switch */
+  if (appState.loggedIn) {
+    showToast('Role is set by your account. Sign out to switch.', 'warning');
     return;
   }
-  var h = '';
-  for (var i = 0; i < servicesCache.length; i++) {
-    var s = servicesCache[i], sel = appState.bookingData.serviceId === s._id, color = getServiceColor(s);
-    h += '<label style="display:flex;align-items:center;gap:14px;padding:14px;border-radius:10px;border:1.5px solid '+(sel?'var(--pri)':'var(--border)')+';cursor:pointer;background:'+(sel?'var(--pri-light)':'#fff')+'"><input type="radio" name="bookSvc" value="'+s._id+'" '+(sel?'checked':'')+' onchange="appState.bookingData.serviceId=\''+s._id+'\';renderBookingStep1()" style="accent-color:var(--pri);width:18px;height:18px"><div style="width:40px;height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:'+color+'12"><i class="fa-solid '+(s.icon||'fa-circle')+'" style="color:'+color+'"></i></div><div style="flex:1"><p style="font-weight:600;font-size:.9rem">'+s.name+'</p><p style="font-size:.75rem;color:var(--muted)">'+s.duration+'</p></div><p style="font-weight:700;font-size:.85rem;color:var(--pri)">Rs.'+s.price+'/hr</p></label>';
+  appState.currentRole = role;
+  var btns = document.querySelectorAll('.role-btn');
+  for (var i = 0; i < btns.length; i++) {
+    if (btns[i].getAttribute('data-role') === role) btns[i].classList.add('active');
+    else btns[i].classList.remove('active');
   }
-  document.getElementById('bookServiceList').innerHTML = h;
-}
-
-function renderBookingStep2() {
-  var svc = servicesCache.find(function(s) { return s._id === appState.bookingData.serviceId; });
-  if (!svc) { document.getElementById('bookCaregiverList').innerHTML = '<p style="text-align:center;padding:24px;color:var(--muted)">No service selected.</p>'; return; }
-  var fl = caregiversCache.filter(function(c) { return specialtyMatches(c, svc.name); });
-  if (!fl.length) fl = caregiversCache.filter(function(c) { return c.available; });
-  if (!fl.length) { document.getElementById('bookCaregiverList').innerHTML = '<p style="text-align:center;padding:32px;color:var(--muted)">No caregivers available for this service.</p>'; return; }
-  var h = '';
-  for (var i = 0; i < fl.length; i++) {
-    var c = fl[i], sel = appState.bookingData.caregiverId === c._id, photo = resolvePhoto(c.photo, 80);
-    h += '<label style="display:flex;align-items:center;gap:14px;padding:14px;border-radius:10px;border:1.5px solid '+(sel?'var(--pri)':'var(--border)')+';cursor:pointer;background:'+(sel?'var(--pri-light)':'#fff')+'"><input type="radio" name="bookCg" value="'+c._id+'" '+(sel?'checked':'')+' onchange="appState.bookingData.caregiverId=\''+c._id+'\';renderBookingStep2()" style="accent-color:var(--pri);width:18px;height:18px"><img src="'+photo+'" style="width:44px;height:44px;border-radius:50%;object-fit:cover;flex-shrink:0"><div style="flex:1;min-width:0"><p style="font-weight:600;font-size:.9rem">'+c.name+' <i class="fa-solid fa-circle-check" style="font-size:.65rem;color:var(--pri)"></i></p><p style="font-size:.75rem;color:var(--muted)">'+c.specialty+' &bull; '+c.experience+'yrs</p></div><div style="text-align:right;flex-shrink:0"><i class="fa-solid fa-star star" style="font-size:.7rem"></i><span style="font-size:.85rem;font-weight:600"> '+c.rating+'</span><p style="font-size:.75rem;font-weight:600;color:var(--pri);margin-top:2px">Rs.'+c.hourlyRate+'/hr</p></div></label>';
+  if (appState.currentPage === 'dashboard') {
+    updateTabVisibility();
+    switchDashTab(getDefaultTab(role));
   }
-  document.getElementById('bookCaregiverList').innerHTML = h;
-  if (appState.bookingData.caregiverId && fl.length) {
-    var preSelected = fl.find(function(c) { return c._id === appState.bookingData.caregiverId; });
-    if (!preSelected) { appState.bookingData.caregiverId = null; }
-  }
-}
-
-/* ===== UPDATED: renderBookingStep3 — now with inline quick-add and "New" button ===== */
-function renderBookingStep3() {
-  var today = new Date().toISOString().split('T')[0];
-  var ph = '';
-  for (var i = 0; i < patientCache.length; i++) {
-    ph += '<option value="' + patientCache[i]._id + '">' + patientCache[i].name + ' (' + patientCache[i].age + 'y)</option>';
-  }
-
-  var patientSectionHTML = '';
-
-  if (patientCache.length > 0) {
-    patientSectionHTML =
-      '<div class="form-group"><label>Patient</label>' +
-      '<div style="display:flex;gap:8px;align-items:end">' +
-      '<select id="bookPatient" style="flex:1">' + ph + '</select>' +
-      '<button type="button" onclick="openPatientFromBooking()" class="btn-outline btn-sm" style="height:42px;white-space:nowrap;flex-shrink:0"><i class="fa-solid fa-plus"></i> New</button>' +
-      '</div></div>';
-  } else {
-    patientSectionHTML =
-      '<div class="form-group"><label>Patient <span style="color:var(--error);font-weight:400">(required — add a patient first)</span></label>' +
-      '<div id="quickAddSection">' +
-        '<div style="display:flex;gap:8px;margin-bottom:10px">' +
-          '<input type="text" id="quickPatName" placeholder="Enter patient name" style="flex:1;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:.875rem;outline:none;font-family:var(--font)" onfocus="this.style.borderColor=\'var(--pri)\';this.style.boxShadow=\'0 0 0 3px rgba(15,118,110,.1)\'" onblur="this.style.borderColor=\'var(--border)\';this.style.boxShadow=\'none\'">' +
-          '<input type="number" id="quickPatAge" placeholder="Age" min="0" max="150" style="width:70px;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:.875rem;outline:none;font-family:var(--font)" onfocus="this.style.borderColor=\'var(--pri)\';this.style.boxShadow=\'0 0 0 3px rgba(15,118,110,.1)\'" onblur="this.style.borderColor=\'var(--border)\';this.style.boxShadow=\'none\'">' +
-          '<button type="button" onclick="quickAddPatient()" class="btn-pri btn-sm" style="white-space:nowrap;flex-shrink:0"><i class="fa-solid fa-plus"></i> Add</button>' +
-        '</div>' +
-        '<div id="quickAddMsg" style="display:none"></div>' +
-        '<p style="font-size:.75rem;color:var(--muted)"><i class="fa-solid fa-info-circle" style="margin-right:4px"></i>Or <a href="#" onclick="event.preventDefault();openPatientFromBooking()" style="color:var(--pri);font-weight:600;text-decoration:underline">add full patient details</a></p>' +
-      '</div>' +
-      '<div id="patientSelectSection" style="display:none">' +
-        '<div style="display:flex;gap:8px;align-items:end">' +
-          '<select id="bookPatient" style="flex:1;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:.875rem;font-family:var(--font)">' + ph + '</select>' +
-          '<button type="button" onclick="openPatientFromBooking()" class="btn-outline btn-sm" style="height:42px;white-space:nowrap;flex-shrink:0"><i class="fa-solid fa-plus"></i> New</button>' +
-        '</div>' +
-      '</div>' +
-      '</div>';
-  }
-
-  document.getElementById('bookStep3').innerHTML =
-    '<h4 style="font-weight:700;margin-bottom:16px">Schedule Details</h4>' +
-    '<div class="form-row"><div class="form-group"><label>Date</label><input type="date" id="bookDate" value="' + today + '" min="' + today + '"></div><div class="form-group"><label>Time</label><input type="time" id="bookTime"></div></div>' +
-    patientSectionHTML +
-    '<div class="form-group"><label>Duration</label><select id="bookDuration" onchange="updateBookingCost()"><option value="hourly">Hourly (4 hrs)</option><option value="daily">Daily (10 hrs)</option><option value="weekly">Weekly (7 days)</option><option value="monthly" selected>Monthly (30 days)</option></select></div>' +
-    '<div style="background:var(--pri-light);padding:14px;border-radius:8px;margin-bottom:16px;display:flex;justify-content:space-between"><span style="font-weight:600">Estimated Cost</span><span style="font-weight:800;color:var(--pri);font-size:1.1rem" id="bookEstCost">Rs. 0</span></div>' +
-    '<div style="display:flex;gap:8px"><button class="btn-outline" style="flex:1" onclick="goToStep(2)"><i class="fa-solid fa-arrow-left"></i> Back</button><button class="btn-pri" style="flex:1" onclick="goToStep(4)">Review <i class="fa-solid fa-arrow-right"></i></button></div>';
-
-  updateBookingCost();
-}
-
-function updateBookingCost() {
-  var svc = servicesCache.find(function(s) { return s._id === appState.bookingData.serviceId; });
-  if (!svc) return;
-  var durEl = document.getElementById('bookDuration');
-  if (!durEl) return;
-  var dur = durEl.value;
-  var costs = {hourly:svc.price*4, daily:svc.price*10, weekly:svc.price*70, monthly:svc.price*300};
-  document.getElementById('bookEstCost').textContent = 'Rs. ' + (costs[dur] || 0).toLocaleString('en-IN');
-}
-
-function renderBookingStep4() {
-  var svc=servicesCache.find(function(s){return s._id===appState.bookingData.serviceId;});
-  var cg=caregiversCache.find(function(c){return c._id===appState.bookingData.caregiverId;});
-  var patEl=document.getElementById('bookPatient');
-  var pat=patEl?patientCache.find(function(p){return p._id===patEl.value;}):null;
-  var date=document.getElementById('bookDate').value, time=document.getElementById('bookTime').value||'--';
-  var dur=document.getElementById('bookDuration').value;
-  var dl={hourly:'Hourly (4 hrs)',daily:'Daily (10 hrs)',weekly:'Weekly (7 days)',monthly:'Monthly (30 days)'};
-  var costs={hourly:svc.price*4,daily:svc.price*10,weekly:svc.price*70,monthly:svc.price*300};
-  document.getElementById('bookSummary').innerHTML='<div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">Service</span><span style="font-weight:600">'+(svc?svc.name:'N/A')+'</span></div><div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">Caregiver</span><span style="font-weight:600">'+(cg?cg.name:'N/A')+'</span></div><div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">Patient</span><span style="font-weight:600">'+(pat?pat.name:'N/A')+'</span></div><div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">Schedule</span><span style="font-weight:600">'+date+' '+time+'</span></div><div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">Duration</span><span style="font-weight:600">'+dl[dur]+'</span></div><div style="border-top:1px solid var(--border);padding-top:10px;margin-top:4px;display:flex;justify-content:space-between;font-size:1.1rem"><span style="font-weight:700">Total</span><span style="font-weight:800;color:var(--pri)">Rs. '+costs[dur].toLocaleString('en-IN')+'</span></div>';
 }
 
 /* ===== DASHBOARD ===== */
 function renderDashboard() {
-  document.getElementById('patCountDash').textContent=patientCache.length;
-  document.getElementById('sosCountDash').textContent=sosContacts.length;
-  document.getElementById('cgPendingCount').textContent=cgRequests.length;
-  document.getElementById('bookingCountDash').textContent=bookingsCache.length;
-  document.getElementById('noPatientMsg').style.display=patientCache.length?'none':'block';
-  var ppH='';for(var i=0;i<patientCache.length;i++){var p=patientCache[i];ppH+='<div style="background:#fff;border-radius:var(--radius);padding:16px;border:1px solid var(--border);display:flex;align-items:start;gap:14px"><div style="width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:var(--pri-light)"><i class="fa-solid fa-user" style="color:var(--pri)"></i></div><div style="flex:1;min-width:0"><h4 style="font-weight:600">'+p.name+' <span style="font-size:.8rem;color:var(--muted)">'+p.age+'y, '+p.gender+'</span></h4><p style="font-size:.85rem;color:var(--muted)">'+(p.conditions||'None')+'</p><p style="font-size:.8rem;color:var(--error);margin-top:4px"><i class="fa-solid fa-phone" style="margin-right:4px"></i>SOS: '+(p.emergencyName||'N/A')+' — '+(p.emergencyPhone||'N/A')+'</p></div></div>';}
-  document.getElementById('patientProfilesList').innerHTML=ppH;
-  if(bookingsCache.length){var ubH='<thead><tr><th>ID</th><th>Service</th><th>Caregiver</th><th>Date</th><th>Status</th><th>Cost</th></tr></thead><tbody>';for(var i=0;i<bookingsCache.length;i++){var b=bookingsCache[i],svc=servicesCache.find(function(s){return s._id===b.serviceId;}),cg=caregiversCache.find(function(c){return c._id===b.caregiverId;}),bsc='badge-pending';if(b.status==='confirmed')bsc='badge-active';if(b.status==='completed')bsc='badge-completed';if(b.status==='cancelled')bsc='badge-cancelled';ubH+='<tr><td style="font-family:monospace;font-size:.8rem;font-weight:600">'+(b.bookingId||b._id)+'</td><td>'+(svc?svc.name:'N/A')+'</td><td>'+(cg?cg.name:'N/A')+'</td><td>'+b.date+'</td><td><span class="badge '+bsc+'">'+(b.status||'pending').charAt(0).toUpperCase()+(b.status||'pending').slice(1)+'</span></td><td style="font-weight:600">Rs. '+(b.cost||0).toLocaleString('en-IN')+'</td></tr>';}ubH+='</tbody>';document.getElementById('userBookingsTable').innerHTML=ubH;}
-  if(cgRequests.length){var crH='';for(var i=0;i<cgRequests.length;i++){var r=cgRequests[i];crH+='<div style="background:#fff;border-radius:var(--radius);padding:16px;border:1px solid var(--border);display:flex;flex-wrap:wrap;align-items:center;gap:12px"><div style="flex:1;min-width:200px"><h4 style="font-weight:600">'+(r.patient||'Patient')+'</h4><p style="font-size:.85rem;color:var(--muted)">'+r.service+' &bull; '+r.duration+'</p></div><div style="display:flex;gap:8px"><button onclick="handleCgRequest(\''+r._id+'\',true)" class="btn-pri btn-sm"><i class="fa-solid fa-check" style="margin-right:4px"></i>Accept</button><button onclick="handleCgRequest(\''+r._id+'\',false)" class="btn-ghost btn-sm" style="color:var(--error)"><i class="fa-solid fa-xmark" style="margin-right:4px"></i>Decline</button></div></div>';}document.getElementById('cgRequestsList').innerHTML=crH;}
-  var whH='<thead><tr><th>Patient</th><th>Service</th><th>Date</th><th>Duration</th><th>Rating</th><th>Earnings</th></tr></thead><tbody>';for(var i=0;i<cgWorkHistory.length;i++){var w=cgWorkHistory[i];whH+='<tr><td>'+w.patient+'</td><td>'+w.service+'</td><td>'+w.date+'</td><td>'+w.duration+'</td><td><i class="fa-solid fa-star star" style="font-size:.7rem"></i> '+w.rating+'</td><td style="font-weight:600;color:var(--success)">Rs. '+w.earned.toLocaleString('en-IN')+'</td></tr>';}whH+='</tbody>';document.getElementById('cgWorkTable').innerHTML=whH;
-  document.getElementById('adminUsers').textContent=adminDashboard.users||0;
-  document.getElementById('adminCGs').textContent=adminDashboard.caregivers||0;
-  document.getElementById('adminPending').textContent=adminDashboard.pendingVerifications||0;
-  document.getElementById('adminBookings').textContent=adminDashboard.totalBookings||0;
-  if(adminPendingVerify.length){var avH='<thead><tr><th>Name</th><th>Qualification</th><th>Exp.</th><th>City</th><th>Action</th></tr></thead><tbody>';for(var i=0;i<adminPendingVerify.length;i++){var v=adminPendingVerify[i];avH+='<tr><td style="font-weight:600">'+v.name+'</td><td>'+v.qualification+'</td><td>'+v.experience+'y</td><td>'+v.city+'</td><td><div style="display:flex;gap:6px"><button onclick="handleVerify(\''+v._id+'\',true)" class="btn-pri btn-sm"><i class="fa-solid fa-check" style="margin-right:3px"></i>Approve</button><button onclick="handleVerify(\''+v._id+'\',false)" class="btn-ghost btn-sm" style="color:var(--error)"><i class="fa-solid fa-xmark" style="margin-right:3px"></i>Reject</button></div></td></tr>';}avH+='</tbody>';document.getElementById('adminVerifyTable').innerHTML=avH;}
-  var acH='<thead><tr><th>ID</th><th>User</th><th>Caregiver</th><th>Issue</th><th>Priority</th><th>Status</th><th>Action</th></tr></thead><tbody>';for(var i=0;i<adminComplaints.length;i++){var c=adminComplaints[i],pc=c.priority==='High'?'badge-cancelled':c.priority==='Medium'?'badge-pending':'badge-active',sc=c.status==='Resolved'?'badge-completed':c.status==='In Progress'?'badge-pending':'badge-active';acH+='<tr><td style="font-family:monospace;font-size:.8rem">'+c._id+'</td><td>'+c.user+'</td><td>'+c.caregiver+'</td><td style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+c.issue+'</td><td><span class="badge '+pc+'">'+c.priority+'</span></td><td><span class="badge '+sc+'">'+c.status+'</span></td><td><button onclick="showToast(\'Reviewed\',\'info\')" class="btn-ghost btn-sm"><i class="fa-solid fa-eye" style="margin-right:3px"></i>View</button></td></tr>';}acH+='</tbody>';document.getElementById('adminComplaintsTable').innerHTML=acH;
-  renderAdminCharts();
+  var role = appState.currentRole;
+
+  /* Common cards */
+  document.getElementById('patCountDash').textContent = patientCache.length;
+  document.getElementById('bookingCountDash').textContent = bookingsCache.length;
+
+  /* Role-specific card values */
+  if (role === 'user') {
+    document.getElementById('sosCountDash').textContent = sosContacts.length;
+    document.getElementById('cgPendingCount').textContent = '0';
+  } else if (role === 'caregiver') {
+    document.getElementById('cgPendingCount').textContent = cgRequests.length;
+  }
+
+  /* Patient profiles — only for user and admin */
+  if (role === 'user' || role === 'admin') {
+    document.getElementById('noPatientMsg').style.display = patientCache.length ? 'none' : 'block';
+    var ppH = '';
+    for (var i = 0; i < patientCache.length; i++) {
+      var p = patientCache[i];
+      ppH += '<div style="background:#fff;border-radius:var(--radius);padding:16px;border:1px solid var(--border);display:flex;align-items:start;gap:14px"><div style="width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:var(--pri-light)"><i class="fa-solid fa-user" style="color:var(--pri)"></i></div><div style="flex:1;min-width:0"><h4 style="font-weight:600">' + p.name + ' <span style="font-size:.8rem;color:var(--muted)">' + p.age + 'y, ' + p.gender + '</span></h4><p style="font-size:.85rem;color:var(--muted)">' + (p.conditions || 'None') + '</p><p style="font-size:.8rem;color:var(--error);margin-top:4px"><i class="fa-solid fa-phone" style="margin-right:4px"></i>SOS: ' + (p.emergencyName || 'N/A') + ' — ' + (p.emergencyPhone || 'N/A') + '</p></div></div>';
+    }
+    document.getElementById('patientProfilesList').innerHTML = ppH;
+  }
+
+  /* Bookings table — all roles */
+  if (bookingsCache.length) {
+    var ubH = '<thead><tr><th>ID</th><th>Service</th><th>Caregiver</th><th>Date</th><th>Status</th><th>Cost</th></tr></thead><tbody>';
+    for (var i = 0; i < bookingsCache.length; i++) {
+      var b = bookingsCache[i], svc = servicesCache.find(function(s) { return s._id === b.serviceId; }), cg = caregiversCache.find(function(c) { return c._id === b.caregiverId; }), bsc = 'badge-pending';
+      if (b.status === 'confirmed') bsc = 'badge-active';
+      if (b.status === 'completed') bsc = 'badge-completed';
+      if (b.status === 'cancelled') bsc = 'badge-cancelled';
+      ubH += '<tr><td style="font-family:monospace;font-size:.8rem;font-weight:600">' + (b.bookingId || b._id) + '</td><td>' + (svc ? svc.name : 'N/A') + '</td><td>' + (cg ? cg.name : 'N/A') + '</td><td>' + b.date + '</td><td><span class="badge ' + bsc + '">' + (b.status || 'pending').charAt(0).toUpperCase() + (b.status || 'pending').slice(1) + '</span></td><td style="font-weight:600">Rs. ' + (b.cost || 0).toLocaleString('en-IN') + '</td></tr>';
+    }
+    ubH += '</tbody>';
+    document.getElementById('userBookingsTable').innerHTML = ubH;
+  }
+
+  /* Caregiver requests — only for caregiver and admin */
+  if (role === 'caregiver' || role === 'admin') {
+    if (cgRequests.length) {
+      var crH = '';
+      for (var i = 0; i < cgRequests.length; i++) {
+        var r = cgRequests[i];
+        crH += '<div style="background:#fff;border-radius:var(--radius);padding:16px;border:1px solid var(--border);display:flex;flex-wrap:wrap;align-items:center;gap:12px"><div style="flex:1;min-width:200px"><h4 style="font-weight:600">' + (r.patient || 'Patient') + '</h4><p style="font-size:.85rem;color:var(--muted)">' + r.service + ' &bull; ' + r.duration + '</p></div><div style="display:flex;gap:8px"><button onclick="handleCgRequest(\'' + r._id + '\',true)" class="btn-pri btn-sm"><i class="fa-solid fa-check" style="margin-right:4px"></i>Accept</button><button onclick="handleCgRequest(\'' + r._id + '\',false)" class="btn-ghost btn-sm" style="color:var(--error)"><i class="fa-solid fa-xmark" style="margin-right:4px"></i>Decline</button></div></div>';
+      }
+      document.getElementById('cgRequestsList').innerHTML = crH;
+    }
+    var whH = '<thead><tr><th>Patient</th><th>Service</th><th>Date</th><th>Duration</th><th>Rating</th><th>Earnings</th></tr></thead><tbody>';
+    for (var i = 0; i < cgWorkHistory.length; i++) {
+      var w = cgWorkHistory[i];
+      whH += '<tr><td>' + w.patient + '</td><td>' + w.service + '</td><td>' + w.date + '</td><td>' + w.duration + '</td><td><i class="fa-solid fa-star star" style="font-size:.7rem"></i> ' + w.rating + '</td><td style="font-weight:600;color:var(--success)">Rs. ' + w.earned.toLocaleString('en-IN') + '</td></tr>';
+    }
+    whH += '</tbody>';
+    document.getElementById('cgWorkTable').innerHTML = whH;
+  }
+
+  /* ===== ADMIN ONLY — completely skip if not admin ===== */
+  if (role === 'admin') {
+    document.getElementById('adminUsers').textContent = adminDashboard.users || 0;
+    document.getElementById('adminCGs').textContent = adminDashboard.caregivers || 0;
+    document.getElementById('adminPending').textContent = adminDashboard.pendingVerifications || 0;
+    document.getElementById('adminBookings').textContent = adminDashboard.totalBookings || 0;
+    if (adminPendingVerify.length) {
+      var avH = '<thead><tr><th>Name</th><th>Qualification</th><th>Exp.</th><th>City</th><th>Action</th></tr></thead><tbody>';
+      for (var i = 0; i < adminPendingVerify.length; i++) {
+        var v = adminPendingVerify[i];
+        avH += '<tr><td style="font-weight:600">' + v.name + '</td><td>' + v.qualification + '</td><td>' + v.experience + 'y</td><td>' + v.city + '</td><td><div style="display:flex;gap:6px"><button onclick="handleVerify(\'' + v._id + '\',true)" class="btn-pri btn-sm"><i class="fa-solid fa-check" style="margin-right:3px"></i>Approve</button><button onclick="handleVerify(\'' + v._id + '\',false)" class="btn-ghost btn-sm" style="color:var(--error)"><i class="fa-solid fa-xmark" style="margin-right:3px"></i>Reject</button></div></td></tr>';
+      }
+      avH += '</tbody>';
+      document.getElementById('adminVerifyTable').innerHTML = avH;
+    }
+    var acH = '<thead><tr><th>ID</th><th>User</th><th>Caregiver</th><th>Issue</th><th>Priority</th><th>Status</th><th>Action</th></tr></thead><tbody>';
+    for (var i = 0; i < adminComplaints.length; i++) {
+      var c = adminComplaints[i], pc = c.priority === 'High' ? 'badge-cancelled' : c.priority === 'Medium' ? 'badge-pending' : 'badge-active', sc = c.status === 'Resolved' ? 'badge-completed' : c.status === 'In Progress' ? 'badge-pending' : 'badge-active';
+      acH += '<tr><td style="font-family:monospace;font-size:.8rem">' + c._id + '</td><td>' + c.user + '</td><td>' + c.caregiver + '</td><td style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + c.issue + '</td><td><span class="badge ' + pc + '">' + c.priority + '</span></td><td><span class="badge ' + sc + '">' + c.status + '</span></td><td><button onclick="showToast(\'Reviewed\',\'info\')" class="btn-ghost btn-sm"><i class="fa-solid fa-eye" style="margin-right:3px"></i>View</button></td></tr>';
+    }
+    acH += '</tbody>';
+    document.getElementById('adminComplaintsTable').innerHTML = acH;
+    renderAdminCharts();
+  }
 }
 
-/* ===== ADMIN CHARTS ===== */
-var bCI=null,sdCI=null;
-function renderAdminCharts(){
-  if(document.getElementById('dash-admin').classList.contains('hidden'))return;
-  var c1=document.getElementById('bookingsChart').getContext('2d');if(bCI)bCI.destroy();
-  bCI=new Chart(c1,{type:'bar',data:{labels:['Jul','Aug','Sep','Oct','Nov','Dec','Jan'],datasets:[{label:'Bookings',data:[4200,4800,5100,5600,6200,6800,7400],backgroundColor:'rgba(15,118,110,0.8)',borderRadius:6,borderSkipped:false,barThickness:28}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,grid:{color:'#F3EDE4'},ticks:{font:{family:'DM Sans',size:11},color:'#94A3B8'}},x:{grid:{display:false},ticks:{font:{family:'DM Sans',size:11},color:'#64748B'}}}}});
-  var c2=document.getElementById('serviceDistChart').getContext('2d');if(sdCI)sdCI.destroy();
-  sdCI=new Chart(c2,{type:'doughnut',data:{labels:['Nursing','Attendant','Physio','Post-Hosp','Dementia','Palliative'],datasets:[{data:[35,25,18,12,6,4],backgroundColor:['#0F766E','#D97706','#059669','#7C3AED','#DC2626','#1E40AF'],borderWidth:0,spacing:2}]},options:{responsive:true,maintainAspectRatio:false,cutout:'65%',plugins:{legend:{position:'bottom',labels:{font:{family:'DM Sans',size:10},color:'#64748B',padding:10,usePointStyle:true,pointStyleWidth:8}}}}});
+/* ===== ADMIN CHARTS — early return if not admin ===== */
+var bCI = null, sdCI = null;
+function renderAdminCharts() {
+  if (appState.currentRole !== 'admin') return;
+  if (document.getElementById('dash-admin').classList.contains('hidden')) return;
+  var c1 = document.getElementById('bookingsChart').getContext('2d'); if (bCI) bCI.destroy();
+  bCI = new Chart(c1, { type: 'bar', data: { labels: ['Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan'], datasets: [{ label: 'Bookings', data: [4200, 4800, 5100, 5600, 6200, 6800, 7400], backgroundColor: 'rgba(15,118,110,0.8)', borderRadius: 6, borderSkipped: false, barThickness: 28 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { color: '#F3EDE4' }, ticks: { font: { family: 'DM Sans', size: 11 }, color: '#94A3B8' } }, x: { grid: { display: false }, ticks: { font: { family: 'DM Sans', size: 11 }, color: '#64748B' } } } } });
+  var c2 = document.getElementById('serviceDistChart').getContext('2d'); if (sdCI) sdCI.destroy();
+  sdCI = new Chart(c2, { type: 'doughnut', data: { labels: ['Nursing', 'Attendant', 'Physio', 'Post-Hosp', 'Dementia', 'Palliative'], datasets: [{ data: [35, 25, 18, 12, 6, 4], backgroundColor: ['#0F766E', '#D97706', '#059669', '#7C3AED', '#DC2626', '#1E40AF'], borderWidth: 0, spacing: 2 }] }, options: { responsive: true, maintainAspectRatio: false, cutout: '65%', plugins: { legend: { position: 'bottom', labels: { font: { family: 'DM Sans', size: 10 }, color: '#64748B', padding: 10, usePointStyle: true, pointStyleWidth: 8 } } } } });
 }
 
-/* ===== NAVIGATION ===== */
-function navigate(page){
-  appState.currentPage=page;var pages=document.querySelectorAll('.page');for(var i=0;i<pages.length;i++)pages[i].classList.remove('active');
-  var target=document.getElementById('page-'+page);if(target)setTimeout(function(){target.classList.add('active');},30);
-  var navLinks=document.querySelectorAll('[data-nav]');for(var i=0;i<navLinks.length;i++)navLinks[i].classList.remove('active');
-  var al=document.querySelector('[data-nav="'+page+'"]');if(al)al.classList.add('active');
-  window.scrollTo({top:0,behavior:'smooth'});setTimeout(initReveal,100);
-  if(page==='dashboard'){switchDashTab(appState.currentRole==='admin'?'admin':appState.currentRole==='caregiver'?'cg-work':'user');renderDashboard();}
-  if(page==='caregivers')renderCaregiversPage();if(page==='services')renderServicesPage();
+/* ===== UPDATED: navigate — uses permission-safe tab ===== */
+function navigate(page) {
+  appState.currentPage = page;
+  var pages = document.querySelectorAll('.page');
+  for (var i = 0; i < pages.length; i++) pages[i].classList.remove('active');
+  var target = document.getElementById('page-' + page);
+  if (target) setTimeout(function() { target.classList.add('active'); }, 30);
+  var navLinks = document.querySelectorAll('[data-nav]');
+  for (var i = 0; i < navLinks.length; i++) navLinks[i].classList.remove('active');
+  var al = document.querySelector('[data-nav="' + page + '"]');
+  if (al) al.classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  setTimeout(initReveal, 100);
+  if (page === 'dashboard') {
+    updateTabVisibility();
+    switchDashTab(getDefaultTab(appState.currentRole));
+  }
+  if (page === 'caregivers') renderCaregiversPage();
+  if (page === 'services') renderServicesPage();
 }
-function switchRole(role){
-  appState.currentRole=role;var btns=document.querySelectorAll('.role-btn');for(var i=0;i<btns.length;i++){if(btns[i].getAttribute('data-role')===role)btns[i].classList.add('active');else btns[i].classList.remove('active');}
-  if(appState.currentPage==='dashboard')switchDashTab(role==='admin'?'admin':role==='caregiver'?'cg-work':'user');
-}
-function switchDashTab(tab){
-  var tabs=document.querySelectorAll('.tab-btn');for(var i=0;i<tabs.length;i++)tabs[i].classList.remove('active');var at=document.querySelector('[data-dtab="'+tab+'"]');if(at)at.classList.add('active');
-  var panels=document.querySelectorAll('.dash-panel');for(var i=0;i<panels.length;i++)panels[i].classList.add('hidden');var ap=document.getElementById('dash-'+tab);if(ap)ap.classList.remove('hidden');
-  renderDashboard();
-}
-function toggleMobileMenu(){document.getElementById('mobileMenu').classList.toggle('open');}
-function openModal(id){document.getElementById(id).classList.add('open');document.body.style.overflow='hidden';}
-function closeModal(id){document.getElementById(id).classList.remove('open');document.body.style.overflow='';}
-document.addEventListener('click',function(e){if(e.target.classList.contains('modal-overlay')){e.target.classList.remove('open');document.body.style.overflow='';}});
-function showToast(msg,type){type=type||'info';var c=document.getElementById('toastContainer'),t=document.createElement('div');t.className='toast '+type;var ic=type==='success'?'fa-check-circle':type==='error'?'fa-circle-exclamation':type==='warning'?'fa-triangle-exclamation':'fa-info-circle';t.innerHTML='<i class="fa-solid '+ic+'" style="margin-right:8px"></i>'+msg;c.appendChild(t);setTimeout(function(){t.style.animation='toastOut .4s ease forwards';setTimeout(function(){t.remove();},400);},3500);}
 
-function initHeroCanvas(){var canvas=document.getElementById('heroCanvas');if(!canvas)return;var ctx=canvas.getContext('2d'),particles=[];function resize(){canvas.width=canvas.parentElement.offsetWidth;canvas.height=canvas.parentElement.offsetHeight;}resize();window.addEventListener('resize',resize);for(var i=0;i<40;i++)particles.push({x:Math.random()*canvas.width,y:Math.random()*canvas.height,r:Math.random()*3+1,dx:(Math.random()-.5)*.5,dy:(Math.random()-.5)*.5,o:Math.random()*.3+.1});function draw(){ctx.clearRect(0,0,canvas.width,canvas.height);for(var i=0;i<particles.length;i++){var p=particles[i];ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle='rgba(15,118,110,'+p.o+')';ctx.fill();p.x+=p.dx;p.y+=p.dy;if(p.x<0||p.x>canvas.width)p.dx*=-1;if(p.y<0||p.y>canvas.height)p.dy*=-1;}for(var i=0;i<particles.length;i++){for(var j=i+1;j<particles.length;j++){var dx=particles[i].x-particles[j].x,dy=particles[i].y-particles[j].y,dist=Math.sqrt(dx*dx+dy*dy);if(dist<120){ctx.beginPath();ctx.moveTo(particles[i].x,particles[i].y);ctx.lineTo(particles[j].x,particles[j].y);ctx.strokeStyle='rgba(15,118,110,'+(0.08*(1-dist/120))+')';ctx.stroke();}}}requestAnimationFrame(draw);}draw();}
-function initReveal(){var els=document.querySelectorAll('.reveal:not(.visible)');var observer=new IntersectionObserver(function(entries){entries.forEach(function(entry){if(entry.isIntersecting){entry.target.classList.add('visible');observer.unobserve(entry.target);}});},{threshold:0.1});els.forEach(function(el){observer.observe(el);});}
-function initStatCounters(){var counters=document.querySelectorAll('.stat-counter');var observer=new IntersectionObserver(function(entries){entries.forEach(function(entry){if(entry.isIntersecting){var el=entry.target,target=parseInt(el.getAttribute('data-target'));if(!target)return;var duration=1500,startTime=null;function animate(ts){if(!startTime)startTime=ts;var progress=Math.min((ts-startTime)/duration,1),eased=1-Math.pow(1-progress,3);el.textContent=Math.floor(eased*target).toLocaleString('en-IN')+'+';if(progress<1)requestAnimationFrame(animate);}requestAnimationFrame(animate);observer.unobserve(el);}});},{threshold:0.5});counters.forEach(function(c){observer.observe(c);});}
-function initNavScroll(){window.addEventListener('scroll',function(){var nav=document.getElementById('mainNav');if(window.scrollY>20)nav.classList.add('scrolled');else nav.classList.remove('scrolled');},{passive:true});}
+function toggleMobileMenu() { document.getElementById('mobileMenu').classList.toggle('open'); }
+function openModal(id) { document.getElementById(id).classList.add('open'); document.body.style.overflow = 'hidden'; }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); document.body.style.overflow = ''; }
+document.addEventListener('click', function(e) { if (e.target.classList.contains('modal-overlay')) { e.target.classList.remove('open'); document.body.style.overflow = ''; } });
+function showToast(msg, type) { type = type || 'info'; var c = document.getElementById('toastContainer'), t = document.createElement('div'); t.className = 'toast ' + type; var ic = type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-circle-exclamation' : type === 'warning' ? 'fa-triangle-exclamation' : 'fa-info-circle'; t.innerHTML = '<i class="fa-solid ' + ic + '" style="margin-right:8px"></i>' + msg; c.appendChild(t); setTimeout(function() { t.style.animation = 'toastOut .4s ease forwards'; setTimeout(function() { t.remove(); }, 400); }, 3500); }
+
+function initHeroCanvas() { var canvas = document.getElementById('heroCanvas'); if (!canvas) return; var ctx = canvas.getContext('2d'), particles = []; function resize() { canvas.width = canvas.parentElement.offsetWidth; canvas.height = canvas.parentElement.offsetHeight; } resize(); window.addEventListener('resize', resize); for (var i = 0; i < 40; i++) particles.push({ x: Math.random() * canvas.width, y: Math.random() * canvas.height, r: Math.random() * 3 + 1, dx: (Math.random() - .5) * .5, dy: (Math.random() - .5) * .5, o: Math.random() * .3 + .1 }); function draw() { ctx.clearRect(0, 0, canvas.width, canvas.height); for (var i = 0; i < particles.length; i++) { var p = particles[i]; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fillStyle = 'rgba(15,118,110,' + p.o + ')'; ctx.fill(); p.x += p.dx; p.y += p.dy; if (p.x < 0 || p.x > canvas.width) p.dx *= -1; if (p.y < 0 || p.y > canvas.height) p.dy *= -1; } for (var i = 0; i < particles.length; i++) { for (var j = i + 1; j < particles.length; j++) { var dx = particles[i].x - particles[j].x, dy = particles[i].y - particles[j].y, dist = Math.sqrt(dx * dx + dy * dy); if (dist < 120) { ctx.beginPath(); ctx.moveTo(particles[i].x, particles[i].y); ctx.lineTo(particles[j].x, particles[j].y); ctx.strokeStyle = 'rgba(15,118,110,' + (0.08 * (1 - dist / 120)) + ')'; ctx.stroke(); } } } requestAnimationFrame(draw); } draw(); }
+function initReveal() { var els = document.querySelectorAll('.reveal:not(.visible)'); var observer = new IntersectionObserver(function(entries) { entries.forEach(function(entry) { if (entry.isIntersecting) { entry.target.classList.add('visible'); observer.unobserve(entry.target); } }); }, { threshold: 0.1 }); els.forEach(function(el) { observer.observe(el); }); }
+function initStatCounters() { var counters = document.querySelectorAll('.stat-counter'); var observer = new IntersectionObserver(function(entries) { entries.forEach(function(entry) { if (entry.isIntersecting) { var el = entry.target, target = parseInt(el.getAttribute('data-target')); if (!target) return; var duration = 1500, startTime = null; function animate(ts) { if (!startTime) startTime = ts; var progress = Math.min((ts - startTime) / duration, 1), eased = 1 - Math.pow(1 - progress, 3); el.textContent = Math.floor(eased * target).toLocaleString('en-IN') + '+'; if (progress < 1) requestAnimationFrame(animate); } requestAnimationFrame(animate); observer.unobserve(el); } }); }, { threshold: 0.5 }); counters.forEach(function(c) { observer.observe(c); }); }
+function initNavScroll() { window.addEventListener('scroll', function() { var nav = document.getElementById('mainNav'); if (window.scrollY > 20) nav.classList.add('scrolled'); else nav.classList.remove('scrolled'); }, { passive: true }); }
 
 /* ===== INIT ===== */
 document.addEventListener('DOMContentLoaded', function() {
   loadFallbackData();
   updateAuthUI();
+  updateTabVisibility();
   Promise.all([loadServices(), loadCaregivers(), loadPatients(), loadBookings(), loadAdminData()])
-    .catch(function(){ console.log('API offline — using fallback data'); })
-    .finally(function(){
+    .catch(function() { console.log('API offline — using fallback data'); })
+    .finally(function() {
       renderHomeServices();
       renderHomeCaregivers();
       renderTestimonials();
