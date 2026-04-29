@@ -410,7 +410,34 @@ function updateAuthUI(){
 
 var patientCache=[],servicesCache=[],caregiversCache=[],bookingsCache=[],cgRequests=[],adminPendingVerify=[];
 var adminDashboard={users:0,caregivers:0,pendingVerifications:0,totalBookings:0};
-var cgWorkHistory=[{id:'WH01',patient:'Ramesh Agarwal Sr.',service:'Nursing',date:'2024-12-15',duration:'Monthly',rating:5,earned:36000},{id:'WH02',patient:'Sarojini Iyer',service:'Physiotherapy',date:'2024-11-01',duration:'4 weeks',rating:4,earned:25200},{id:'WH03',patient:'Dalip Singh',service:'Post-Hospital',date:'2024-10-10',duration:'14 days',rating:5,earned:19600}];
+function getCgWorkHistory(cgId){
+
+  return bookingsCache
+    .filter(function(b){
+      return b.caregiverId === cgId && b.status === "completed";
+    })
+    .map(function(b){
+
+      var svc = servicesCache.find(function(s){
+        return s._id === b.serviceId;
+      });
+
+      var pat = patientCache.find(function(p){
+        return p._id === b.patientId;
+      });
+
+      return {
+        patient: pat ? pat.name : "Unknown",
+        service: svc ? svc.name : "Unknown",
+        date: b.date,
+        duration: b.durationType,
+        rating: 5,
+        earned: b.cost || 0
+      };
+
+    });
+
+}
 var adminComplaints=[{_id:'CMP01',user:'Vikram Singh',caregiver:'Rajesh Kumar',issue:'Late arrival',status:'Open',priority:'Medium'},{_id:'CMP02',user:'Preethi Rao',caregiver:'Meena Patel',issue:'Medication gap',status:'In Progress',priority:'High'},{_id:'CMP03',user:'Arun Khanna',caregiver:'Mohammed Irfan',issue:'Quality issues',status:'Resolved',priority:'Low'}];
 var sosContacts=[],nearbyHospitals=[{name:'Lilavati Hospital',address:'Bandra, Mumbai',phone:'+912226407777',distance:'2.3 km'},{name:'Apollo Hospital',address:'Sarita Vihar, Delhi',phone:'+91126925888',distance:'3.1 km'},{name:'Manipal Hospital',address:'Old Airport Rd, Bangalore',phone:'+918025024444',distance:'1.8 km'}];
 var testimonials=[{name:'Ramesh Agarwal',relation:'Son',text:'Care24 made it easy to find a trusted nurse for my father after bypass surgery.',rating:5},{name:'Lakshmi V.',relation:'Daughter',text:'Finding the right caregiver for my mother with dementia felt impossible until Care24 matched us with Meena.',rating:5},{name:'Arjun Mehta',relation:'Husband',text:'Physiotherapy sessions at home were fantastic after knee replacement surgery.',rating:5}];
@@ -487,11 +514,142 @@ function filterServices(f){var btns=document.querySelectorAll('.svc-filter');for
 function renderCaregiversPage(){var sp=document.getElementById('cgSpecialtyFilter').value,rt=parseFloat(document.getElementById('cgRatingFilter').value)||0,ct=document.getElementById('cgCityFilter').value;if(!caregiversCache.length){document.getElementById('caregiversGrid').innerHTML='<div style="grid-column:1/-1;text-align:center;padding:64px;color:var(--muted)">Loading...</div>';return}var fl=caregiversCache.filter(function(c){if(sp!=='all'&&c.specialty!==sp)return false;if(rt>0&&Number(c.rating)<rt)return false;if(ct!=='all'&&c.city!==ct)return false;return true});document.getElementById('caregiversCount').textContent=fl.length;if(!fl.length){document.getElementById('caregiversGrid').innerHTML='<div style="grid-column:1/-1;text-align:center;padding:64px;color:var(--muted)">No match.</div>';return}var h='';for(var i=0;i<fl.length;i++){var c=fl[i],dc=c.available?'#059669':'#D97706',img=resolvePhoto(c.photo,100),sf=findServiceForCaregiver(c),bid=sf?sf._id:'';h+='<div class="card-lift bg-white rounded-2xl p-6 border reveal" style="border-color:var(--border)"><div style="display:flex;align-items:center;gap:12px;margin-bottom:12px"><div style="position:relative"><img src="'+img+'" style="width:56px;height:56px;border-radius:50%;object-fit:cover"><div style="position:absolute;bottom:-2px;right:-2px;width:14px;height:14px;border-radius:50%;background:'+dc+';border:2px solid #fff"></div></div><div style="flex:1"><h3 style="font-weight:600;font-size:.95rem">'+c.name+'</h3><p style="font-size:.8rem;color:var(--muted)">'+c.specialty+'</p><div style="display:flex;align-items:center;gap:4px;margin-top:2px"><i class="fa-solid fa-star star" style="font-size:.7rem"></i><span style="font-size:.85rem;font-weight:600">'+c.rating+'</span></div></div></div><div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px;text-align:center"><div style="border-radius:8px;padding:8px;background:var(--bg2)"><p style="font-size:.85rem;font-weight:700">'+c.experience+'yr</p></div><div style="border-radius:8px;padding:8px;background:var(--bg2)"><p style="font-size:.85rem;font-weight:700">'+c.city+'</p></div><div style="border-radius:8px;padding:8px;background:var(--pri-light)"><p style="font-size:.85rem;font-weight:700;color:var(--pri)">Rs.'+c.hourlyRate+'</p></div></div><p style="font-size:.8rem;color:var(--muted);margin-bottom:12px">'+(c.about||'').substring(0,80)+'...</p><div style="display:flex;gap:8px"><button onclick="viewCaregiver(\''+c._id+'\')" class="btn-outline btn-sm" style="flex:1">Profile</button>'+(c.available?'<button onclick="startBooking(\''+bid+'\')" class="btn-pri btn-sm" style="flex:1">Book</button>':'')+'</div></div>'}document.getElementById('caregiversGrid').innerHTML=h}
 function filterCaregivers(){renderCaregiversPage()}
 function viewCaregiver(id){var cg=caregiversCache.find(function(c){return c._id===id});if(!cg)return;var sf=findServiceForCaregiver(cg),bid=sf?sf._id:'';var img=resolvePhoto(cg.photo,580),imgSm=resolvePhoto(cg.photo,120);document.getElementById('cgDetailContent').innerHTML='<div style="position:relative"><img src="'+img+'" style="width:100%;height:160px;object-fit:cover"><div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.6),transparent)"></div><button onclick="closeModal(\'caregiverDetailModal\')" style="position:absolute;top:12px;right:12px;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.2);color:#fff;border:none;cursor:pointer"><i class="fa-solid fa-xmark"></i></button><div style="position:absolute;bottom:16px;left:20px;display:flex;align-items:end;gap:14px"><img src="'+imgSm+'" style="width:72px;height:72px;border-radius:12px;object-fit:cover;border:4px solid #fff;box-shadow:var(--shadow-lg)"><div style="padding-bottom:4px"><h3 style="font-size:1.2rem;font-weight:800;color:#fff">'+cg.name+'</h3><p style="color:rgba(255,255,255,.8);font-size:.875rem">'+cg.specialty+'</p></div></div></div><div style="padding:20px"><div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px"><div style="text-align:center;padding:12px;border-radius:8px;background:var(--pri-light)"><i class="fa-solid fa-star star" style="font-size:.75rem"></i><span style="font-weight:700"> '+cg.rating+'</span><p style="font-size:.7rem;color:var(--muted)">'+cg.reviews+' reviews</p></div><div style="text-align:center;padding:12px;border-radius:8px;background:var(--accent-light)"><div style="font-weight:700">'+cg.experience+'yr</div><p style="font-size:.7rem;color:var(--muted)">Experience</p></div><div style="text-align:center;padding:12px;border-radius:8px;background:var(--success-light)"><div style="font-weight:700">'+cg.city+'</div><p style="font-size:.7rem;color:var(--muted)">City</p></div><div style="text-align:center;padding:12px;border-radius:8px;background:var(--info-light)"><div style="font-weight:700">Rs.'+cg.hourlyRate+'</div><p style="font-size:.7rem;color:var(--muted)">Per hour</p></div></div><p style="font-size:.9rem;color:var(--text-light);margin-bottom:16px;line-height:1.6">'+cg.about+'</p><p style="font-size:.85rem;color:var(--text-light);margin-bottom:6px"><b>Qualification:</b> '+cg.qualification+'</p><p style="font-size:.85rem;color:var(--text-light);margin-bottom:16px"><b>Languages:</b> '+cg.languages+'</p><span class="badge '+(cg.available?'badge-active':'badge-pending')+'">'+(cg.available?'Available':'Unavailable')+'</span>'+(cg.available?'<button onclick="closeModal(\'caregiverDetailModal\');startBooking(\''+bid+'\')" class="btn-pri" style="width:100%;margin-top:16px;padding:12px"><i class="fa-solid fa-calendar-check"></i> Book '+cg.name+'</button>':'')+'</div>';openModal('caregiverDetailModal')}
-function startBooking(sid){var msid=null,mcid=null;var cm=caregiversCache.find(function(c){return c._id===sid});if(cm){var sf=findServiceForCaregiver(cm);msid=sf?sf._id:null;mcid=sid}else{msid=sid}appState.bookingData={serviceId:msid,caregiverId:mcid};renderBookingStep1();goToStep(1);openModal('bookingModal')}
+function startBooking(id){
+  var caregiver = caregiversCache.find(function(c){ return c._id === id });
+
+  if(caregiver){
+    // caregiver selected → auto-assign ONLY matching service
+    var matchedService = findServiceForCaregiver(caregiver);
+
+    if(!matchedService){
+      showToast("No matching service found for this caregiver","error");
+      return;
+    }
+
+    appState.bookingData = {
+      serviceId: matchedService._id,
+      caregiverId: caregiver._id
+    };
+
+    goToStep(3); // skip service + caregiver selection
+  } 
+  else{
+    // service selected normally
+    appState.bookingData = {
+      serviceId: id,
+      caregiverId: null
+    };
+
+    goToStep(1);
+  }
+
+  openModal('bookingModal');
+}
 function goToStep(step){if(step===2&&!appState.bookingData.serviceId){showToast('Select a service.','warning');return}if(step===3&&!appState.bookingData.caregiverId){showToast('Choose a caregiver.','warning');return}if(step===1)renderBookingStep1();if(step===2)renderBookingStep2();if(step===3)renderBookingStep3();if(step===4)renderBookingStep4();var steps=document.querySelectorAll('.booking-step');for(var i=0;i<steps.length;i++)steps[i].classList.add('hidden');document.getElementById('bookStep'+step).classList.remove('hidden');var dots=document.querySelectorAll('.step-dot');for(var i=0;i<dots.length;i++){var s=parseInt(dots[i].getAttribute('data-step'));dots[i].classList.remove('active','done');if(s<step)dots[i].classList.add('done');if(s===step)dots[i].classList.add('active')}}
 function renderBookingStep1(){var h='';for(var i=0;i<servicesCache.length;i++){var s=servicesCache[i],sel=appState.bookingData.serviceId===s._id,c=getServiceColor(s);h+='<label style="display:flex;align-items:center;gap:14px;padding:14px;border-radius:10px;border:1.5px solid '+(sel?'var(--pri)':'var(--border)')+';cursor:pointer;background:'+(sel?'var(--pri-light)':'#fff')+'"><input type="radio" name="bookSvc" value="'+s._id+'" '+(sel?'checked':'')+' onchange="appState.bookingData.serviceId=\''+s._id+'\';renderBookingStep1()" style="accent-color:var(--pri);width:18px;height:18px"><div style="width:40px;height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:'+c+'12"><i class="fa-solid '+(s.icon||'fa-circle')+'" style="color:'+c+'"></i></div><div style="flex:1"><p style="font-weight:600;font-size:.9rem">'+s.name+'</p><p style="font-size:.75rem;color:var(--muted)">'+s.duration+'</p></div><p style="font-weight:700;font-size:.85rem;color:var(--pri)">Rs.'+s.price+'/hr</p></label>'}document.getElementById('bookServiceList').innerHTML=h}
 function renderBookingStep2(){var svc=servicesCache.find(function(s){return s._id===appState.bookingData.serviceId});if(!svc){document.getElementById('bookCaregiverList').innerHTML='<p style="text-align:center;padding:24px;color:var(--muted)">No service.</p>';return}var fl=caregiversCache.filter(function(c){return specialtyMatches(c,svc.name)});if(!fl.length)fl=caregiversCache.filter(function(c){return c.available});if(!fl.length){document.getElementById('bookCaregiverList').innerHTML='<p style="text-align:center;padding:32px;color:var(--muted)">No caregivers.</p>';return}var h='';for(var i=0;i<fl.length;i++){var c=fl[i],sel=appState.bookingData.caregiverId===c._id,photo=resolvePhoto(c.photo,80);h+='<label style="display:flex;align-items:center;gap:14px;padding:14px;border-radius:10px;border:1.5px solid '+(sel?'var(--pri)':'var(--border)')+';cursor:pointer;background:'+(sel?'var(--pri-light)':'#fff')+'"><input type="radio" name="bookCg" value="'+c._id+'" '+(sel?'checked':'')+' onchange="appState.bookingData.caregiverId=\''+c._id+'\';renderBookingStep2()" style="accent-color:var(--pri);width:18px;height:18px"><img src="'+photo+'" style="width:44px;height:44px;border-radius:50%;object-fit:cover;flex-shrink:0"><div style="flex:1;min-width:0"><p style="font-weight:600;font-size:.9rem">'+c.name+'</p><p style="font-size:.75rem;color:var(--muted)">'+c.specialty+' &bull; '+c.experience+'yrs</p></div><div style="text-align:right;flex-shrink:0"><i class="fa-solid fa-star star" style="font-size:.7rem"></i><span style="font-size:.85rem;font-weight:600"> '+c.rating+'</span><p style="font-size:.75rem;font-weight:600;color:var(--pri);margin-top:2px">Rs.'+c.hourlyRate+'/hr</p></div></label>'}document.getElementById('bookCaregiverList').innerHTML=h;if(appState.bookingData.caregiverId){if(!fl.find(function(c){return c._id===appState.bookingData.caregiverId}))appState.bookingData.caregiverId=null}}
-function renderBookingStep3(){var today=new Date().toISOString().split('T')[0];var ph='';for(var i=0;i<patientCache.length;i++)ph+='<option value="'+patientCache[i]._id+'">'+patientCache[i].name+' ('+patientCache[i].age+'y)</option>';var ps='';if(patientCache.length>0){ps='<div class="form-group"><label>Patient</label><div style="display:flex;gap:8px;align-items:end"><select id="bookPatient" style="flex:1">'+ph+'</select><button type="button" onclick="openPatientFromBooking()" class="btn-outline btn-sm" style="height:42px;white-space:nowrap;flex-shrink:0"><i class="fa-solid fa-plus"></i> New</button></div></div>'}else{ps='<div class="form-group"><label>Patient <span style="color:var(--error);font-weight:400">(required)</span></label><div id="quickAddSection"><div style="display:flex;gap:8px;margin-bottom:10px"><input type="text" id="quickPatName" placeholder="Patient name" style="flex:1;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:.875rem;outline:none;font-family:var(--font)"><input type="number" id="quickPatAge" placeholder="Age" min="0" max="150" style="width:70px;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:.875rem;outline:none;font-family:var(--font)"><button type="button" onclick="quickAddPatient()" class="btn-pri btn-sm" style="white-space:nowrap;flex-shrink:0"><i class="fa-solid fa-plus"></i> Add</button></div><div id="quickAddMsg" style="display:none"></div><p style="font-size:.75rem;color:var(--muted)"><i class="fa-solid fa-info-circle" style="margin-right:4px"></i>Or <a href="#" onclick="event.preventDefault();openPatientFromBooking()" style="color:var(--pri);font-weight:600;text-decoration:underline">add full details</a></p></div><div id="patientSelectSection" style="display:none"><div style="display:flex;gap:8px;align-items:end"><select id="bookPatient" style="flex:1;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:.875rem;font-family:var(--font)">'+ph+'</select><button type="button" onclick="openPatientFromBooking()" class="btn-outline btn-sm" style="height:42px;white-space:nowrap;flex-shrink:0"><i class="fa-solid fa-plus"></i> New</button></div></div></div>'}document.getElementById('bookStep3').innerHTML='<h4 style="font-weight:700;margin-bottom:16px">Schedule Details</h4><div class="form-row"><div class="form-group"><label>Date</label><input type="date" id="bookDate" value="'+today+'" min="'+today+'"></div><div class="form-group"><label>Time</label><input type="time" id="bookTime"></div></div>'+ps+'<div class="form-group"><label>Duration</label><select id="bookDuration" onchange="updateBookingCost()"><option value="hourly">Hourly (4 hrs)</option><option value="daily">Daily (10 hrs)</option><option value="weekly">Weekly (7 days)</option><option value="monthly" selected>Monthly (30 days)</option></select></div><div style="background:var(--pri-light);padding:14px;border-radius:8px;margin-bottom:16px;display:flex;justify-content:space-between"><span style="font-weight:600">Estimated Cost</span><span style="font-weight:800;color:var(--pri);font-size:1.1rem" id="bookEstCost">Rs. 0</span></div><div style="display:flex;gap:8px"><button class="btn-outline" style="flex:1" onclick="goToStep(2)"><i class="fa-solid fa-arrow-left"></i> Back</button><button class="btn-pri" style="flex:1" onclick="goToStep(4)">Review <i class="fa-solid fa-arrow-right"></i></button></div>';updateBookingCost()}
+function renderBookingStep3(){
+
+  var today = new Date().toISOString().split('T')[0];
+
+  var ph = '';
+  for(var i=0;i<patientCache.length;i++){
+    ph += '<option value="'+patientCache[i]._id+'">'
+      + patientCache[i].name + ' (' + patientCache[i].age + 'y)'
+      + '</option>';
+  }
+
+  var ps = '';
+
+  if(patientCache.length > 0){
+
+    ps =
+    '<div class="form-group">' +
+      '<label>Patient</label>' +
+      '<div style="display:flex;gap:8px;align-items:end">' +
+        '<select id="bookPatient" style="flex:1">' + ph + '</select>' +
+        '<button type="button" onclick="openPatientFromBooking()" class="btn-outline btn-sm" style="height:42px">' +
+          '<i class="fa-solid fa-plus"></i> New' +
+        '</button>' +
+      '</div>' +
+    '</div>';
+
+  }else{
+
+    ps =
+    '<div class="form-group">' +
+      '<label>Patient <span style="color:var(--error)">(required)</span></label>' +
+
+      '<div id="quickAddSection">' +
+
+        '<input type="text" id="quickPatName" placeholder="Patient Name" ' +
+        'style="width:100%;margin-bottom:8px;padding:10px;border:1.5px solid var(--border);border-radius:8px">' +
+
+        '<input type="number" id="quickPatAge" placeholder="Age" min="0" max="150" ' +
+        'style="width:100%;margin-bottom:8px;padding:10px;border:1.5px solid var(--border);border-radius:8px">' +
+
+        '<input type="tel" id="quickPatPhone" placeholder="Phone Number" ' +
+        'style="width:100%;margin-bottom:8px;padding:10px;border:1.5px solid var(--border);border-radius:8px">' +
+
+        '<input type="text" id="quickPatConditions" placeholder="Medical Conditions (Diabetes, BP...)" ' +
+        'style="width:100%;margin-bottom:10px;padding:10px;border:1.5px solid var(--border);border-radius:8px">' +
+
+        '<button type="button" onclick="quickAddPatient()" class="btn-pri btn-sm">' +
+          '<i class="fa-solid fa-plus"></i> Add Patient' +
+        '</button>' +
+
+      '</div>' +
+
+    '</div>';
+
+  }
+
+  document.getElementById('bookStep3').innerHTML =
+
+  '<h4 style="font-weight:700;margin-bottom:16px">Schedule Details</h4>' +
+
+  '<div class="form-row">' +
+
+    '<div class="form-group">' +
+      '<label>Date</label>' +
+      '<input type="date" id="bookDate" value="'+today+'" min="'+today+'">' +
+    '</div>' +
+
+    '<div class="form-group">' +
+      '<label>Time</label>' +
+      '<input type="time" id="bookTime">' +
+    '</div>' +
+
+  '</div>' +
+
+  ps +
+
+  '<div class="form-group">' +
+    '<label>Duration</label>' +
+    '<select id="bookDuration" onchange="updateBookingCost()">' +
+      '<option value="hourly">Hourly (4 hrs)</option>' +
+      '<option value="daily">Daily (10 hrs)</option>' +
+      '<option value="weekly">Weekly (7 days)</option>' +
+      '<option value="monthly" selected>Monthly (30 days)</option>' +
+    '</select>' +
+  '</div>' +
+
+  '<div style="background:var(--pri-light);padding:14px;border-radius:8px;margin-bottom:16px;display:flex;justify-content:space-between">' +
+    '<span style="font-weight:600">Estimated Cost</span>' +
+    '<span style="font-weight:800;color:var(--pri);font-size:1.1rem" id="bookEstCost">Rs. 0</span>' +
+  '</div>' +
+
+  '<div style="display:flex;gap:8px">' +
+    '<button class="btn-outline" style="flex:1" onclick="goToStep(2)">' +
+      '<i class="fa-solid fa-arrow-left"></i> Back' +
+    '</button>' +
+    '<button class="btn-pri" style="flex:1" onclick="goToStep(4)">' +
+      'Review <i class="fa-solid fa-arrow-right"></i>' +
+    '</button>' +
+  '</div>';
+
+  updateBookingCost();
+}
 function updateBookingCost(){var svc=servicesCache.find(function(s){return s._id===appState.bookingData.serviceId});if(!svc)return;var d=document.getElementById('bookDuration');if(!d)return;var costs={hourly:svc.price*4,daily:svc.price*10,weekly:svc.price*70,monthly:svc.price*300};document.getElementById('bookEstCost').textContent='Rs. '+(costs[d.value]||0).toLocaleString('en-IN')}
 function renderBookingStep4(){var svc=servicesCache.find(function(s){return s._id===appState.bookingData.serviceId}),cg=caregiversCache.find(function(c){return c._id===appState.bookingData.caregiverId}),pe=document.getElementById('bookPatient'),pat=pe?patientCache.find(function(p){return p._id===pe.value}):null,dt=document.getElementById('bookDate').value,tm=document.getElementById('bookTime').value||'--',dur=document.getElementById('bookDuration').value,dl={hourly:'Hourly (4 hrs)',daily:'Daily (10 hrs)',weekly:'Weekly (7 days)',monthly:'Monthly (30 days)'},costs={hourly:svc.price*4,daily:svc.price*10,weekly:svc.price*70,monthly:svc.price*300};document.getElementById('bookSummary').innerHTML='<div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">Service</span><span style="font-weight:600">'+(svc?svc.name:'N/A')+'</span></div><div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">Caregiver</span><span style="font-weight:600">'+(cg?cg.name:'N/A')+'</span></div><div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">Patient</span><span style="font-weight:600">'+(pat?pat.name:'N/A')+'</span></div><div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">Schedule</span><span style="font-weight:600">'+dt+' '+tm+'</span></div><div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">Duration</span><span style="font-weight:600">'+dl[dur]+'</span></div><div style="display:flex;justify-content:space-between;font-size:.9rem;padding-top:8px;border-top:1px dashed var(--border)"><span style="color:var(--accent);font-weight:600"><i class="fa-solid fa-clock" style="margin-right:4px"></i>Awaiting caregiver confirmation</span></div><div style="border-top:1px solid var(--border);padding-top:10px;margin-top:4px;display:flex;justify-content:space-between;font-size:1.1rem"><span style="font-weight:700">Total</span><span style="font-weight:800;color:var(--pri)">Rs. '+costs[dur].toLocaleString('en-IN')+'</span></div>'}
 
@@ -544,8 +702,33 @@ function renderDashboard(){
     }
   }
 
-  if(role==='caregiver'||role==='admin'){var whH='<thead><tr><th>Patient</th><th>Service</th><th>Date</th><th>Duration</th><th>Rating</th><th>Earnings</th></tr></thead><tbody>';for(var i=0;i<cgWorkHistory.length;i++){var w=cgWorkHistory[i];whH+='<tr><td>'+w.patient+'</td><td>'+w.service+'</td><td>'+w.date+'</td><td>'+w.duration+'</td><td><i class="fa-solid fa-star star" style="font-size:.7rem"></i> '+w.rating+'</td><td style="font-weight:600;color:var(--success)">Rs. '+w.earned.toLocaleString('en-IN')+'</td></tr>'}whH+='</tbody>';document.getElementById('cgWorkTable').innerHTML=whH}
+ if(role==='caregiver'||role==='admin'){
 
+  var history = getCgWorkHistory(appState.caregiverId);
+
+  var whH = '<thead><tr><th>Patient</th><th>Service</th><th>Date</th><th>Duration</th><th>Rating</th><th>Earnings</th></tr></thead><tbody>';
+
+  for(var i=0;i<history.length;i++){
+
+    var w = history[i];
+
+    whH += '<tr>'
+      + '<td>'+w.patient+'</td>'
+      + '<td>'+w.service+'</td>'
+      + '<td>'+w.date+'</td>'
+      + '<td>'+w.duration+'</td>'
+      + '<td><i class="fa-solid fa-star star" style="font-size:.7rem"></i> '+w.rating+'</td>'
+      + '<td style="font-weight:600;color:var(--success)">Rs. '
+      + w.earned.toLocaleString('en-IN')
+      + '</td>'
+      + '</tr>';
+
+  }
+
+  whH += '</tbody>';
+
+  document.getElementById('cgWorkTable').innerHTML = whH;
+}
   if(role==='admin'){
     document.getElementById('adminUsers').textContent=adminDashboard.users||0;document.getElementById('adminCGs').textContent=adminDashboard.caregivers||0;document.getElementById('adminPending').textContent=adminDashboard.pendingVerifications||0;document.getElementById('adminBookings').textContent=adminDashboard.totalBookings||0;
     if(adminPendingVerify.length){var avH='<thead><tr><th>Name</th><th>Qualification</th><th>Exp.</th><th>City</th><th>Action</th></tr></thead><tbody>';for(var i=0;i<adminPendingVerify.length;i++){var v=adminPendingVerify[i];avH+='<tr><td style="font-weight:600">'+v.name+'</td><td>'+v.qualification+'</td><td>'+v.experience+'y</td><td>'+v.city+'</td><td><div style="display:flex;gap:6px"><button onclick="handleVerify(\''+v._id+'\',true)" class="btn-pri btn-sm"><i class="fa-solid fa-check"></i></button><button onclick="handleVerify(\''+v._id+'\',false)" class="btn-ghost btn-sm" style="color:var(--error)"><i class="fa-solid fa-xmark"></i></button></div></td></tr>'}avH+='</tbody>';document.getElementById('adminVerifyTable').innerHTML=avH}
