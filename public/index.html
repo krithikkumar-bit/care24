@@ -348,25 +348,55 @@ async function api(m,p,b){var o={method:m,headers:{'Content-Type':'application/j
 function onRegRoleChange(){document.getElementById('adminRegWarning').style.display=document.getElementById('regRole').value==='admin'?'block':'none'}
 
 async function handleLogin(e){
+
   e.preventDefault();
+
   try{
-    var d=await api('POST','/auth/login',{email:document.getElementById('loginEmail').value,password:document.getElementById('loginPass').value});
-    localStorage.setItem('care24_token',d.token);TOKEN=d.token;appState.loggedIn=true;appState.userName=d.user.firstName+' '+d.user.lastName;
-    var r=d.user.role||'user';if(r==='admin')r='user';
-    appState.currentRole=r;
-    appState.caregiverId=null;
-    if(r==='caregiver'){
-      var loginEmail=(d.user.email||'').toLowerCase();
-      for(var i=0;i<caregiversCache.length;i++){
-        var cgEmail=(caregiversCache[i].email||'').toLowerCase();
-        if(cgEmail&&cgEmail===loginEmail){appState.caregiverId=caregiversCache[i]._id;break;}
+
+    var emailInput = document.getElementById('loginEmail').value.toLowerCase();
+
+    var d = await api('POST','/auth/login',{
+      email: emailInput,
+      password: document.getElementById('loginPass').value
+    });
+
+    var role = d.user.role || 'user';
+
+    // ✅ Restrict caregiver login ONLY to registered caregiver emails
+    if(role === 'caregiver'){
+
+      var caregiverMatch = caregiversCache.find(function(c){
+        return (c.email || '').toLowerCase() === emailInput;
+      });
+
+      if(!caregiverMatch){
+        showToast('Unauthorized caregiver account. Contact admin.','error');
+        return;
       }
+
+      appState.caregiverId = caregiverMatch._id;
     }
-    updateAuthUI();closeModal('loginModal');
-    var msg='Welcome back, '+appState.userName+'!';
-    if(r==='caregiver'&&!appState.caregiverId)msg+=' Please select your caregiver profile in the Requests tab.';
-    showToast(msg,'success');navigate('dashboard');
-  }catch(err){showToast(err.message||'Login failed','error')}
+
+    // Save token
+    localStorage.setItem('care24_token', d.token);
+    TOKEN = d.token;
+
+    appState.loggedIn = true;
+    appState.userName = d.user.firstName + ' ' + d.user.lastName;
+    appState.currentRole = role;
+
+    updateAuthUI();
+
+    closeModal('loginModal');
+
+    showToast('Welcome back, ' + appState.userName + '!', 'success');
+
+    navigate('dashboard');
+
+  }
+  catch(err){
+    showToast(err.message || 'Login failed','error');
+  }
 }
 
 async function handleAdminLogin(e){
