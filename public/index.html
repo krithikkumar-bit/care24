@@ -561,7 +561,62 @@ function startBooking(id){
   goToStep(1);
 }
 function goToStep(step){if(step===2&&!appState.bookingData.serviceId){showToast('Select a service.','warning');return}if(step===3&&!appState.bookingData.caregiverId){showToast('Choose a caregiver.','warning');return}if(step===1)renderBookingStep1();if(step===2)renderBookingStep2();if(step===3)renderBookingStep3();if(step===4)renderBookingStep4();var steps=document.querySelectorAll('.booking-step');for(var i=0;i<steps.length;i++)steps[i].classList.add('hidden');document.getElementById('bookStep'+step).classList.remove('hidden');var dots=document.querySelectorAll('.step-dot');for(var i=0;i<dots.length;i++){var s=parseInt(dots[i].getAttribute('data-step'));dots[i].classList.remove('active','done');if(s<step)dots[i].classList.add('done');if(s===step)dots[i].classList.add('active')}}
-function renderBookingStep1(){var h='';for(var i=0;i<servicesCache.length;i++){var s=servicesCache[i],sel=appState.bookingData.serviceId===s._id,c=getServiceColor(s);h+='<label style="display:flex;align-items:center;gap:14px;padding:14px;border-radius:10px;border:1.5px solid '+(sel?'var(--pri)':'var(--border)')+';cursor:pointer;background:'+(sel?'var(--pri-light)':'#fff')+'"><input type="radio" name="bookSvc" value="'+s._id+'" '+(sel?'checked':'')+' onchange="appState.bookingData.serviceId=\''+s._id+'\';renderBookingStep1()" style="accent-color:var(--pri);width:18px;height:18px"><div style="width:40px;height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:'+c+'12"><i class="fa-solid '+(s.icon||'fa-circle')+'" style="color:'+c+'"></i></div><div style="flex:1"><p style="font-weight:600;font-size:.9rem">'+s.name+'</p><p style="font-size:.75rem;color:var(--muted)">'+s.duration+'</p></div><p style="font-weight:700;font-size:.85rem;color:var(--pri)">Rs.'+s.price+'/hr</p></label>'}document.getElementById('bookServiceList').innerHTML=h}
+function renderBookingStep1(){
+
+  var list = document.getElementById('bookServiceList');
+
+  var filteredServices = servicesCache;
+
+  // If caregiver already selected → filter services
+  if(appState.bookingData.caregiverId){
+
+    var caregiver = caregiversCache.find(function(c){
+      return c._id === appState.bookingData.caregiverId;
+    });
+
+    if(caregiver){
+
+      filteredServices = servicesCache.filter(function(service){
+
+        return specialtyMap[service.name] &&
+               specialtyMap[service.name].includes(caregiver.specialty);
+
+      });
+
+    }
+  }
+
+  var html = '';
+
+  for(var i=0;i<filteredServices.length;i++){
+
+    var s = filteredServices[i];
+
+    var active =
+      appState.bookingData.serviceId === s._id
+      ? 'style="border:2px solid var(--pri)"'
+      : '';
+
+    html +=
+      '<div class="svc-option" '+active+
+      ' onclick="selectService(\''+s._id+'\')">' +
+
+        '<div>' +
+          '<strong>'+s.name+'</strong><br>' +
+          '<span style="font-size:.8rem;color:var(--muted)">'+
+          s.duration +
+          '</span>' +
+        '</div>' +
+
+        '<div style="font-weight:700;color:var(--pri)">' +
+          'Rs.'+s.price+'/hr' +
+        '</div>' +
+
+      '</div>';
+  }
+
+  list.innerHTML = html;
+}
 function renderBookingStep2(){var svc=servicesCache.find(function(s){return s._id===appState.bookingData.serviceId});if(!svc){document.getElementById('bookCaregiverList').innerHTML='<p style="text-align:center;padding:24px;color:var(--muted)">No service.</p>';return}var fl=caregiversCache.filter(function(c){return specialtyMatches(c,svc.name)});if(!fl.length)fl=caregiversCache.filter(function(c){return c.available});if(!fl.length){document.getElementById('bookCaregiverList').innerHTML='<p style="text-align:center;padding:32px;color:var(--muted)">No caregivers.</p>';return}var h='';for(var i=0;i<fl.length;i++){var c=fl[i],sel=appState.bookingData.caregiverId===c._id,photo=resolvePhoto(c.photo,80);h+='<label style="display:flex;align-items:center;gap:14px;padding:14px;border-radius:10px;border:1.5px solid '+(sel?'var(--pri)':'var(--border)')+';cursor:pointer;background:'+(sel?'var(--pri-light)':'#fff')+'"><input type="radio" name="bookCg" value="'+c._id+'" '+(sel?'checked':'')+' onchange="appState.bookingData.caregiverId=\''+c._id+'\';renderBookingStep2()" style="accent-color:var(--pri);width:18px;height:18px"><img src="'+photo+'" style="width:44px;height:44px;border-radius:50%;object-fit:cover;flex-shrink:0"><div style="flex:1;min-width:0"><p style="font-weight:600;font-size:.9rem">'+c.name+'</p><p style="font-size:.75rem;color:var(--muted)">'+c.specialty+' &bull; '+c.experience+'yrs</p></div><div style="text-align:right;flex-shrink:0"><i class="fa-solid fa-star star" style="font-size:.7rem"></i><span style="font-size:.85rem;font-weight:600"> '+c.rating+'</span><p style="font-size:.75rem;font-weight:600;color:var(--pri);margin-top:2px">Rs.'+c.hourlyRate+'/hr</p></div></label>'}document.getElementById('bookCaregiverList').innerHTML=h;if(appState.bookingData.caregiverId){if(!fl.find(function(c){return c._id===appState.bookingData.caregiverId}))appState.bookingData.caregiverId=null}}
 function renderBookingStep3(){
 
