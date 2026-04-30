@@ -323,7 +323,8 @@ input,select,textarea{font-family:var(--font)}
 
 <div class="modal-overlay" id="registerModal"><div class="modal-box"><div class="modal-header"><h3>Create Account</h3><button class="modal-close" onclick="closeModal('registerModal')"><i class="fa-solid fa-xmark"></i></button></div><div class="modal-body"><form onsubmit="handleRegister(event)"><div class="form-row"><div class="form-group"><label>First Name</label><input type="text" id="regFirst" required></div><div class="form-group"><label>Last Name</label><input type="text" id="regLast" required></div></div><div class="form-group"><label>Email</label><input type="email" id="regEmail" required></div><div class="form-group"><label>Phone</label><input type="tel" id="regPhone" required></div><div class="form-group"><label>Password</label><input type="password" id="regPass" required minlength="6"></div><div class="form-group"><label>Register As</label><select id="regRole" onchange="onRegRoleChange()"><option value="user">Patient / Family</option><option value="caregiver">Caregiver</option><option value="admin">Administrator</option></select></div><div id="adminRegWarning" style="display:none;background:var(--error-light);border:1px solid rgba(220,38,38,.2);border-radius:8px;padding:12px;margin-bottom:12px"><p style="font-size:.8rem;color:var(--error);font-weight:600"><i class="fa-solid fa-triangle-exclamation" style="margin-right:4px"></i>Admin accounts are restricted</p></div><button type="submit" class="btn-pri" style="width:100%;margin-top:8px">Create Account</button></form><p style="text-align:center;margin-top:16px;font-size:.85rem;color:var(--muted)">Already have an account? <a href="#" style="color:var(--pri);font-weight:600" onclick="event.preventDefault();closeModal('registerModal');openModal('loginModal')">Sign In</a></p></div></div></div>
 
-<div class="modal-overlay" id="patientModal"><div class="modal-box"><div class="modal-header"><h3>Add Patient</h3><button class="modal-close" onclick="closeModal('patientModal')"><i class="fa-solid fa-xmark"></i></button></div><div class="modal-body"><form onsubmit="handleAddPatient(event)"><div class="form-row"><div class="form-group"><label>Full Name</label><input type="text" id="patName" required></div><div class="form-group"><label>Age</label><input type="number" id="patAge" min="0" max="150" required></div></div><div class="form-row"><div class="form-group"><label>Gender</label><select id="patGender"><option>Male</option><option>Female</option><option>Other</option></select></div><div class="form-group"><label>Blood Group</label><select id="patBlood"><option value="">Select</option><option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>AB+</option><option>AB-</option><option>O+</option><option>O-</option></select></div></div><div class="form-group"><label>Medical Conditions</label><input type="text" id="patConditions" placeholder="Diabetes, Hypertension..."></div><div class="form-group"><label>Special Requirements</label><input type="text" id="patSpecial" placeholder="Wheelchair, Hindi speaking..."></div><div class="form-group"><label>Address</label><textarea id="patAddress" rows="2" required></textarea></div><div class="form-row"><div class="form-group"><label>Emergency Contact Name</label><input type="text" id="patEmerName" required></div><div class="form-group"><label>Emergency Phone</label><input type="tel" id="patEmerPhone" required></div></div><button type="submit" class="btn-pri" style="width:100%;margin-top:8px"><i class="fa-solid fa-plus"></i> Save Patient</button></form></div></div></div>
+<div class="modal-overlay" id="patientModal"><div class="modal-box"><div class="modal-header"><h3>Add Patient</h3><button class="modal-close" onclick="closeModal('patientModal')"><i class="fa-solid fa-xmark"></i></button></div><div class="modal-body"><form onsubmit="handleAddPatient(event)"><div class="form-row"><div class="form-group"><label>Full Name</label><input type="text" id="patName" required></div><div class="form-group"><label>Age</label><input type="number" id="patAge" min="0" max="150" required><label>Phone Number</label>
+<input type="tel" id="patPhone" required></div></div><div class="form-row"><div class="form-group"><label>Gender</label><select id="patGender"><option>Male</option><option>Female</option><option>Other</option></select></div><div class="form-group"><label>Blood Group</label><select id="patBlood"><option value="">Select</option><option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>AB+</option><option>AB-</option><option>O+</option><option>O-</option></select></div></div><div class="form-group"><label>Medical Conditions</label><input type="text" id="patConditions" placeholder="Diabetes, Hypertension..."></div><div class="form-group"><label>Special Requirements</label><input type="text" id="patSpecial" placeholder="Wheelchair, Hindi speaking..."></div><div class="form-group"><label>Address</label><textarea id="patAddress" rows="2" required></textarea></div><div class="form-row"><div class="form-group"><label>Emergency Contact Name</label><input type="text" id="patEmerName" required></div><div class="form-group"><label>Emergency Phone</label><input type="tel" id="patEmerPhone" required></div></div><button type="submit" class="btn-pri" style="width:100%;margin-top:8px"><i class="fa-solid fa-plus"></i> Save Patient</button></form></div></div></div>
 
 <div class="modal-overlay" id="bookingModal"><div class="modal-box" style="max-width:600px"><div class="modal-header"><h3>Book a Service</h3><button class="modal-close" onclick="closeModal('bookingModal')"><i class="fa-solid fa-xmark"></i></button></div><div class="modal-body"><div class="step-dots"><div class="step-dot active" data-step="1">1</div><div class="step-line"></div><div class="step-dot" data-step="2">2</div><div class="step-line"></div><div class="step-dot" data-step="3">3</div><div class="step-line"></div><div class="step-dot" data-step="4">4</div></div><div class="booking-step" id="bookStep1"><h4 style="font-weight:700;margin-bottom:16px">Select Service</h4><div id="bookServiceList" style="display:grid;gap:10px"></div><button class="btn-pri" style="width:100%;margin-top:16px" onclick="goToStep(2)">Next <i class="fa-solid fa-arrow-right"></i></button></div><div class="booking-step hidden" id="bookStep2"><h4 style="font-weight:700;margin-bottom:16px">Choose Caregiver</h4><div id="bookCaregiverList" style="display:grid;gap:10px;max-height:300px;overflow-y:auto"></div><div style="display:flex;gap:8px;margin-top:16px"><button class="btn-outline" style="flex:1" onclick="goToStep(1)"><i class="fa-solid fa-arrow-left"></i> Back</button><button class="btn-pri" style="flex:1" onclick="goToStep(3)">Next <i class="fa-solid fa-arrow-right"></i></button></div></div><div class="booking-step hidden" id="bookStep3"><h4 style="font-weight:700;margin-bottom:16px">Schedule Details</h4><div id="bookStep3Content"></div></div><div class="booking-step hidden" id="bookStep4"><h4 style="font-weight:700;margin-bottom:16px">Confirm Booking</h4><div id="bookSummary" style="background:var(--bg2);padding:20px;border-radius:12px;display:grid;gap:10px;margin-bottom:16px"></div><label style="display:flex;align-items:center;gap:8px;font-size:.85rem;margin-bottom:16px;cursor:pointer"><input type="checkbox" id="bookTerms" style="accent-color:var(--pri);width:16px;height:16px"> I accept the terms and cancellation policy</label><div style="display:flex;gap:8px"><button class="btn-outline" style="flex:1" onclick="goToStep(3)"><i class="fa-solid fa-arrow-left"></i> Back</button><button class="btn-pri" style="flex:1" onclick="confirmBooking()"><i class="fa-solid fa-check"></i> Confirm Booking</button></div></div></div></div></div>
 
@@ -445,7 +446,61 @@ async function loadCaregivers(){try{caregiversCache=await api('GET','/caregivers
 async function loadBookings(){try{bookingsCache=await api('GET','/bookings')}catch(e){}}
 async function loadAdminData(){try{adminDashboard=await api('GET','/admin/stats')}catch(e){}}
 
-async function handleAddPatient(e){e.preventDefault();var p={name:document.getElementById('patName').value,age:parseInt(document.getElementById('patAge').value),gender:document.getElementById('patGender').value,bloodGroup:document.getElementById('patBlood').value||'',conditions:document.getElementById('patConditions').value||'None',specialRequirements:document.getElementById('patSpecial').value||'',address:document.getElementById('patAddress').value,emergencyName:document.getElementById('patEmerName').value,emergencyPhone:document.getElementById('patEmerPhone').value};try{var d=await api('POST','/patients',p);patientCache.push(d.patient||p);showToast('Patient '+p.name+' saved!','success')}catch(e){p._id='p'+Date.now();patientCache.push(p);showToast('Patient saved locally','warning')}closeModal('patientModal');e.target.reset();if(appState.currentPage==='dashboard')renderDashboard();if(window._returnToBooking){window._returnToBooking=false;openBookingModal();renderBookingStep3();goToStep(3)}}
+async function handleAddPatient(e){
+
+  e.preventDefault();
+
+  var p = {
+    name: document.getElementById('patName').value,
+    age: parseInt(document.getElementById('patAge').value),
+
+    phone: document.getElementById('patPhone').value,   // ✅ added
+
+    gender: document.getElementById('patGender').value,
+    bloodGroup: document.getElementById('patBlood').value || '',
+    conditions: document.getElementById('patConditions').value || 'None',
+    specialRequirements: document.getElementById('patSpecial').value || '',
+    address: document.getElementById('patAddress').value,
+    emergencyName: document.getElementById('patEmerName').value,
+    emergencyPhone: document.getElementById('patEmerPhone').value
+  };
+
+  try{
+
+    var d = await api('POST','/patients',p);
+
+    patientCache.push(d.patient || p);
+
+    showToast('Patient '+p.name+' saved!','success');
+
+  }catch(e){
+
+    p._id = 'p' + Date.now();
+
+    patientCache.push(p);
+
+    showToast('Patient saved locally','warning');
+
+  }
+
+  closeModal('patientModal');
+
+  e.target.reset();
+
+  if(appState.currentPage === 'dashboard')
+    renderDashboard();
+
+  if(window._returnToBooking){
+
+    window._returnToBooking = false;
+
+    openBookingModal();
+
+    renderBookingStep3();
+
+    goToStep(3);
+  }
+}
 
 function openPatientFromBooking(){window._returnToBooking=true;openModal('patientModal')}
 
