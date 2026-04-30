@@ -355,7 +355,6 @@ async function handleLogin(e){
 
     var emailInput = document.getElementById('loginEmail').value.toLowerCase();
 
-    // Load caregivers if empty
     if(!caregiversCache || caregiversCache.length === 0){
       loadFallbackData();
     }
@@ -367,22 +366,18 @@ async function handleLogin(e){
 
     var role = d.user.role || 'user';
 
-    // ✅ Restrict caregiver login to valid caregiver profiles
+    // ✅ restrict caregiver login
     if(role === 'caregiver'){
 
       var caregiverMatch = caregiversCache.find(function(c){
-
         return emailInput.includes(
-          (c.name || '').toLowerCase().replace(/\s/g,'')
+          c.name.toLowerCase().replace(/\s/g,'')
         );
-
       });
 
       if(!caregiverMatch){
-
-        showToast('Unauthorized caregiver account. Use assigned caregiver login.','error');
+        showToast('Unauthorized caregiver login','error');
         return;
-
       }
 
       appState.caregiverId = caregiverMatch._id;
@@ -396,19 +391,15 @@ async function handleLogin(e){
     appState.currentRole = role;
 
     updateAuthUI();
-
     closeModal('loginModal');
 
-    showToast('Welcome back, ' + appState.userName + '!', 'success');
+    showToast('Welcome back, '+appState.userName,'success');
 
     navigate('dashboard');
 
   }
-
   catch(err){
-
     showToast(err.message || 'Login failed','error');
-
   }
 }
 
