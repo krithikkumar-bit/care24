@@ -505,15 +505,34 @@ async function handleAddPatient(e){
 function openPatientFromBooking(){window._returnToBooking=true;openModal('patientModal')}
 
 function quickAddPatient(){
-  var ne=document.getElementById('quickPatName'),ae=document.getElementById('quickPatAge');
-  if(!ne||!ae)return;
-  var n=ne.value.trim(),a=parseInt(ae.value);
-  if(!n){showToast('Enter patient name','error');ne.focus();return}
-  if(!a||a<0||a>150){showToast('Enter valid age','error');ae.focus();return}
-  var np={_id:'p'+Date.now(),name:n,age:a,gender:'Other',bloodGroup:'',conditions:'None',specialRequirements:'',address:'To be updated',emergencyName:'To be updated',emergencyPhone:'0000000000'};
-  patientCache.push(np);
-  api('POST','/patients',np).catch(function(){});
-  showToast('Patient "'+n+'" added!','success');
+
+  var name = document.getElementById('quickPatName').value.trim();
+  var age = parseInt(document.getElementById('quickPatAge').value);
+  var phone = document.getElementById('quickPatPhone').value.trim();
+
+  if(!name || !age || !phone){
+    showToast("Enter Name, Age and Phone","error");
+    return;
+  }
+
+  var newPatient = {
+    _id:'p'+Date.now(),
+    name:name,
+    age:age,
+    phone:phone,
+    gender:'Other',
+    bloodGroup:'',
+    conditions:'None',
+    specialRequirements:'',
+    address:'',
+    emergencyName:name,
+    emergencyPhone:phone
+  };
+
+  patientCache.push(newPatient);
+
+  showToast("Patient added successfully","success");
+
   renderBookingStep3();
 }
 
@@ -740,29 +759,103 @@ function renderBookingStep2(){
 
 /* ========== FIX: Completely rewrote renderBookingStep3 with proper content ========== */
 function renderBookingStep3(){
+
   var today = new Date().toISOString().split('T')[0];
   var container = document.getElementById('bookStep3Content');
-  
+
   var ps = '';
+
   if(patientCache.length > 0){
+
     var ph = '';
+
     for(var i=0;i<patientCache.length;i++){
-      ph += '<option value="'+patientCache[i]._id+'">'+patientCache[i].name+' ('+patientCache[i].age+'y)</option>';
+      ph += '<option value="'+patientCache[i]._id+'">'+
+            patientCache[i].name+
+            ' ('+patientCache[i].age+'y'+
+            (patientCache[i].phone ? ', '+patientCache[i].phone : '')+
+            ')</option>';
     }
-    ps = '<div class="form-group"><label>Patient</label><div style="display:flex;gap:8px;align-items:end"><select id="bookPatient" style="flex:1">'+ph+'</select><button type="button" onclick="openPatientFromBooking()" class="btn-outline btn-sm" style="height:42px"><i class="fa-solid fa-plus"></i> New</button></div></div>';
-  } else {
-    ps = '<div class="form-group"><label>Patient <span style="color:var(--error)">(required)</span></label><div id="quickAddSection"><input type="text" id="quickPatName" placeholder="Patient Name" style="width:100%;margin-bottom:8px;padding:10px;border:1.5px solid var(--border);border-radius:8px"><input type="number" id="quickPatAge" placeholder="Age" min="0" max="150" style="width:100%;margin-bottom:10px;padding:10px;border:1.5px solid var(--border);border-radius:8px"><button type="button" onclick="quickAddPatient()" class="btn-pri btn-sm"><i class="fa-solid fa-plus"></i> Add Patient</button></div></div>';
+
+    ps =
+      '<div class="form-group">' +
+        '<label>Patient</label>' +
+        '<div style="display:flex;gap:8px;align-items:end">' +
+          '<select id="bookPatient" style="flex:1">'+ph+'</select>' +
+          '<button type="button" onclick="openPatientFromBooking()" class="btn-outline btn-sm" style="height:42px">' +
+            '<i class="fa-solid fa-plus"></i> New' +
+          '</button>' +
+        '</div>' +
+      '</div>';
+
+  }
+  else{
+
+    ps =
+      '<div class="form-group">' +
+        '<label>Patient <span style="color:var(--error)">(required)</span></label>' +
+
+        '<div id="quickAddSection">' +
+
+          '<input type="text" id="quickPatName" placeholder="Patient Name" ' +
+          'style="width:100%;margin-bottom:8px;padding:10px;border:1.5px solid var(--border);border-radius:8px">' +
+
+          '<input type="number" id="quickPatAge" placeholder="Age" min="0" max="150" ' +
+          'style="width:100%;margin-bottom:8px;padding:10px;border:1.5px solid var(--border);border-radius:8px">' +
+
+          '<input type="tel" id="quickPatPhone" placeholder="Phone Number" ' +
+          'style="width:100%;margin-bottom:10px;padding:10px;border:1.5px solid var(--border);border-radius:8px">' +
+
+          '<button type="button" onclick="quickAddPatient()" class="btn-pri btn-sm">' +
+            '<i class="fa-solid fa-plus"></i> Add Patient' +
+          '</button>' +
+
+        '</div>' +
+
+      '</div>';
   }
 
-  container.innerHTML = 
+  container.innerHTML =
+
     '<div class="form-row">' +
-      '<div class="form-group"><label>Date</label><input type="date" id="bookDate" value="'+today+'" min="'+today+'"></div>' +
-      '<div class="form-group"><label>Time</label><input type="time" id="bookTime"></div>' +
+
+      '<div class="form-group">' +
+        '<label>Date</label>' +
+        '<input type="date" id="bookDate" value="'+today+'" min="'+today+'">' +
+      '</div>' +
+
+      '<div class="form-group">' +
+        '<label>Time</label>' +
+        '<input type="time" id="bookTime">' +
+      '</div>' +
+
     '</div>' +
+
     ps +
-    '<div class="form-group"><label>Duration</label><select id="bookDuration" onchange="updateBookingCost()"><option value="hourly">Hourly (4 hrs)</option><option value="daily">Daily (10 hrs)</option><option value="weekly">Weekly (7 days)</option><option value="monthly" selected>Monthly (30 days)</option></select></div>' +
-    '<div style="background:var(--pri-light);padding:14px;border-radius:8px;margin-bottom:16px;display:flex;justify-content:space-between"><span style="font-weight:600">Estimated Cost</span><span style="font-weight:800;color:var(--pri);font-size:1.1rem" id="bookEstCost">Rs. 0</span></div>' +
-    '<div style="display:flex;gap:8px"><button class="btn-outline" style="flex:1" onclick="goToStep('+(appState.bookingFromCaregiver?'1':'2')+')"><i class="fa-solid fa-arrow-left"></i> Back</button><button class="btn-pri" style="flex:1" onclick="goToStep(4)">Review <i class="fa-solid fa-arrow-right"></i></button></div>';
+
+    '<div class="form-group">' +
+      '<label>Duration</label>' +
+      '<select id="bookDuration" onchange="updateBookingCost()">' +
+        '<option value="hourly">Hourly (4 hrs)</option>' +
+        '<option value="daily">Daily (10 hrs)</option>' +
+        '<option value="weekly">Weekly (7 days)</option>' +
+        '<option value="monthly" selected>Monthly (30 days)</option>' +
+      '</select>' +
+    '</div>' +
+
+    '<div style="background:var(--pri-light);padding:14px;border-radius:8px;margin-bottom:16px;display:flex;justify-content:space-between">' +
+      '<span style="font-weight:600">Estimated Cost</span>' +
+      '<span style="font-weight:800;color:var(--pri);font-size:1.1rem" id="bookEstCost">Rs. 0</span>' +
+    '</div>' +
+
+    '<div style="display:flex;gap:8px">' +
+      '<button class="btn-outline" style="flex:1" onclick="goToStep('+(appState.bookingFromCaregiver?'1':'2')+')">' +
+        '<i class="fa-solid fa-arrow-left"></i> Back' +
+      '</button>' +
+      '<button class="btn-pri" style="flex:1" onclick="goToStep(4)">' +
+        'Review <i class="fa-solid fa-arrow-right"></i>' +
+      '</button>' +
+    '</div>';
 
   updateBookingCost();
 }
