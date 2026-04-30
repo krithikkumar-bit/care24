@@ -412,6 +412,61 @@ function updateAuthUI(){
 }
 
 var patientCache=[],servicesCache=[],caregiversCache=[],bookingsCache=[],cgRequests=[],adminPendingVerify=[];
+function renderBookingsTable(){
+
+  var tbody = document.querySelector('#userBookingsTable tbody');
+  if(!tbody) return;
+
+  var list = bookingsCache;
+
+  // Caregiver → only their bookings
+  if(appState.currentRole === 'caregiver' && appState.caregiverId){
+    list = bookingsCache.filter(function(b){
+      return b.caregiverId === appState.caregiverId;
+    });
+  }
+
+  // User → only their patients
+  if(appState.currentRole === 'user'){
+    list = bookingsCache.filter(function(b){
+      return patientCache.some(function(p){
+        return p._id === b.patientId;
+      });
+    });
+  }
+
+  if(!list.length){
+    tbody.innerHTML =
+      '<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:32px">No bookings found.</td></tr>';
+    return;
+  }
+
+  var h='';
+
+  for(var i=0;i<list.length;i++){
+
+    var b=list[i];
+
+    var svc=servicesCache.find(function(s){
+      return s._id===b.serviceId;
+    });
+
+    var cg=caregiversCache.find(function(c){
+      return c._id===b.caregiverId;
+    });
+
+    h += '<tr>' +
+      '<td>'+(b._id||'-')+'</td>' +
+      '<td>'+(svc?svc.name:'-')+'</td>' +
+      '<td>'+(cg?cg.name:'-')+'</td>' +
+      '<td>'+(b.date||'-')+'</td>' +
+      '<td>'+(b.status||'pending')+'</td>' +
+      '<td>Rs. '+(b.cost||0)+'</td>' +
+      '</tr>';
+  }
+
+  tbody.innerHTML=h;
+}
 var adminDashboard={users:0,caregivers:0,pendingVerifications:0,totalBookings:0};
 function getCgWorkHistory(cgId){
   return bookingsCache
@@ -1139,7 +1194,32 @@ function renderBookingStep4(){
 }
 
 function updateTabVisibility(){var r=appState.currentRole;var tabs=document.querySelectorAll('#dashTabBar .tab-btn');for(var i=0;i<tabs.length;i++)tabs[i].style.display=canAccessTab(r,tabs[i].getAttribute('data-dtab'))?'':'none';document.getElementById('addPatientDashBtn').style.display=(r==='user'||r==='admin')?'':'none';document.getElementById('sosCardDash').style.display=(r==='user')?'':'none';document.getElementById('pendingCardDash').style.display=(r==='caregiver'||r==='admin')?'':'none';var t={user:'My Dashboard',caregiver:'Caregiver Dashboard',admin:'Admin Dashboard'},s={user:'Manage your care journey',caregiver:'Manage your assignments',admin:'System overview and management'};document.getElementById('dashTitle').textContent=t[r]||t.user;document.getElementById('dashSubtitle').textContent=s[r]||s.user}
-function switchDashTab(tab){if(!canAccessTab(appState.currentRole,tab))tab=getDefaultTab(appState.currentRole);var tabs=document.querySelectorAll('.tab-btn');for(var i=0;i<tabs.length;i++)tabs[i].classList.remove('active');var at=document.querySelector('[data-dtab="'+tab+'"]');if(at)at.classList.add('active');var panels=document.querySelectorAll('.dash-panel');for(var i=0;i<panels.length;i++)panels[i].classList.add('hidden');var ap=document.getElementById('dash-'+tab);if(ap)ap.classList.remove('hidden');renderDashboard()}
+function switchDashTab(tab){
+
+  if(!canAccessTab(appState.currentRole,tab))
+    tab=getDefaultTab(appState.currentRole);
+
+  var tabs=document.querySelectorAll('.tab-btn');
+  for(var i=0;i<tabs.length;i++)
+    tabs[i].classList.remove('active');
+
+  var at=document.querySelector('[data-dtab="'+tab+'"]');
+  if(at)at.classList.add('active');
+
+  var panels=document.querySelectorAll('.dash-panel');
+  for(var i=0;i<panels.length;i++)
+    panels[i].classList.add('hidden');
+
+  var ap=document.getElementById('dash-'+tab);
+  if(ap)ap.classList.remove('hidden');
+
+  // ✅ IMPORTANT: show only caregiver’s own bookings
+  if(tab==='bookings'){
+    renderBookingsTable();
+  }
+
+  renderDashboard();
+}
 function switchRole(r){if(appState.loggedIn){showToast('Role is set by your account.','warning');return}appState.currentRole=r;appState.caregiverId=null;var btns=document.querySelectorAll('.role-btn');for(var i=0;i<btns.length;i++){if(btns[i].getAttribute('data-role')===r)btns[i].classList.add('active');else btns[i].classList.remove('active')}if(appState.currentPage==='dashboard'){updateTabVisibility();switchDashTab(getDefaultTab(r))}}
 
 function renderDashboard(){
