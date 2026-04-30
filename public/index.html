@@ -356,12 +356,24 @@ async function handleLogin(e){
     appState.currentRole=r;
     appState.caregiverId=null;
     if(r==='caregiver'){
-      var loginEmail=(d.user.email||'').toLowerCase();
-      for(var i=0;i<caregiversCache.length;i++){
-        var cgEmail=(caregiversCache[i].email||'').toLowerCase();
-        if(cgEmail&&cgEmail===loginEmail){appState.caregiverId=caregiversCache[i]._id;break;}
-      }
-    }
+
+  if(!caregiversCache.length){
+    loadFallbackData();
+  }
+
+  var loginEmail=(d.user.email||'').toLowerCase();
+
+  var caregiverMatch = caregiversCache.find(function(c){
+    return (c.email||'').toLowerCase() === loginEmail;
+  });
+
+  if(!caregiverMatch){
+    showToast('Unauthorized caregiver account','error');
+    return;
+  }
+
+  appState.caregiverId = caregiverMatch._id;
+}
     updateAuthUI();closeModal('loginModal');
     var msg='Welcome back, '+appState.userName+'!';
     if(r==='caregiver'&&!appState.caregiverId)msg+=' Please select your caregiver profile in the Requests tab.';
@@ -907,16 +919,15 @@ function viewCaregiver(id){var cg=caregiversCache.find(function(c){return c._id=
 /* ========== FIX: Rewrote startBooking to properly handle both service and caregiver IDs ========== */
 function startBooking(id){
 
-  // ❌ Block caregivers and admins from booking
-  if(appState.currentRole !== 'user'){
-    showToast('Only patients can book caregivers.', 'error');
+  // ❌ caregivers cannot book
+  if(appState.currentRole === 'caregiver'){
+    showToast('Caregivers cannot book services','error');
     return;
   }
 
   // Reset booking state
   resetBookingModal();
-  
-  // Check if id is a caregiver or service
+
   var caregiver = caregiversCache.find(function(c){
     return c._id === id;
   });
@@ -924,14 +935,12 @@ function startBooking(id){
   var service = servicesCache.find(function(s){
     return s._id === id;
   });
-  
+
   if(caregiver){
 
-    // Starting from caregiver page
     appState.bookingFromCaregiver = true;
     appState.bookingData.caregiverId = caregiver._id;
-    
-    // Auto-map correct service
+
     var matchedService = servicesCache.find(function(s){
       return specialtyMap[s.name] &&
              specialtyMap[s.name].includes(caregiver.specialty);
@@ -940,24 +949,21 @@ function startBooking(id){
     if(matchedService){
       appState.bookingData.serviceId = matchedService._id;
     }
-    
-    // Open modal and go directly to step 3 (schedule)
+
     openBookingModal();
     goToStep(3);
-    
   }
+
   else if(service){
 
-    // Starting from service page
     appState.bookingFromCaregiver = false;
     appState.bookingData.serviceId = service._id;
     appState.bookingData.caregiverId = null;
-    
-    // Open modal and start at step 1
+
     openBookingModal();
     goToStep(1);
-    
   }
+
   else{
     showToast('Invalid selection','error');
   }
