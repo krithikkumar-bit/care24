@@ -737,132 +737,100 @@ function filterServices(category){
 
 function renderCaregiversPage(){
 
-  if(!caregiversCache.length){
-    document.getElementById('caregiversGrid').innerHTML =
-      '<div style="grid-column:1/-1;text-align:center;padding:64px;color:var(--muted)">No caregivers available.</div>';
-    return;
+  // ✅ Ensure fallback data loads if empty
+  if(!caregiversCache || caregiversCache.length === 0){
+    loadFallbackData();
   }
 
   var sp = document.getElementById('cgSpecialtyFilter').value;
   var rt = parseFloat(document.getElementById('cgRatingFilter').value) || 0;
   var ct = document.getElementById('cgCityFilter').value;
 
-  var filtered = caregiversCache.filter(function(c){
+  var fl = caregiversCache.filter(function(c){
 
-    if(sp !== "all" && c.specialty !== sp)
-      return false;
+    if(sp !== 'all' && c.specialty !== sp) return false;
 
-    if(rt > 0 && Number(c.rating) < rt)
-      return false;
+    if(rt > 0 && Number(c.rating) < rt) return false;
 
-    if(ct !== "all" && c.city !== ct)
-      return false;
+    if(ct !== 'all' && c.city !== ct) return false;
 
     return true;
   });
 
+  document.getElementById('caregiversCount').textContent = fl.length;
 
-  document.getElementById('caregiversCount').textContent =
-    filtered.length;
-
-
-  if(!filtered.length){
-
+  if(fl.length === 0){
     document.getElementById('caregiversGrid').innerHTML =
-      '<div style="grid-column:1/-1;text-align:center;padding:64px;color:var(--muted)">No match found.</div>';
-
+      '<div style="grid-column:1/-1;text-align:center;padding:64px;color:var(--muted)">No caregivers found.</div>';
     return;
   }
 
+  var h = '';
 
-  var html = "";
+  for(var i=0;i<fl.length;i++){
 
-  for(var i=0;i<filtered.length;i++){
+    var c = fl[i];
 
-    var c = filtered[i];
+    var dc = c.available ? '#059669' : '#D97706';
 
-    var statusColor =
-      c.available ? "#059669" : "#D97706";
+    var img = resolvePhoto(c.photo,100);
 
-    var img =
-      resolvePhoto(c.photo,100);
+    var sf = findServiceForCaregiver(c);
 
-
-    html +=
-
+    h +=
       '<div class="card-lift bg-white rounded-2xl p-6 border reveal" style="border-color:var(--border)">' +
 
-        '<div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">' +
+      '<div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">' +
 
-          '<div style="position:relative">' +
+      '<div style="position:relative">' +
+      '<img src="'+img+'" style="width:56px;height:56px;border-radius:50%;object-fit:cover">' +
+      '<div style="position:absolute;bottom:-2px;right:-2px;width:14px;height:14px;border-radius:50%;background:'+dc+';border:2px solid #fff"></div>' +
+      '</div>' +
 
-            '<img src="'+img+'" style="width:56px;height:56px;border-radius:50%;object-fit:cover">' +
+      '<div style="flex:1">' +
+      '<h3 style="font-weight:600;font-size:.95rem">'+c.name+'</h3>' +
+      '<p style="font-size:.8rem;color:var(--muted)">'+c.specialty+'</p>' +
+      '<div style="display:flex;align-items:center;gap:4px;margin-top:2px">' +
+      '<i class="fa-solid fa-star star" style="font-size:.7rem"></i>' +
+      '<span style="font-size:.85rem;font-weight:600">'+c.rating+'</span>' +
+      '</div>' +
+      '</div>' +
 
-            '<div style="position:absolute;bottom:-2px;right:-2px;width:14px;height:14px;border-radius:50%;background:'+statusColor+';border:2px solid #fff"></div>' +
+      '</div>' +
 
-          '</div>' +
+      '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px;text-align:center">' +
 
-          '<div style="flex:1">' +
+      '<div style="border-radius:8px;padding:8px;background:var(--bg2)">' +
+      '<p style="font-size:.85rem;font-weight:700">'+c.experience+'yr</p>' +
+      '</div>' +
 
-            '<h3 style="font-weight:600;font-size:.95rem">'+c.name+'</h3>' +
+      '<div style="border-radius:8px;padding:8px;background:var(--bg2)">' +
+      '<p style="font-size:.85rem;font-weight:700">'+c.city+'</p>' +
+      '</div>' +
 
-            '<p style="font-size:.8rem;color:var(--muted)">'+c.specialty+'</p>' +
+      '<div style="border-radius:8px;padding:8px;background:var(--pri-light)">' +
+      '<p style="font-size:.85rem;font-weight:700;color:var(--pri)">Rs.'+c.hourlyRate+'</p>' +
+      '</div>' +
 
-            '<div style="display:flex;align-items:center;gap:4px;margin-top:2px">' +
+      '</div>' +
 
-              '<i class="fa-solid fa-star star" style="font-size:.7rem"></i>' +
+      '<p style="font-size:.8rem;color:var(--muted);margin-bottom:12px">'+
+      (c.about || '').substring(0,80)+'...</p>' +
 
-              '<span style="font-size:.85rem;font-weight:600">'+c.rating+'</span>' +
+      '<div style="display:flex;gap:8px">' +
 
-            '</div>' +
+      '<button onclick="viewCaregiver(\''+c._id+'\')" class="btn-outline btn-sm" style="flex:1">Profile</button>' +
 
-          '</div>' +
+      (c.available
+        ? '<button onclick="startBooking(\''+c._id+'\')" class="btn-pri btn-sm" style="flex:1">Book</button>'
+        : '') +
 
-        '</div>' +
-
-        '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px;text-align:center">' +
-
-          '<div style="border-radius:8px;padding:8px;background:var(--bg2)">' +
-
-            '<p style="font-size:.85rem;font-weight:700">'+c.experience+'yr</p>' +
-
-          '</div>' +
-
-          '<div style="border-radius:8px;padding:8px;background:var(--bg2)">' +
-
-            '<p style="font-size:.85rem;font-weight:700">'+c.city+'</p>' +
-
-          '</div>' +
-
-          '<div style="border-radius:8px;padding:8px;background:var(--pri-light)">' +
-
-            '<p style="font-size:.85rem;font-weight:700;color:var(--pri)">Rs.'+c.hourlyRate+'</p>' +
-
-          '</div>' +
-
-        '</div>' +
-
-        '<p style="font-size:.8rem;color:var(--muted);margin-bottom:12px">'+
-          (c.about || '').substring(0,80)+'...' +
-        '</p>' +
-
-        '<div style="display:flex;gap:8px">' +
-
-          '<button onclick="viewCaregiver(\''+c._id+'\')" class="btn-outline btn-sm" style="flex:1">Profile</button>' +
-
-          (c.available
-            ? '<button onclick="startBooking(\''+c._id+'\')" class="btn-pri btn-sm" style="flex:1">Book</button>'
-            : ''
-          ) +
-
-        '</div>' +
+      '</div>' +
 
       '</div>';
   }
 
-
-  document.getElementById('caregiversGrid').innerHTML =
-    html;
+  document.getElementById('caregiversGrid').innerHTML = h;
 }
 function filterCaregivers(){renderCaregiversPage()}
 
