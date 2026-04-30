@@ -355,21 +355,21 @@ async function handleLogin(e){
     var r=d.user.role||'user';if(r==='admin')r='user';
     appState.currentRole=r;
     appState.caregiverId=null;
-    if(r==='caregiver'){
+if(r === 'caregiver'){
 
   if(!caregiversCache.length){
     loadFallbackData();
   }
 
-  var loginEmail=(d.user.email||'').toLowerCase();
+  var loginEmail = (d.user.email || '').toLowerCase();
 
   var caregiverMatch = caregiversCache.find(function(c){
-    return (c.email||'').toLowerCase() === loginEmail;
+    return (c.email || '').toLowerCase() === loginEmail;
   });
 
   if(!caregiverMatch){
     showToast('Unauthorized caregiver account','error');
-    return;
+    return; // ✅ valid here (inside function)
   }
 
   appState.caregiverId = caregiverMatch._id;
