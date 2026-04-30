@@ -562,31 +562,58 @@ function startBooking(id){
 }
 function goToStep(step){
 
-  // If caregiver already selected → skip Step 2
-  if(step === 2 && appState.bookingData.caregiverId){
-    step = 3;
+  // If caregiver already selected
+  if(appState.bookingData.caregiverId){
+
+    // Redirect Step 1 → Step 2 (Schedule)
+    if(step === 1) step = 2;
+
+    // Redirect Step 2 → Step 2 (Schedule instead of caregiver list)
+    if(step === 2) step = 2;
+
+    // Internally schedule screen is bookStep3
+    if(step === 2){
+      showBookingStep(3);
+      updateStepDots(2);
+      return;
+    }
+
   }
 
-  // If both service + caregiver already selected → skip Step 1 also
-  if(step === 1 && appState.bookingData.caregiverId){
-    step = 3;
-  }
+  showBookingStep(step);
+  updateStepDots(step);
+}
+
+
+function showBookingStep(step){
 
   var steps = document.querySelectorAll('.booking-step');
-  var dots = document.querySelectorAll('.step-dot');
 
   for(var i=0;i<steps.length;i++){
     steps[i].classList.add('hidden');
   }
 
-  document.getElementById('bookStep'+step).classList.remove('hidden');
+  document
+    .getElementById('bookStep'+step)
+    .classList.remove('hidden');
+}
 
-  for(var j=0;j<dots.length;j++){
-    dots[j].classList.remove('active');
-    if(j < step) dots[j].classList.add('done');
+
+function updateStepDots(step){
+
+  var dots = document.querySelectorAll('.step-dot');
+
+  for(var i=0;i<dots.length;i++){
+    dots[i].classList.remove('active','done');
+
+    if(i+1 < step){
+      dots[i].classList.add('done');
+    }
   }
 
-  document.querySelector('.step-dot[data-step="'+step+'"]').classList.add('active');
+  document
+    .querySelector('.step-dot[data-step="'+step+'"]')
+    .classList.add('active');
 }
 function renderBookingStep1(){
 
