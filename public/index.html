@@ -1043,8 +1043,99 @@ function updateBookingCost(){
 }
 
 function renderBookingStep4(){
-  var svc=servicesCache.find(function(s){return s._id===appState.bookingData.serviceId}),cg=caregiversCache.find(function(c){return c._id===appState.bookingData.caregiverId}),pe=document.getElementById('bookPatient'),pat=pe?patientCache.find(function(p){return p._id===pe.value}):null,dtEl=document.getElementById('bookDate'),dt=dtEl?dtEl.value:'',tmEl=document.getElementById('bookTime'),tm=tmEl?tmEl.value:'--',durEl=document.getElementById('bookDuration'),dur=durEl?durEl.value:'monthly',dl={hourly:'Hourly (4 hrs)',daily:'Daily (10 hrs)',weekly:'Weekly (7 days)',monthly:'Monthly (30 days)'},costs={hourly:svc.price*4,daily:svc.price*10,weekly:svc.price*70,monthly:svc.price*300};
-  document.getElementById('bookSummary').innerHTML='<div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">Service</span><span style="font-weight:600">'+(svc?svc.name:'N/A')+'</span></div><div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">Caregiver</span><span style="font-weight:600">'+(cg?cg.name:'N/A')+'</span></div><div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">Patient</span><span style="font-weight:600">'+(pat?pat.name:'N/A')+'</span></div><div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">Schedule</span><span style="font-weight:600">'+dt+' '+tm+'</span></div><div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">Duration</span><span style="font-weight:600">'+dl[dur]+'</span></div><div style="display:flex;justify-content:space-between;font-size:.9rem;padding-top:8px;border-top:1px dashed var(--border)"><span style="color:var(--accent);font-weight:600"><i class="fa-solid fa-clock" style="margin-right:4px"></i>Awaiting caregiver confirmation</span></div><div style="border-top:1px solid var(--border);padding-top:10px;margin-top:4px;display:flex;justify-content:space-between;font-size:1.1rem"><span style="font-weight:700">Total</span><span style="font-weight:800;color:var(--pri)">Rs. '+costs[dur].toLocaleString('en-IN')+'</span></div>';
+
+  var svc = servicesCache.find(function(s){
+    return s._id === appState.bookingData.serviceId;
+  });
+
+  var cg = caregiversCache.find(function(c){
+    return c._id === appState.bookingData.caregiverId;
+  });
+
+  var pe = document.getElementById('bookPatient');
+
+  var pat = pe
+    ? patientCache.find(function(p){
+        return p._id === pe.value;
+      })
+    : null;
+
+  var patientName = pat ? pat.name : 'Unknown';
+  var patientAge = pat ? pat.age : '--';
+  var patientGender = pat ? pat.gender : '--';
+
+  // fallback if quick-add patient used
+  if(!pat){
+
+    var quickName = document.getElementById('quickPatName');
+    var quickAge = document.getElementById('quickPatAge');
+
+    if(quickName && quickName.value){
+      patientName = quickName.value;
+    }
+
+    if(quickAge && quickAge.value){
+      patientAge = quickAge.value;
+    }
+  }
+
+  var dtEl = document.getElementById('bookDate');
+  var dt = dtEl ? dtEl.value : '';
+
+  var tmEl = document.getElementById('bookTime');
+  var tm = tmEl ? tmEl.value : '--';
+
+  var durEl = document.getElementById('bookDuration');
+  var dur = durEl ? durEl.value : 'monthly';
+
+  var dl = {
+    hourly:'Hourly (4 hrs)',
+    daily:'Daily (10 hrs)',
+    weekly:'Weekly (7 days)',
+    monthly:'Monthly (30 days)'
+  };
+
+  var costs = {
+    hourly:svc.price*4,
+    daily:svc.price*10,
+    weekly:svc.price*70,
+    monthly:svc.price*300
+  };
+
+  document.getElementById('bookSummary').innerHTML =
+
+  '<div style="display:flex;justify-content:space-between">' +
+  '<span style="color:var(--muted)">Service</span>' +
+  '<span style="font-weight:600">'+(svc?svc.name:'N/A')+'</span></div>' +
+
+  '<div style="display:flex;justify-content:space-between">' +
+  '<span style="color:var(--muted)">Caregiver</span>' +
+  '<span style="font-weight:600">'+(cg?cg.name:'N/A')+'</span></div>' +
+
+  '<div style="display:flex;justify-content:space-between">' +
+  '<span style="color:var(--muted)">Patient</span>' +
+  '<span style="font-weight:600">'+patientName+'</span></div>' +
+
+  '<div style="display:flex;justify-content:space-between">' +
+  '<span style="color:var(--muted)">Age / Gender</span>' +
+  '<span style="font-weight:600">'+patientAge+'y, '+patientGender+'</span></div>' +
+
+  '<div style="display:flex;justify-content:space-between">' +
+  '<span style="color:var(--muted)">Schedule</span>' +
+  '<span style="font-weight:600">'+dt+' '+tm+'</span></div>' +
+
+  '<div style="display:flex;justify-content:space-between">' +
+  '<span style="color:var(--muted)">Duration</span>' +
+  '<span style="font-weight:600">'+dl[dur]+'</span></div>' +
+
+  '<div style="display:flex;justify-content:space-between;font-size:.9rem;padding-top:8px;border-top:1px dashed var(--border)">' +
+  '<span style="color:var(--accent);font-weight:600">' +
+  '<i class="fa-solid fa-clock" style="margin-right:4px"></i>' +
+  'Awaiting caregiver confirmation</span></div>' +
+
+  '<div style="border-top:1px solid var(--border);padding-top:10px;margin-top:4px;display:flex;justify-content:space-between;font-size:1.1rem">' +
+  '<span style="font-weight:700">Total</span>' +
+  '<span style="font-weight:800;color:var(--pri)">Rs. '+costs[dur].toLocaleString('en-IN')+'</span></div>';
 }
 
 function updateTabVisibility(){var r=appState.currentRole;var tabs=document.querySelectorAll('#dashTabBar .tab-btn');for(var i=0;i<tabs.length;i++)tabs[i].style.display=canAccessTab(r,tabs[i].getAttribute('data-dtab'))?'':'none';document.getElementById('addPatientDashBtn').style.display=(r==='user'||r==='admin')?'':'none';document.getElementById('sosCardDash').style.display=(r==='user')?'':'none';document.getElementById('pendingCardDash').style.display=(r==='caregiver'||r==='admin')?'':'none';var t={user:'My Dashboard',caregiver:'Caregiver Dashboard',admin:'Admin Dashboard'},s={user:'Manage your care journey',caregiver:'Manage your assignments',admin:'System overview and management'};document.getElementById('dashTitle').textContent=t[r]||t.user;document.getElementById('dashSubtitle').textContent=s[r]||s.user}
