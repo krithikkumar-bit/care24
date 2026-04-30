@@ -348,59 +348,25 @@ async function api(m,p,b){var o={method:m,headers:{'Content-Type':'application/j
 function onRegRoleChange(){document.getElementById('adminRegWarning').style.display=document.getElementById('regRole').value==='admin'?'block':'none'}
 
 async function handleLogin(e){
-
   e.preventDefault();
-
   try{
-
-    var emailInput = document.getElementById('loginEmail').value.toLowerCase();
-
-    if(!caregiversCache || caregiversCache.length === 0){
-      loadFallbackData();
-    }
-
-    var d = await api('POST','/auth/login',{
-      email: emailInput,
-      password: document.getElementById('loginPass').value
-    });
-
-    var role = d.user.role || 'user';
-
-    // ✅ restrict caregiver login
-    if(role === 'caregiver'){
-
-      var caregiverMatch = caregiversCache.find(function(c){
-        return emailInput.includes(
-          c.name.toLowerCase().replace(/\s/g,'')
-        );
-      });
-
-      if(!caregiverMatch){
-        showToast('Unauthorized caregiver login','error');
-        return;
+    var d=await api('POST','/auth/login',{email:document.getElementById('loginEmail').value,password:document.getElementById('loginPass').value});
+    localStorage.setItem('care24_token',d.token);TOKEN=d.token;appState.loggedIn=true;appState.userName=d.user.firstName+' '+d.user.lastName;
+    var r=d.user.role||'user';if(r==='admin')r='user';
+    appState.currentRole=r;
+    appState.caregiverId=null;
+    if(r==='caregiver'){
+      var loginEmail=(d.user.email||'').toLowerCase();
+      for(var i=0;i<caregiversCache.length;i++){
+        var cgEmail=(caregiversCache[i].email||'').toLowerCase();
+        if(cgEmail&&cgEmail===loginEmail){appState.caregiverId=caregiversCache[i]._id;break;}
       }
-
-      appState.caregiverId = caregiverMatch._id;
     }
-
-    localStorage.setItem('care24_token', d.token);
-    TOKEN = d.token;
-
-    appState.loggedIn = true;
-    appState.userName = d.user.firstName + ' ' + d.user.lastName;
-    appState.currentRole = role;
-
-    updateAuthUI();
-    closeModal('loginModal');
-
-    showToast('Welcome back, '+appState.userName,'success');
-
-    navigate('dashboard');
-
-  }
-  catch(err){
-    showToast(err.message || 'Login failed','error');
-  }
+    updateAuthUI();closeModal('loginModal');
+    var msg='Welcome back, '+appState.userName+'!';
+    if(r==='caregiver'&&!appState.caregiverId)msg+=' Please select your caregiver profile in the Requests tab.';
+    showToast(msg,'success');navigate('dashboard');
+  }catch(err){showToast(err.message||'Login failed','error')}
 }
 
 async function handleAdminLogin(e){
@@ -717,126 +683,26 @@ if(appState.currentRole !== 'user'){
 }
 
 async function confirmBooking(){
-
-  // ❌ Block caregivers and admins from confirming bookings
-  if(appState.currentRole !== 'user'){
-    showToast('Only patients can confirm bookings.','error');
-    return;
-  }
-
-  if(!document.getElementById('bookTerms').checked){
-    showToast('Please accept the terms.','warning');
-    return;
-  }
-
-  var svc=servicesCache.find(function(s){
-    return s._id===appState.bookingData.serviceId
-  });
-
-  var cg=caregiversCache.find(function(c){
-    return c._id===appState.bookingData.caregiverId
-  });
-
-  if(!svc||!cg){
-    showToast('Missing data.','error');
-    return
-  }
-
+  if(!document.getElementById('bookTerms').checked){showToast('Please accept the terms.','warning');return}
+  var svc=servicesCache.find(function(s){return s._id===appState.bookingData.serviceId}),cg=caregiversCache.find(function(c){return c._id===appState.bookingData.caregiverId});
+  if(!svc||!cg){showToast('Missing data.','error');return}
   var durEl=document.getElementById('bookDuration');
   var dur=durEl?durEl.value:'monthly';
-
   var dtEl=document.getElementById('bookDate');
   var dt=dtEl?dtEl.value:'';
-
   var tmEl=document.getElementById('bookTime');
   var tm=tmEl?tmEl.value:'--';
-
   var pe=document.getElementById('bookPatient');
-  var pat=pe?patientCache.find(function(p){
-    return p._id===pe.value
-  }):null;
-
-  var costs={
-    hourly:svc.price*4,
-    daily:svc.price*10,
-    weekly:svc.price*70,
-    monthly:svc.price*300
-  };
-
-  var cost=costs[dur];
-
-  var durLabels={
-    hourly:'Hourly (4 hrs)',
-    daily:'Daily (10 hrs)',
-    weekly:'Weekly (7 days)',
-    monthly:'Monthly (30 days)'
-  };
-
-  var bookingId='BK'+Math.floor(Math.random()*90000+10000);
-  var bookingDbId='b'+Date.now();
-
-  var bookingObj={
-    _id:bookingDbId,
-    bookingId:bookingId,
-    serviceId:appState.bookingData.serviceId,
-    caregiverId:appState.bookingData.caregiverId,
-    patientId:pat?pat._id:null,
-    date:dt,
-    time:tm,
-    durationType:dur,
-    status:'pending',
-    cost:cost
-  };
-
-  try{
-
-    var data=await api('POST','/bookings',{
-      serviceId:appState.bookingData.serviceId,
-      caregiverId:appState.bookingData.caregiverId,
-      date:dt,
-      time:tm,
-      durationType:dur
-    });
-
-    bookingObj=data.booking||bookingObj;
-    bookingObj._id=bookingObj._id||bookingDbId;
-
-    showToast('Booking request sent to '+cg.name+'!','success');
-
-  }catch(e){
-
-    showToast('Booking saved locally (API offline)','warning');
-
-  }
-
+  var pat=pe?patientCache.find(function(p){return p._id===pe.value}):null;
+  var costs={hourly:svc.price*4,daily:svc.price*10,weekly:svc.price*70,monthly:svc.price*300},cost=costs[dur];
+  var durLabels={hourly:'Hourly (4 hrs)',daily:'Daily (10 hrs)',weekly:'Weekly (7 days)',monthly:'Monthly (30 days)'};
+  var bookingId='BK'+Math.floor(Math.random()*90000+10000),bookingDbId='b'+Date.now();
+  var bookingObj={_id:bookingDbId,bookingId:bookingId,serviceId:appState.bookingData.serviceId,caregiverId:appState.bookingData.caregiverId,patientId:pat?pat._id:null,date:dt,time:tm,durationType:dur,status:'pending',cost:cost};
+  try{var data=await api('POST','/bookings',{serviceId:appState.bookingData.serviceId,caregiverId:appState.bookingData.caregiverId,date:dt,time:tm,durationType:dur});bookingObj=data.booking||bookingObj;bookingObj._id=bookingObj._id||bookingDbId;showToast('Booking request sent to '+cg.name+'!','success')}catch(e){showToast('Booking saved locally (API offline)','warning')}
   bookingsCache.unshift(bookingObj);
 
-  cgRequests.unshift({
-    _id:bookingObj._id,
-    bookingId:bookingObj.bookingId,
-    caregiverId:appState.bookingData.caregiverId,
-    caregiverName:cg.name,
-    caregiverPhoto:cg.photo,
-    caregiverSpecialty:cg.specialty,
-    patientName:pat?pat.name:'Unknown',
-    patientAge:pat?pat.age:'--',
-    patientGender:pat?pat.gender:'--',
-    patientConditions:pat?(pat.conditions||'None'):'',
-    patientPhone:pat?(pat.emergencyPhone||'--'):'--',
-    serviceName:svc.name,
-    serviceIcon:svc.icon||'fa-circle',
-    serviceColor:getServiceColor(svc),
-    date:dt,
-    time:tm,
-    durationLabel:durLabels[dur],
-    cost:cost,
-    bookedAt:new Date().toLocaleString()
-  });
-
-  closeModal('bookingModal');
-
-  if(appState.currentPage==='dashboard')
-    renderDashboard();
+  cgRequests.unshift({_id:bookingObj._id,bookingId:bookingObj.bookingId,caregiverId:appState.bookingData.caregiverId,caregiverName:cg.name,caregiverPhoto:cg.photo,caregiverSpecialty:cg.specialty,patientName:pat?pat.name:'Unknown',patientAge:pat?pat.age:'--',patientGender:pat?pat.gender:'--',patientConditions:pat?(pat.conditions||'None'):'',patientPhone:pat?(pat.emergencyPhone||'--'):'--',serviceName:svc.name,serviceIcon:svc.icon||'fa-circle',serviceColor:getServiceColor(svc),date:dt,time:tm,durationLabel:durLabels[dur],cost:cost,bookedAt:new Date().toLocaleString()});
+  closeModal('bookingModal');if(appState.currentPage==='dashboard')renderDashboard();
 }
 
 function handleCgRequest(id,accept){
