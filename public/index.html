@@ -355,7 +355,7 @@ async function handleLogin(e){
 
     var emailInput = document.getElementById('loginEmail').value.toLowerCase();
 
-    // ✅ Ensure caregiver data exists before validation
+    // Load caregivers if empty
     if(!caregiversCache || caregiversCache.length === 0){
       loadFallbackData();
     }
@@ -367,22 +367,27 @@ async function handleLogin(e){
 
     var role = d.user.role || 'user';
 
-    // ✅ Restrict caregiver login ONLY to valid caregiver emails
+    // ✅ Restrict caregiver login to valid caregiver profiles
     if(role === 'caregiver'){
 
       var caregiverMatch = caregiversCache.find(function(c){
-        return (c.email || '').toLowerCase() === emailInput;
+
+        return emailInput.includes(
+          (c.name || '').toLowerCase().replace(/\s/g,'')
+        );
+
       });
 
       if(!caregiverMatch){
-        showToast('Unauthorized caregiver account. Contact admin.','error');
+
+        showToast('Unauthorized caregiver account. Use assigned caregiver login.','error');
         return;
+
       }
 
       appState.caregiverId = caregiverMatch._id;
     }
 
-    // Save token
     localStorage.setItem('care24_token', d.token);
     TOKEN = d.token;
 
@@ -399,8 +404,11 @@ async function handleLogin(e){
     navigate('dashboard');
 
   }
+
   catch(err){
+
     showToast(err.message || 'Login failed','error');
+
   }
 }
 
