@@ -529,25 +529,20 @@ function startBooking(id){
 
     });
 
-    if(!matchedService){
-      showToast("No matching service for this caregiver","error");
-      return;
-    }
-
     appState.bookingData = {
-      serviceId: matchedService._id,
+      serviceId: matchedService ? matchedService._id : null,
       caregiverId: caregiver._id
     };
 
     openModal('bookingModal');
 
-    // Skip Step 1 and Step 2
+    // Directly open schedule screen
     goToStep(3);
 
     return;
   }
 
-  // If booking started from service card
+  // If user clicked service card
 
   appState.bookingData = {
     serviceId: id,
@@ -565,23 +560,45 @@ function goToStep(step){
   // If caregiver already selected
   if(appState.bookingData.caregiverId){
 
-    // Redirect Step 1 → Step 2 (Schedule)
-    if(step === 1) step = 2;
+    // Skip Step 1 (service)
+    if(step === 1){
+      step = 3;
+    }
 
-    // Redirect Step 2 → Step 2 (Schedule instead of caregiver list)
-    if(step === 2) step = 2;
-
-    // Internally schedule screen is bookStep3
+    // Replace Step 2 (caregiver) with Schedule screen
     if(step === 2){
-      showBookingStep(3);
-      updateStepDots(2);
-      return;
+      step = 3;
     }
 
   }
 
-  showBookingStep(step);
-  updateStepDots(step);
+  var steps = document.querySelectorAll('.booking-step');
+  var dots = document.querySelectorAll('.step-dot');
+
+  // Hide all steps
+  steps.forEach(function(s){
+    s.classList.add('hidden');
+  });
+
+  // Show correct step
+  document
+    .getElementById('bookStep'+step)
+    .classList.remove('hidden');
+
+  // Update dots UI
+  dots.forEach(function(dot,i){
+
+    dot.classList.remove('active','done');
+
+    if(i+1 < step){
+      dot.classList.add('done');
+    }
+
+  });
+
+  document
+    .querySelector('.step-dot[data-step="'+step+'"]')
+    .classList.add('active');
 }
 
 
