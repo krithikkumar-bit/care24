@@ -157,6 +157,8 @@ input,select,textarea{font-family:var(--font)}
 .step-line{width:40px;height:2px;background:var(--border)}
 .booking-step{display:none}
 .booking-step:not(.hidden){display:block}
+.svc-option{display:flex;align-items:center;justify-content:space-between;padding:14px;border-radius:10px;border:1.5px solid var(--border);cursor:pointer;background:#fff;transition:all .15s}
+.svc-option:hover{border-color:var(--pri);background:var(--pri-light)}
 .sos-modal .modal-box{max-width:480px;border:2px solid var(--error)}
 .sos-header{background:var(--error);color:#fff;padding:20px 24px;border-radius:14px 14px 0 0;text-align:center}
 .sos-header h3{font-size:1.3rem;font-weight:800;margin-bottom:2px}
@@ -323,7 +325,7 @@ input,select,textarea{font-family:var(--font)}
 
 <div class="modal-overlay" id="patientModal"><div class="modal-box"><div class="modal-header"><h3>Add Patient</h3><button class="modal-close" onclick="closeModal('patientModal')"><i class="fa-solid fa-xmark"></i></button></div><div class="modal-body"><form onsubmit="handleAddPatient(event)"><div class="form-row"><div class="form-group"><label>Full Name</label><input type="text" id="patName" required></div><div class="form-group"><label>Age</label><input type="number" id="patAge" min="0" max="150" required></div></div><div class="form-row"><div class="form-group"><label>Gender</label><select id="patGender"><option>Male</option><option>Female</option><option>Other</option></select></div><div class="form-group"><label>Blood Group</label><select id="patBlood"><option value="">Select</option><option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>AB+</option><option>AB-</option><option>O+</option><option>O-</option></select></div></div><div class="form-group"><label>Medical Conditions</label><input type="text" id="patConditions" placeholder="Diabetes, Hypertension..."></div><div class="form-group"><label>Special Requirements</label><input type="text" id="patSpecial" placeholder="Wheelchair, Hindi speaking..."></div><div class="form-group"><label>Address</label><textarea id="patAddress" rows="2" required></textarea></div><div class="form-row"><div class="form-group"><label>Emergency Contact Name</label><input type="text" id="patEmerName" required></div><div class="form-group"><label>Emergency Phone</label><input type="tel" id="patEmerPhone" required></div></div><button type="submit" class="btn-pri" style="width:100%;margin-top:8px"><i class="fa-solid fa-plus"></i> Save Patient</button></form></div></div></div>
 
-<div class="modal-overlay" id="bookingModal"><div class="modal-box" style="max-width:600px"><div class="modal-header"><h3>Book a Service</h3><button class="modal-close" onclick="closeModal('bookingModal')"><i class="fa-solid fa-xmark"></i></button></div><div class="modal-body"><div class="step-dots"><div class="step-dot active" data-step="1">1</div><div class="step-line"></div><div class="step-dot" data-step="2">2</div><div class="step-line"></div><div class="step-dot" data-step="3">3</div><div class="step-line"></div><div class="step-dot" data-step="4">4</div></div><div class="booking-step" id="bookStep1"><h4 style="font-weight:700;margin-bottom:16px">Select Service</h4><div id="bookServiceList" style="display:grid;gap:10px"></div><button class="btn-pri" style="width:100%;margin-top:16px" onclick="goToStep(2)">Next <i class="fa-solid fa-arrow-right"></i></button></div><div class="booking-step hidden" id="bookStep2"><h4 style="font-weight:700;margin-bottom:16px">Choose Caregiver</h4><div id="bookCaregiverList" style="display:grid;gap:10px;max-height:300px;overflow-y:auto"></div><div style="display:flex;gap:8px;margin-top:16px"><button class="btn-outline" style="flex:1" onclick="goToStep(1)"><i class="fa-solid fa-arrow-left"></i> Back</button><button class="btn-pri" style="flex:1" onclick="goToStep(3)">Next <i class="fa-solid fa-arrow-right"></i></button></div></div><div class="booking-step hidden" id="bookStep3"><h4 style="font-weight:700;margin-bottom:16px">Schedule Details</h4><div class="form-row"><div class="form-group"><label>Date</label><input type="date" id="bookDate"></div><div class="form-group"><label>Time</label><input type="time" id="bookTime"></div></div><div class="form-group"><label>Patient</label><select id="bookPatient"><option value="">No patients — add one first</option></select></div><div class="form-group"><label>Duration</label><select id="bookDuration" onchange="updateBookingCost()"><option value="hourly">Hourly (4 hrs)</option><option value="daily">Daily (10 hrs)</option><option value="weekly">Weekly (7 days)</option><option value="monthly" selected>Monthly (30 days)</option></select></div><div style="background:var(--pri-light);padding:14px;border-radius:8px;margin-bottom:16px;display:flex;justify-content:space-between"><span style="font-weight:600">Estimated Cost</span><span style="font-weight:800;color:var(--pri);font-size:1.1rem" id="bookEstCost">Rs. 0</span></div><div style="display:flex;gap:8px"><button class="btn-outline" style="flex:1" onclick="goToStep(2)"><i class="fa-solid fa-arrow-left"></i> Back</button><button class="btn-pri" style="flex:1" onclick="goToStep(4)">Review <i class="fa-solid fa-arrow-right"></i></button></div></div><div class="booking-step hidden" id="bookStep4"><h4 style="font-weight:700;margin-bottom:16px">Confirm Booking</h4><div id="bookSummary" style="background:var(--bg2);padding:20px;border-radius:12px;display:grid;gap:10px;margin-bottom:16px"></div><label style="display:flex;align-items:center;gap:8px;font-size:.85rem;margin-bottom:16px;cursor:pointer"><input type="checkbox" id="bookTerms" style="accent-color:var(--pri);width:16px;height:16px"> I accept the terms and cancellation policy</label><div style="display:flex;gap:8px"><button class="btn-outline" style="flex:1" onclick="goToStep(3)"><i class="fa-solid fa-arrow-left"></i> Back</button><button class="btn-pri" style="flex:1" onclick="confirmBooking()"><i class="fa-solid fa-check"></i> Confirm Booking</button></div></div></div></div></div>
+<div class="modal-overlay" id="bookingModal"><div class="modal-box" style="max-width:600px"><div class="modal-header"><h3>Book a Service</h3><button class="modal-close" onclick="closeModal('bookingModal')"><i class="fa-solid fa-xmark"></i></button></div><div class="modal-body"><div class="step-dots"><div class="step-dot active" data-step="1">1</div><div class="step-line"></div><div class="step-dot" data-step="2">2</div><div class="step-line"></div><div class="step-dot" data-step="3">3</div><div class="step-line"></div><div class="step-dot" data-step="4">4</div></div><div class="booking-step" id="bookStep1"><h4 style="font-weight:700;margin-bottom:16px">Select Service</h4><div id="bookServiceList" style="display:grid;gap:10px"></div><button class="btn-pri" style="width:100%;margin-top:16px" onclick="goToStep(2)">Next <i class="fa-solid fa-arrow-right"></i></button></div><div class="booking-step hidden" id="bookStep2"><h4 style="font-weight:700;margin-bottom:16px">Choose Caregiver</h4><div id="bookCaregiverList" style="display:grid;gap:10px;max-height:300px;overflow-y:auto"></div><div style="display:flex;gap:8px;margin-top:16px"><button class="btn-outline" style="flex:1" onclick="goToStep(1)"><i class="fa-solid fa-arrow-left"></i> Back</button><button class="btn-pri" style="flex:1" onclick="goToStep(3)">Next <i class="fa-solid fa-arrow-right"></i></button></div></div><div class="booking-step hidden" id="bookStep3"><h4 style="font-weight:700;margin-bottom:16px">Schedule Details</h4><div id="bookStep3Content"></div></div><div class="booking-step hidden" id="bookStep4"><h4 style="font-weight:700;margin-bottom:16px">Confirm Booking</h4><div id="bookSummary" style="background:var(--bg2);padding:20px;border-radius:12px;display:grid;gap:10px;margin-bottom:16px"></div><label style="display:flex;align-items:center;gap:8px;font-size:.85rem;margin-bottom:16px;cursor:pointer"><input type="checkbox" id="bookTerms" style="accent-color:var(--pri);width:16px;height:16px"> I accept the terms and cancellation policy</label><div style="display:flex;gap:8px"><button class="btn-outline" style="flex:1" onclick="goToStep(3)"><i class="fa-solid fa-arrow-left"></i> Back</button><button class="btn-pri" style="flex:1" onclick="confirmBooking()"><i class="fa-solid fa-check"></i> Confirm Booking</button></div></div></div></div></div>
 
 <div class="modal-overlay" id="caregiverDetailModal"><div class="modal-box" style="max-width:520px;padding:0;overflow:hidden"><div id="cgDetailContent"></div></div></div>
 
@@ -333,7 +335,7 @@ input,select,textarea{font-family:var(--font)}
 
 <script>
 var API="https://care24.onrender.com/api",TOKEN=localStorage.getItem('care24_token')||'';
-var appState={currentPage:'home',currentRole:'user',loggedIn:false,userName:'',caregiverId:null,bookingData:{serviceId:null,caregiverId:null}};
+var appState={currentPage:'home',currentRole:'user',loggedIn:false,userName:'',caregiverId:null,bookingData:{serviceId:null,caregiverId:null},bookingFromCaregiver:false};
 var ADMIN_CREDENTIALS={email:'krithikkumar961@gmail.com',password:'Krithik2006#@'};
 var ROLE_TABS={user:['user','bookings'],caregiver:['cg-requests','cg-work','bookings'],admin:['user','bookings','cg-requests','cg-work','admin']};
 function getDefaultTab(r){return(ROLE_TABS[r]||ROLE_TABS.user)[0]}
@@ -411,21 +413,13 @@ function updateAuthUI(){
 var patientCache=[],servicesCache=[],caregiversCache=[],bookingsCache=[],cgRequests=[],adminPendingVerify=[];
 var adminDashboard={users:0,caregivers:0,pendingVerifications:0,totalBookings:0};
 function getCgWorkHistory(cgId){
-
   return bookingsCache
     .filter(function(b){
       return b.caregiverId === cgId && b.status === "completed";
     })
     .map(function(b){
-
-      var svc = servicesCache.find(function(s){
-        return s._id === b.serviceId;
-      });
-
-      var pat = patientCache.find(function(p){
-        return p._id === b.patientId;
-      });
-
+      var svc = servicesCache.find(function(s){return s._id === b.serviceId});
+      var pat = patientCache.find(function(p){return p._id === b.patientId});
       return {
         patient: pat ? pat.name : "Unknown",
         service: svc ? svc.name : "Unknown",
@@ -434,9 +428,7 @@ function getCgWorkHistory(cgId){
         rating: 5,
         earned: b.cost || 0
       };
-
     });
-
 }
 var adminComplaints=[{_id:'CMP01',user:'Vikram Singh',caregiver:'Rajesh Kumar',issue:'Late arrival',status:'Open',priority:'Medium'},{_id:'CMP02',user:'Preethi Rao',caregiver:'Meena Patel',issue:'Medication gap',status:'In Progress',priority:'High'},{_id:'CMP03',user:'Arun Khanna',caregiver:'Mohammed Irfan',issue:'Quality issues',status:'Resolved',priority:'Low'}];
 var sosContacts=[],nearbyHospitals=[{name:'Lilavati Hospital',address:'Bandra, Mumbai',phone:'+912226407777',distance:'2.3 km'},{name:'Apollo Hospital',address:'Sarita Vihar, Delhi',phone:'+91126925888',distance:'3.1 km'},{name:'Manipal Hospital',address:'Old Airport Rd, Bangalore',phone:'+918025024444',distance:'1.8 km'}];
@@ -444,7 +436,7 @@ var testimonials=[{name:'Ramesh Agarwal',relation:'Son',text:'Care24 made it eas
 
 function loadFallbackData(){
   servicesCache=[{_id:'s1',name:'Nursing Care',icon:'fa-user-nurse',description:'Trained nurses for wound care, injections, IV drips, catheter management, and post-operative monitoring at home.',price:499,duration:'4-12 hrs/day',color:'#0F766E',category:'medical'},{_id:'s2',name:'Elderly Attendant',icon:'fa-hand-holding-heart',description:'Dedicated caretakers for daily assistance, companionship, mobility support, and monitoring.',price:299,duration:'8-24 hrs/day',color:'#D97706',category:'support'},{_id:'s3',name:'Physiotherapy',icon:'fa-bone',description:'Licensed physiotherapists for post-surgery rehab, joint pain, stroke recovery.',price:599,duration:'45-60 min sessions',color:'#059669',category:'rehab'},{_id:'s4',name:'Post-Hospital Care',icon:'fa-hospital',description:'Comprehensive care after discharge including medication management and wound care.',price:549,duration:'1-4 weeks',color:'#7C3AED',category:'medical'},{_id:'s5',name:'Dementia Care',icon:'fa-brain',description:'Specialized caregivers trained in dementia care techniques and behavioral management.',price:649,duration:'8-24 hrs/day',color:'#DC2626',category:'support'},{_id:'s6',name:'Palliative Care',icon:'fa-heart',description:'Compassionate end-of-life care focusing on comfort, pain management, and emotional support.',price:749,duration:'24 hrs/day',color:'#1E40AF',category:'support'}];
-  caregiversCache=[{_id:'c1',name:'Sunita Rao',photo:'https://randomuser.me/api/portraits/women/65.jpg',specialty:'Nursing',city:'Mumbai',rating:4.9,reviews:127,experience:8,hourlyRate:499,available:true,about:'GNM qualified nurse with 8 years experience in post-operative care.',qualification:'GNM',languages:'Hindi, English, Marathi'},{_id:'c2',name:'Priya Sharma',photo:'https://randomuser.me/api/portraits/women/44.jpg',specialty:'Physiotherapy',city:'Delhi',rating:4.8,reviews:89,experience:6,hourlyRate:599,available:true,about:'MPT Orthopedics specialist in stroke rehab and mobility recovery.',qualification:'MPT Ortho',languages:'Hindi, English, Punjabi'},{_id:'c3',name:'Meena Patel',photo:'https://randomuser.me/api/portraits/women/32.jpg',specialty:'Elderly Care',city:'Bangalore',rating:4.9,reviews:203,experience:12,hourlyRate:349,available:true,about:'Experienced elderly caretaker trained in dementia support.',qualification:'Certified Caregiver',languages:'Hindi, English, Kannada'},{_id:'c4',name:'Rajesh Kumar',photo:'https://randomuser.me/api/portraits/men/51.jpg',specialty:'Nursing',city:'Pune',rating:4.7,reviews:76,experience:5,hourlyRate:449,available:true,about:'Critical-care trained nurse specializing in home ICU support.',qualification:'BSc Nursing',languages:'Hindi, English, Marathi'},{_id:'c5',name:'Anjali Desai',photo:'https://randomuser.me/api/portraits/women/68.jpg',specialty:'Physiotherapy',city:'Mumbai',rating:4.6,reviews:54,experience:4,hourlyRate:549,available:false,about:'Neurological physiotherapy expert.',qualification:'BPT',languages:'Hindi, English, Gujarati'},{_id:'c6',name:'Mohammed Irfan',photo:'https://randomuser.me/api/portraits/men/33.jpg',specialty:'Post-Hospital',city:'Hyderabad',rating:4.8,reviews:112,experience:9,hourlyRate:549,available:true,about:'Medication management and discharge recovery specialist.',qualification:'GNM',languages:'Hindi, English, Telugu, Urdu'},{_id:'c7',name:'Kavitha Nair',photo:'https://randomuser.me/api/portraits/women/12.jpg',specialty:'Dementia Care',city:'Chennai',rating:4.9,reviews:167,experience:10,hourlyRate:649,available:true,about:"Certified Alzheimer's caregiver with validated behavioral techniques.",qualification:'Dementia Specialist',languages:'Hindi, English, Tamil, Malayalam'},{_id:'c8',name:'Deepak Singh',photo:'https://randomuser.me/api/portraits/men/22.jpg',specialty:'Nursing',city:'Delhi',rating:4.5,reviews:43,experience:3,hourlyRate:399,available:true,about:'Injection therapy and wound-care specialist.',qualification:'GNM',languages:'Hindi, English'},{_id:'c9',name:'Lakshmi Iyer',photo:'https://randomuser.me/api/portraits/women/90.jpg',specialty:'Palliative Care',city:'Bangalore',rating:4.9,reviews:89,experience:15,hourlyRate:749,available:true,about:'Pain-management and hospice-care expert with deep empathy.',qualification:'Palliative Specialist',languages:'Hindi, English, Kannada, Tamil'}];
+  caregiversCache=[{_id:'c1',name:'Sunita Rao',photo:'https://randomuser.me/api/portraits/women/65.jpg',specialty:'Nursing',city:'Mumbai',rating:4.9,reviews:127,experience:8,hourlyRate:499,available:true,about:'GNM qualified nurse with 8 years experience in post-operative care.',qualification:'GNM',languages:'Hindi, English, Marathi',email:'sunita@care24.com'},{_id:'c2',name:'Priya Sharma',photo:'https://randomuser.me/api/portraits/women/44.jpg',specialty:'Physiotherapy',city:'Delhi',rating:4.8,reviews:89,experience:6,hourlyRate:599,available:true,about:'MPT Orthopedics specialist in stroke rehab and mobility recovery.',qualification:'MPT Ortho',languages:'Hindi, English, Punjabi',email:'priya@care24.com'},{_id:'c3',name:'Meena Patel',photo:'https://randomuser.me/api/portraits/women/32.jpg',specialty:'Elderly Care',city:'Bangalore',rating:4.9,reviews:203,experience:12,hourlyRate:349,available:true,about:'Experienced elderly caretaker trained in dementia support.',qualification:'Certified Caregiver',languages:'Hindi, English, Kannada',email:'meena@care24.com'},{_id:'c4',name:'Rajesh Kumar',photo:'https://randomuser.me/api/portraits/men/51.jpg',specialty:'Nursing',city:'Pune',rating:4.7,reviews:76,experience:5,hourlyRate:449,available:true,about:'Critical-care trained nurse specializing in home ICU support.',qualification:'BSc Nursing',languages:'Hindi, English, Marathi',email:'rajesh@care24.com'},{_id:'c5',name:'Anjali Desai',photo:'https://randomuser.me/api/portraits/women/68.jpg',specialty:'Physiotherapy',city:'Mumbai',rating:4.6,reviews:54,experience:4,hourlyRate:549,available:false,about:'Neurological physiotherapy expert.',qualification:'BPT',languages:'Hindi, English, Gujarati',email:'anjali@care24.com'},{_id:'c6',name:'Mohammed Irfan',photo:'https://randomuser.me/api/portraits/men/33.jpg',specialty:'Post-Hospital',city:'Hyderabad',rating:4.8,reviews:112,experience:9,hourlyRate:549,available:true,about:'Medication management and discharge recovery specialist.',qualification:'GNM',languages:'Hindi, English, Telugu, Urdu',email:'irfan@care24.com'},{_id:'c7',name:'Kavitha Nair',photo:'https://randomuser.me/api/portraits/women/12.jpg',specialty:'Dementia Care',city:'Chennai',rating:4.9,reviews:167,experience:10,hourlyRate:649,available:true,about:"Certified Alzheimer's caregiver with validated behavioral techniques.",qualification:'Dementia Specialist',languages:'Hindi, English, Tamil, Malayalam',email:'kavitha@care24.com'},{_id:'c8',name:'Deepak Singh',photo:'https://randomuser.me/api/portraits/men/22.jpg',specialty:'Nursing',city:'Delhi',rating:4.5,reviews:43,experience:3,hourlyRate:399,available:true,about:'Injection therapy and wound-care specialist.',qualification:'GNM',languages:'Hindi, English',email:'deepak@care24.com'},{_id:'c9',name:'Lakshmi Iyer',photo:'https://randomuser.me/api/portraits/women/90.jpg',specialty:'Palliative Care',city:'Bangalore',rating:4.9,reviews:89,experience:15,hourlyRate:749,available:true,about:'Pain-management and hospice-care expert with deep empathy.',qualification:'Palliative Specialist',languages:'Hindi, English, Kannada, Tamil',email:'lakshmi@care24.com'}];
 }
 
 async function loadPatients(){try{patientCache=await api('GET','/patients')}catch(e){}}
@@ -453,17 +445,97 @@ async function loadCaregivers(){try{caregiversCache=await api('GET','/caregivers
 async function loadBookings(){try{bookingsCache=await api('GET','/bookings')}catch(e){}}
 async function loadAdminData(){try{adminDashboard=await api('GET','/admin/stats')}catch(e){}}
 
-async function handleAddPatient(e){e.preventDefault();var p={name:document.getElementById('patName').value,age:parseInt(document.getElementById('patAge').value),gender:document.getElementById('patGender').value,bloodGroup:document.getElementById('patBlood').value||'',conditions:document.getElementById('patConditions').value||'None',specialRequirements:document.getElementById('patSpecial').value||'',address:document.getElementById('patAddress').value,emergencyName:document.getElementById('patEmerName').value,emergencyPhone:document.getElementById('patEmerPhone').value};try{var d=await api('POST','/patients',p);patientCache.push(d.patient||p);showToast('Patient '+p.name+' saved!','success')}catch(e){p._id='p'+Date.now();patientCache.push(p);showToast('Patient saved locally','warning')}closeModal('patientModal');e.target.reset();if(appState.currentPage==='dashboard')renderDashboard();if(window._returnToBooking){window._returnToBooking=false;openModal('bookingModal');renderBookingStep3();goToStep(3)}}
-function openPatientFromBooking(){window._returnToBooking=true;openModal('patientModal')}
-function quickAddPatient(){var ne=document.getElementById('quickPatName'),ae=document.getElementById('quickPatAge'),me=document.getElementById('quickAddMsg'),n=ne.value.trim(),a=parseInt(ae.value);if(!n){me.style.display='block';me.innerHTML='<p style="color:var(--error);font-size:.8rem">Enter patient name</p>';ne.focus();return}if(!a||a<0||a>150){me.style.display='block';me.innerHTML='<p style="color:var(--error);font-size:.8rem">Enter valid age</p>';ae.focus();return}var np={_id:'p'+Date.now(),name:n,age:a,gender:'Other',bloodGroup:'',conditions:'None',specialRequirements:'',address:'To be updated',emergencyName:'To be updated',emergencyPhone:'0000000000'};patientCache.push(np);api('POST','/patients',np).catch(function(){});showToast('Patient "'+n+'" added!','success');var qs=document.getElementById('quickAddSection'),ps=document.getElementById('patientSelectSection');if(qs&&ps){qs.style.display='none';ps.style.display='block';var ph='';for(var i=0;i<patientCache.length;i++)ph+='<option value="'+patientCache[i]._id+'">'+patientCache[i].name+' ('+patientCache[i].age+'y)</option>';var se=document.getElementById('bookPatient');if(se){se.innerHTML=ph;se.value=np._id}}}
+async function handleAddPatient(e){e.preventDefault();var p={name:document.getElementById('patName').value,age:parseInt(document.getElementById('patAge').value),gender:document.getElementById('patGender').value,bloodGroup:document.getElementById('patBlood').value||'',conditions:document.getElementById('patConditions').value||'None',specialRequirements:document.getElementById('patSpecial').value||'',address:document.getElementById('patAddress').value,emergencyName:document.getElementById('patEmerName').value,emergencyPhone:document.getElementById('patEmerPhone').value};try{var d=await api('POST','/patients',p);patientCache.push(d.patient||p);showToast('Patient '+p.name+' saved!','success')}catch(e){p._id='p'+Date.now();patientCache.push(p);showToast('Patient saved locally','warning')}closeModal('patientModal');e.target.reset();if(appState.currentPage==='dashboard')renderDashboard();if(window._returnToBooking){window._returnToBooking=false;openBookingModal();renderBookingStep3();goToStep(3)}}
 
-/* ========== THE KEY FIX: confirmBooking stores caregiverId in request ========== */
+function openPatientFromBooking(){window._returnToBooking=true;openModal('patientModal')}
+
+function quickAddPatient(){
+  var ne=document.getElementById('quickPatName'),ae=document.getElementById('quickPatAge');
+  if(!ne||!ae)return;
+  var n=ne.value.trim(),a=parseInt(ae.value);
+  if(!n){showToast('Enter patient name','error');ne.focus();return}
+  if(!a||a<0||a>150){showToast('Enter valid age','error');ae.focus();return}
+  var np={_id:'p'+Date.now(),name:n,age:a,gender:'Other',bloodGroup:'',conditions:'None',specialRequirements:'',address:'To be updated',emergencyName:'To be updated',emergencyPhone:'0000000000'};
+  patientCache.push(np);
+  api('POST','/patients',np).catch(function(){});
+  showToast('Patient "'+n+'" added!','success');
+  renderBookingStep3();
+}
+
+/* ========== FIX: Added missing goToStep function ========== */
+function goToStep(step){
+  showBookingStep(step);
+  updateStepDots(step);
+  
+  // Render step content based on step
+  if(step === 1) renderBookingStep1();
+  if(step === 2) renderBookingStep2();
+  if(step === 3) renderBookingStep3();
+  if(step === 4) renderBookingStep4();
+}
+
+/* ========== FIX: Added missing selectService function ========== */
+function selectService(serviceId){
+  appState.bookingData.serviceId = serviceId;
+  renderBookingStep1();
+}
+
+function showBookingStep(step){
+  var steps = document.querySelectorAll('.booking-step');
+  for(var i=0;i<steps.length;i++){
+    steps[i].classList.add('hidden');
+  }
+  var stepEl = document.getElementById('bookStep'+step);
+  if(stepEl) stepEl.classList.remove('hidden');
+}
+
+function updateStepDots(step){
+  var dots = document.querySelectorAll('.step-dot');
+  for(var i=0;i<dots.length;i++){
+    dots[i].classList.remove('active','done');
+    if(i+1 < step){
+      dots[i].classList.add('done');
+    }
+  }
+  var activeDot = document.querySelector('.step-dot[data-step="'+step+'"]');
+  if(activeDot) activeDot.classList.add('active');
+}
+
+/* ========== FIX: resetBookingModal to properly reset state ========== */
+function resetBookingModal(){
+  appState.bookingData = {serviceId: null, caregiverId: null};
+  appState.bookingFromCaregiver = false;
+  
+  // Reset all steps to hidden
+  var steps = document.querySelectorAll('.booking-step');
+  for(var i=0;i<steps.length;i++){
+    steps[i].classList.add('hidden');
+  }
+  
+  // Reset step dots
+  var dots = document.querySelectorAll('.step-dot');
+  for(var i=0;i<dots.length;i++){
+    dots[i].classList.remove('active','done');
+  }
+  
+  // Show step 1 and activate first dot
+  document.getElementById('bookStep1').classList.remove('hidden');
+  var firstDot = document.querySelector('.step-dot[data-step="1"]');
+  if(firstDot) firstDot.classList.add('active');
+}
+
 async function confirmBooking(){
   if(!document.getElementById('bookTerms').checked){showToast('Please accept the terms.','warning');return}
   var svc=servicesCache.find(function(s){return s._id===appState.bookingData.serviceId}),cg=caregiversCache.find(function(c){return c._id===appState.bookingData.caregiverId});
   if(!svc||!cg){showToast('Missing data.','error');return}
-  var dur=document.getElementById('bookDuration').value,dt=document.getElementById('bookDate').value,tm=document.getElementById('bookTime').value||'--';
-  var pe=document.getElementById('bookPatient'),pat=pe?patientCache.find(function(p){return p._id===pe.value}):null;
+  var durEl=document.getElementById('bookDuration');
+  var dur=durEl?durEl.value:'monthly';
+  var dtEl=document.getElementById('bookDate');
+  var dt=dtEl?dtEl.value:'';
+  var tmEl=document.getElementById('bookTime');
+  var tm=tmEl?tmEl.value:'--';
+  var pe=document.getElementById('bookPatient');
+  var pat=pe?patientCache.find(function(p){return p._id===pe.value}):null;
   var costs={hourly:svc.price*4,daily:svc.price*10,weekly:svc.price*70,monthly:svc.price*300},cost=costs[dur];
   var durLabels={hourly:'Hourly (4 hrs)',daily:'Daily (10 hrs)',weekly:'Weekly (7 days)',monthly:'Monthly (30 days)'};
   var bookingId='BK'+Math.floor(Math.random()*90000+10000),bookingDbId='b'+Date.now();
@@ -471,12 +543,10 @@ async function confirmBooking(){
   try{var data=await api('POST','/bookings',{serviceId:appState.bookingData.serviceId,caregiverId:appState.bookingData.caregiverId,date:dt,time:tm,durationType:dur});bookingObj=data.booking||bookingObj;bookingObj._id=bookingObj._id||bookingDbId;showToast('Booking request sent to '+cg.name+'!','success')}catch(e){showToast('Booking saved locally (API offline)','warning')}
   bookingsCache.unshift(bookingObj);
 
-  /* FIX: Store caregiverId so requests can be filtered per-caregiver */
   cgRequests.unshift({_id:bookingObj._id,bookingId:bookingObj.bookingId,caregiverId:appState.bookingData.caregiverId,caregiverName:cg.name,caregiverPhoto:cg.photo,caregiverSpecialty:cg.specialty,patientName:pat?pat.name:'Unknown',patientAge:pat?pat.age:'--',patientGender:pat?pat.gender:'--',patientConditions:pat?(pat.conditions||'None'):'',patientPhone:pat?(pat.emergencyPhone||'--'):'--',serviceName:svc.name,serviceIcon:svc.icon||'fa-circle',serviceColor:getServiceColor(svc),date:dt,time:tm,durationLabel:durLabels[dur],cost:cost,bookedAt:new Date().toLocaleString()});
   closeModal('bookingModal');if(appState.currentPage==='dashboard')renderDashboard();
 }
 
-/* FIX: handleCgRequest verifies the request belongs to the logged-in caregiver */
 function handleCgRequest(id,accept){
   var idx=cgRequests.findIndex(function(r){return r._id===id});if(idx===-1)return;
   var req=cgRequests[idx];
@@ -490,7 +560,6 @@ function handleCgRequest(id,accept){
 
 async function handleVerify(id,approve){try{if(approve)await api('PUT','/admin/caregivers/'+id+'/verify');else await api('PUT','/admin/caregivers/'+id+'/reject')}catch(e){}var idx=adminPendingVerify.findIndex(function(v){return v._id===id});if(idx>-1)adminPendingVerify.splice(idx,1);renderDashboard();showToast(approve?'Approved.':'Rejected.',approve?'success':'info')}
 
-/* FIX: Caregiver profile selector functions */
 function selectCgProfile(cgId){appState.caregiverId=cgId||null;if(cgId){var cg=caregiversCache.find(function(c){return c._id===cgId});if(cg)showToast('Now viewing as '+cg.name+'. Only their requests will show.','success')}renderDashboard()}
 function clearCgProfile(){appState.caregiverId=null;document.getElementById('cgProfileSelect').value='';renderDashboard()}
 function populateCgProfileSelect(){var sel=document.getElementById('cgProfileSelect');var cv=sel.value;sel.innerHTML='<option value="">-- Choose your profile --</option>';for(var i=0;i<caregiversCache.length;i++){var c=caregiversCache[i];sel.innerHTML+='<option value="'+c._id+'">'+c.name+' ('+c.specialty+' — '+c.city+')</option>'}if(appState.caregiverId)sel.value=appState.caregiverId;else sel.value=cv}
@@ -509,256 +578,159 @@ function findServiceForCaregiver(cg){for(var i=0;i<servicesCache.length;i++){if(
 function renderHomeServices(){var h='';for(var i=0;i<servicesCache.length;i++){var s=servicesCache[i],c=getServiceColor(s);h+='<div class="card-lift bg-white rounded-2xl p-6 border reveal" style="border-color:var(--border)"><div style="width:56px;height:56px;border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:16px;background:'+c+'12"><i class="fa-solid '+s.icon+'" style="font-size:1.4rem;color:'+c+'"></i></div><h3 style="font-size:1.15rem;font-weight:700;margin-bottom:8px">'+s.name+'</h3><p style="font-size:.875rem;color:var(--text-light);margin-bottom:16px;line-height:1.6">'+s.description.substring(0,90)+'...</p><div style="display:flex;justify-content:space-between;align-items:center;padding-top:12px;border-top:1px solid var(--border)"><span style="font-size:.85rem;color:var(--muted)">'+s.duration+'</span><span style="font-weight:700;color:var(--pri)">Rs.'+s.price+'/hr</span></div></div>'}document.getElementById('homeServicesGrid').innerHTML=h}
 function renderHomeCaregivers(){if(!caregiversCache.length)return;var top=caregiversCache.slice(0,4),html="";for(var i=0;i<top.length;i++){var c=top[i],img=resolvePhoto(c.photo,120);html+='<div class="card-lift bg-white rounded-2xl p-6 border reveal" style="border-color:var(--border)"><div style="display:flex;align-items:center;gap:12px;margin-bottom:12px"><img src="'+img+'" style="width:56px;height:56px;border-radius:50%;object-fit:cover"><div><h3 style="font-weight:700;font-size:.95rem">'+c.name+'</h3><p style="font-size:.8rem;color:var(--muted)">'+c.specialty+' &bull; '+c.city+'</p></div></div><p style="font-size:.8rem;color:var(--muted);margin-bottom:12px">'+c.about.substring(0,60)+'...</p><div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:.85rem;font-weight:600">\u2B50 '+c.rating+'</span><span style="color:var(--pri);font-weight:700">Rs.'+c.hourlyRate+'/hr</span></div><button onclick="viewCaregiver(\''+c._id+'\')" class="btn-outline btn-sm" style="margin-top:12px;width:100%">View Profile</button></div>'}document.getElementById("homeCaregiversGrid").innerHTML=html}
 function renderTestimonials(){var h='';for(var i=0;i<testimonials.length;i++){var t=testimonials[i],stars='';for(var s=0;s<t.rating;s++)stars+='<i class="fa-solid fa-star"></i> ';h+='<div class="testimonial-card reveal"><div class="stars">'+stars+'</div><p>"'+t.text+'"</p><div class="author">'+t.name+' <span style="color:var(--muted);font-weight:400">('+t.relation+')</span></div></div>'}document.getElementById('testimonialsGrid').innerHTML=h}
-function renderServicesPage(f){f=f||'all';var fl=f==='all'?servicesCache:servicesCache.filter(function(s){return s.category===f});var h='';for(var i=0;i<fl.length;i++){var s=fl[i],c=getServiceColor(s),cb=s.category==='medical'?'badge-active':s.category==='rehab'?'badge-completed':'badge-pending';h+='<div class="card-lift bg-white rounded-2xl border overflow-hidden reveal" style="border-color:var(--border)"><div style="height:6px;background:'+c+'"></div><div style="padding:24px"><div style="display:flex;align-items:start;justify-content:space-between;margin-bottom:16px"><div style="width:56px;height:56px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:'+c+'12"><i class="fa-solid '+(s.icon||'fa-circle')+'" style="font-size:1.4rem;color:'+c+'"></i></div><span class="badge '+cb+'">'+s.category+'</span></div><h3 style="font-size:1.15rem;font-weight:700;margin-bottom:8px">'+s.name+'</h3><p style="font-size:.875rem;color:var(--text-light);margin-bottom:16px">'+s.description+'</p><button "onclick="startBooking(cg._id)" class="btn-pri btn-sm" style="width:100%">Book Now</button></div></div>'}document.getElementById('servicesGrid').innerHTML=h}
+
+/* ========== FIX: Corrected syntax error in renderServicesPage ========== */
+function renderServicesPage(f){
+  f=f||'all';
+  var fl=f==='all'?servicesCache:servicesCache.filter(function(s){return s.category===f});
+  var h='';
+  for(var i=0;i<fl.length;i++){
+    var s=fl[i],c=getServiceColor(s),cb=s.category==='medical'?'badge-active':s.category==='rehab'?'badge-completed':'badge-pending';
+    h+='<div class="card-lift bg-white rounded-2xl border overflow-hidden reveal" style="border-color:var(--border)"><div style="height:6px;background:'+c+'"></div><div style="padding:24px"><div style="display:flex;align-items:start;justify-content:space-between;margin-bottom:16px"><div style="width:56px;height:56px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:'+c+'12"><i class="fa-solid '+(s.icon||'fa-circle')+'" style="font-size:1.4rem;color:'+c+'"></i></div><span class="badge '+cb+'">'+s.category+'</span></div><h3 style="font-size:1.15rem;font-weight:700;margin-bottom:8px">'+s.name+'</h3><p style="font-size:.875rem;color:var(--text-light);margin-bottom:16px">'+s.description+'</p><button onclick="startBooking(\''+s._id+'\')" class="btn-pri btn-sm" style="width:100%">Book Now</button></div></div>';
+  }
+  document.getElementById('servicesGrid').innerHTML=h;
+}
+
 function filterServices(f){var btns=document.querySelectorAll('.svc-filter');for(var i=0;i<btns.length;i++)btns[i].className=btns[i].getAttribute('data-filter')===f?'svc-filter btn-sm btn-pri':'svc-filter btn-sm btn-outline';renderServicesPage(f)}
-function renderCaregiversPage(){var sp=document.getElementById('cgSpecialtyFilter').value,rt=parseFloat(document.getElementById('cgRatingFilter').value)||0,ct=document.getElementById('cgCityFilter').value;if(!caregiversCache.length){document.getElementById('caregiversGrid').innerHTML='<div style="grid-column:1/-1;text-align:center;padding:64px;color:var(--muted)">Loading...</div>';return}var fl=caregiversCache.filter(function(c){if(sp!=='all'&&c.specialty!==sp)return false;if(rt>0&&Number(c.rating)<rt)return false;if(ct!=='all'&&c.city!==ct)return false;return true});document.getElementById('caregiversCount').textContent=fl.length;if(!fl.length){document.getElementById('caregiversGrid').innerHTML='<div style="grid-column:1/-1;text-align:center;padding:64px;color:var(--muted)">No match.</div>';return}var h='';for(var i=0;i<fl.length;i++){var c=fl[i],dc=c.available?'#059669':'#D97706',img=resolvePhoto(c.photo,100),sf=findServiceForCaregiver(c),bid=sf?sf._id:'';h+='<div class="card-lift bg-white rounded-2xl p-6 border reveal" style="border-color:var(--border)"><div style="display:flex;align-items:center;gap:12px;margin-bottom:12px"><div style="position:relative"><img src="'+img+'" style="width:56px;height:56px;border-radius:50%;object-fit:cover"><div style="position:absolute;bottom:-2px;right:-2px;width:14px;height:14px;border-radius:50%;background:'+dc+';border:2px solid #fff"></div></div><div style="flex:1"><h3 style="font-weight:600;font-size:.95rem">'+c.name+'</h3><p style="font-size:.8rem;color:var(--muted)">'+c.specialty+'</p><div style="display:flex;align-items:center;gap:4px;margin-top:2px"><i class="fa-solid fa-star star" style="font-size:.7rem"></i><span style="font-size:.85rem;font-weight:600">'+c.rating+'</span></div></div></div><div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px;text-align:center"><div style="border-radius:8px;padding:8px;background:var(--bg2)"><p style="font-size:.85rem;font-weight:700">'+c.experience+'yr</p></div><div style="border-radius:8px;padding:8px;background:var(--bg2)"><p style="font-size:.85rem;font-weight:700">'+c.city+'</p></div><div style="border-radius:8px;padding:8px;background:var(--pri-light)"><p style="font-size:.85rem;font-weight:700;color:var(--pri)">Rs.'+c.hourlyRate+'</p></div></div><p style="font-size:.8rem;color:var(--muted);margin-bottom:12px">'+(c.about||'').substring(0,80)+'...</p><div style="display:flex;gap:8px"><button onclick="viewCaregiver(\''+c._id+'\')" class="btn-outline btn-sm" style="flex:1">Profile</button>'+(c.available?'<button onclick="startBooking(\''+bid+'\')" class="btn-pri btn-sm" style="flex:1">Book</button>':'')+'</div></div>'}document.getElementById('caregiversGrid').innerHTML=h}
+
+function renderCaregiversPage(){var sp=document.getElementById('cgSpecialtyFilter').value,rt=parseFloat(document.getElementById('cgRatingFilter').value)||0,ct=document.getElementById('cgCityFilter').value;if(!caregiversCache.length){document.getElementById('caregiversGrid').innerHTML='<div style="grid-column:1/-1;text-align:center;padding:64px;color:var(--muted)">Loading...</div>';return}var fl=caregiversCache.filter(function(c){if(sp!=='all'&&c.specialty!==sp)return false;if(rt>0&&Number(c.rating)<rt)return false;if(ct!=='all'&&c.city!==ct)return false;return true});document.getElementById('caregiversCount').textContent=fl.length;if(!fl.length){document.getElementById('caregiversGrid').innerHTML='<div style="grid-column:1/-1;text-align:center;padding:64px;color:var(--muted)">No match.</div>';return}var h='';for(var i=0;i<fl.length;i++){var c=fl[i],dc=c.available?'#059669':'#D97706',img=resolvePhoto(c.photo,100),sf=findServiceForCaregiver(c),bid=sf?sf._id:'';h+='<div class="card-lift bg-white rounded-2xl p-6 border reveal" style="border-color:var(--border)"><div style="display:flex;align-items:center;gap:12px;margin-bottom:12px"><div style="position:relative"><img src="'+img+'" style="width:56px;height:56px;border-radius:50%;object-fit:cover"><div style="position:absolute;bottom:-2px;right:-2px;width:14px;height:14px;border-radius:50%;background:'+dc+';border:2px solid #fff"></div></div><div style="flex:1"><h3 style="font-weight:600;font-size:.95rem">'+c.name+'</h3><p style="font-size:.8rem;color:var(--muted)">'+c.specialty+'</p><div style="display:flex;align-items:center;gap:4px;margin-top:2px"><i class="fa-solid fa-star star" style="font-size:.7rem"></i><span style="font-size:.85rem;font-weight:600">'+c.rating+'</span></div></div></div><div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px;text-align:center"><div style="border-radius:8px;padding:8px;background:var(--bg2)"><p style="font-size:.85rem;font-weight:700">'+c.experience+'yr</p></div><div style="border-radius:8px;padding:8px;background:var(--bg2)"><p style="font-size:.85rem;font-weight:700">'+c.city+'</p></div><div style="border-radius:8px;padding:8px;background:var(--pri-light)"><p style="font-size:.85rem;font-weight:700;color:var(--pri)">Rs.'+c.hourlyRate+'</p></div></div><p style="font-size:.8rem;color:var(--muted);margin-bottom:12px">'+(c.about||'').substring(0,80)+'...</p><div style="display:flex;gap:8px"><button onclick="viewCaregiver(\''+c._id+'\')" class="btn-outline btn-sm" style="flex:1">Profile</button>'+(c.available?'<button onclick="startBooking(\''+c._id+'\')" class="btn-pri btn-sm" style="flex:1">Book</button>':'')+'</div></div>'}document.getElementById('caregiversGrid').innerHTML=h}
 function filterCaregivers(){renderCaregiversPage()}
-function viewCaregiver(id){var cg=caregiversCache.find(function(c){return c._id===id});if(!cg)return;var sf=findServiceForCaregiver(cg),bid=sf?sf._id:'';var img=resolvePhoto(cg.photo,580),imgSm=resolvePhoto(cg.photo,120);document.getElementById('cgDetailContent').innerHTML='<div style="position:relative"><img src="'+img+'" style="width:100%;height:160px;object-fit:cover"><div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.6),transparent)"></div><button onclick="closeModal(\'caregiverDetailModal\')" style="position:absolute;top:12px;right:12px;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.2);color:#fff;border:none;cursor:pointer"><i class="fa-solid fa-xmark"></i></button><div style="position:absolute;bottom:16px;left:20px;display:flex;align-items:end;gap:14px"><img src="'+imgSm+'" style="width:72px;height:72px;border-radius:12px;object-fit:cover;border:4px solid #fff;box-shadow:var(--shadow-lg)"><div style="padding-bottom:4px"><h3 style="font-size:1.2rem;font-weight:800;color:#fff">'+cg.name+'</h3><p style="color:rgba(255,255,255,.8);font-size:.875rem">'+cg.specialty+'</p></div></div></div><div style="padding:20px"><div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px"><div style="text-align:center;padding:12px;border-radius:8px;background:var(--pri-light)"><i class="fa-solid fa-star star" style="font-size:.75rem"></i><span style="font-weight:700"> '+cg.rating+'</span><p style="font-size:.7rem;color:var(--muted)">'+cg.reviews+' reviews</p></div><div style="text-align:center;padding:12px;border-radius:8px;background:var(--accent-light)"><div style="font-weight:700">'+cg.experience+'yr</div><p style="font-size:.7rem;color:var(--muted)">Experience</p></div><div style="text-align:center;padding:12px;border-radius:8px;background:var(--success-light)"><div style="font-weight:700">'+cg.city+'</div><p style="font-size:.7rem;color:var(--muted)">City</p></div><div style="text-align:center;padding:12px;border-radius:8px;background:var(--info-light)"><div style="font-weight:700">Rs.'+cg.hourlyRate+'</div><p style="font-size:.7rem;color:var(--muted)">Per hour</p></div></div><p style="font-size:.9rem;color:var(--text-light);margin-bottom:16px;line-height:1.6">'+cg.about+'</p><p style="font-size:.85rem;color:var(--text-light);margin-bottom:6px"><b>Qualification:</b> '+cg.qualification+'</p><p style="font-size:.85rem;color:var(--text-light);margin-bottom:16px"><b>Languages:</b> '+cg.languages+'</p><span class="badge '+(cg.available?'badge-active':'badge-pending')+'">'+(cg.available?'Available':'Unavailable')+'</span>'+(cg.available?'<button onclick="closeModal(\'caregiverDetailModal\');startBooking(\''+bid+'\')" class="btn-pri" style="width:100%;margin-top:16px;padding:12px"><i class="fa-solid fa-calendar-check"></i> Book '+cg.name+'</button>':'')+'</div>';openModal('caregiverDetailModal')}
+
+function viewCaregiver(id){var cg=caregiversCache.find(function(c){return c._id===id});if(!cg)return;var sf=findServiceForCaregiver(cg),bid=sf?sf._id:'';var img=resolvePhoto(cg.photo,580),imgSm=resolvePhoto(cg.photo,120);document.getElementById('cgDetailContent').innerHTML='<div style="position:relative"><img src="'+img+'" style="width:100%;height:160px;object-fit:cover"><div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.6),transparent)"></div><button onclick="closeModal(\'caregiverDetailModal\')" style="position:absolute;top:12px;right:12px;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.2);color:#fff;border:none;cursor:pointer"><i class="fa-solid fa-xmark"></i></button><div style="position:absolute;bottom:16px;left:20px;display:flex;align-items:end;gap:14px"><img src="'+imgSm+'" style="width:72px;height:72px;border-radius:12px;object-fit:cover;border:4px solid #fff;box-shadow:var(--shadow-lg)"><div style="padding-bottom:4px"><h3 style="font-size:1.2rem;font-weight:800;color:#fff">'+cg.name+'</h3><p style="color:rgba(255,255,255,.8);font-size:.875rem">'+cg.specialty+'</p></div></div></div><div style="padding:20px"><div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px"><div style="text-align:center;padding:12px;border-radius:8px;background:var(--pri-light)"><i class="fa-solid fa-star star" style="font-size:.75rem"></i><span style="font-weight:700"> '+cg.rating+'</span><p style="font-size:.7rem;color:var(--muted)">'+cg.reviews+' reviews</p></div><div style="text-align:center;padding:12px;border-radius:8px;background:var(--accent-light)"><div style="font-weight:700">'+cg.experience+'yr</div><p style="font-size:.7rem;color:var(--muted)">Experience</p></div><div style="text-align:center;padding:12px;border-radius:8px;background:var(--success-light)"><div style="font-weight:700">'+cg.city+'</div><p style="font-size:.7rem;color:var(--muted)">City</p></div><div style="text-align:center;padding:12px;border-radius:8px;background:var(--info-light)"><div style="font-weight:700">Rs.'+cg.hourlyRate+'</div><p style="font-size:.7rem;color:var(--muted)">Per hour</p></div></div><p style="font-size:.9rem;color:var(--text-light);margin-bottom:16px;line-height:1.6">'+cg.about+'</p><p style="font-size:.85rem;color:var(--text-light);margin-bottom:6px"><b>Qualification:</b> '+cg.qualification+'</p><p style="font-size:.85rem;color:var(--text-light);margin-bottom:16px"><b>Languages:</b> '+cg.languages+'</p><span class="badge '+(cg.available?'badge-active':'badge-pending')+'">'+(cg.available?'Available':'Unavailable')+'</span>'+(cg.available?'<button onclick="closeModal(\'caregiverDetailModal\');startBooking(\''+cg._id+'\')" class="btn-pri" style="width:100%;margin-top:16px;padding:12px"><i class="fa-solid fa-calendar-check"></i> Book '+cg.name+'</button>':'')+'</div>';openModal('caregiverDetailModal')}
+
+/* ========== FIX: Rewrote startBooking to properly handle both service and caregiver IDs ========== */
 function startBooking(id){
-
-  // detect caregiver selection
-  var caregiver = caregiversCache.find(function(c){
-    return c._id === id;
-  });
-
+  // Reset booking state
+  resetBookingModal();
+  
+  // Check if id is a caregiver or service
+  var caregiver = caregiversCache.find(function(c){return c._id === id});
+  var service = servicesCache.find(function(s){return s._id === id});
+  
   if(caregiver){
-
-    // store caregiver immediately
+    // Starting from caregiver page
+    appState.bookingFromCaregiver = true;
     appState.bookingData.caregiverId = caregiver._id;
-
-    // auto-map correct service
-    var matchedService = servicesCache.find(function(service){
-      return specialtyMap[service.name] &&
-             specialtyMap[service.name].includes(caregiver.specialty);
+    
+    // Auto-map correct service
+    var matchedService = servicesCache.find(function(s){
+      return specialtyMap[s.name] && specialtyMap[s.name].includes(caregiver.specialty);
     });
-
     if(matchedService){
       appState.bookingData.serviceId = matchedService._id;
     }
-
-    // open modal
-    openModal('bookingModal');
-
-    // hide step 1 + step 2
-    document.getElementById('bookStep1').classList.add('hidden');
-    document.getElementById('bookStep2').classList.add('hidden');
-
-    // show schedule step as step 2
-    document.getElementById('bookStep3').classList.remove('hidden');
-
-    // update step dots
-    var dots = document.querySelectorAll('.step-dot');
-    dots[0].classList.add('done');
-    dots[1].classList.add('active');
-
-    return;
+    
+    // Open modal and go directly to step 3 (schedule)
+    openBookingModal();
+    goToStep(3);
+    
+  } else if(service){
+    // Starting from service page
+    appState.bookingFromCaregiver = false;
+    appState.bookingData.serviceId = service._id;
+    appState.bookingData.caregiverId = null;
+    
+    // Open modal and start at step 1
+    openBookingModal();
+    goToStep(1);
+    
+  } else {
+    showToast('Invalid selection','error');
   }
+}
 
-  // normal service booking flow
-  appState.bookingData.serviceId = id;
-  appState.bookingData.caregiverId = null;
-
+/* ========== FIX: Added openBookingModal function ========== */
+function openBookingModal(){
   openModal('bookingModal');
-
-  goToStep(1);
-}
-function showBookingStep(step){
-
-  var steps = document.querySelectorAll('.booking-step');
-
-  for(var i=0;i<steps.length;i++){
-    steps[i].classList.add('hidden');
-  }
-
-  document
-    .getElementById('bookStep'+step)
-    .classList.remove('hidden');
 }
 
-
-function updateStepDots(step){
-
-  var dots = document.querySelectorAll('.step-dot');
-
-  for(var i=0;i<dots.length;i++){
-    dots[i].classList.remove('active','done');
-
-    if(i+1 < step){
-      dots[i].classList.add('done');
-    }
-  }
-
-  document
-    .querySelector('.step-dot[data-step="'+step+'"]')
-    .classList.add('active');
-}
 function renderBookingStep1(){
-
   var list = document.getElementById('bookServiceList');
-
   var filteredServices = servicesCache;
 
-  // If caregiver already selected → filter services
   if(appState.bookingData.caregiverId){
-
-    var caregiver = caregiversCache.find(function(c){
-      return c._id === appState.bookingData.caregiverId;
-    });
-
+    var caregiver = caregiversCache.find(function(c){return c._id === appState.bookingData.caregiverId});
     if(caregiver){
-
       filteredServices = servicesCache.filter(function(service){
-
-        return specialtyMap[service.name] &&
-               specialtyMap[service.name].includes(caregiver.specialty);
-
+        return specialtyMap[service.name] && specialtyMap[service.name].includes(caregiver.specialty);
       });
-
     }
   }
 
   var html = '';
-
   for(var i=0;i<filteredServices.length;i++){
-
     var s = filteredServices[i];
-
-    var active =
-      appState.bookingData.serviceId === s._id
-      ? 'style="border:2px solid var(--pri)"'
-      : '';
-
-    html +=
-      '<div class="svc-option" '+active+
-      ' onclick="selectService(\''+s._id+'\')">' +
-
-        '<div>' +
-          '<strong>'+s.name+'</strong><br>' +
-          '<span style="font-size:.8rem;color:var(--muted)">'+
-          s.duration +
-          '</span>' +
-        '</div>' +
-
-        '<div style="font-weight:700;color:var(--pri)">' +
-          'Rs.'+s.price+'/hr' +
-        '</div>' +
-
-      '</div>';
+    var active = appState.bookingData.serviceId === s._id ? 'style="border:2px solid var(--pri);background:var(--pri-light)"' : '';
+    html += '<div class="svc-option" '+active+' onclick="selectService(\''+s._id+'\')">';
+    html += '<div><strong>'+s.name+'</strong><br><span style="font-size:.8rem;color:var(--muted)">'+s.duration+'</span></div>';
+    html += '<div style="font-weight:700;color:var(--pri)">Rs.'+s.price+'/hr</div>';
+    html += '</div>';
   }
-
   list.innerHTML = html;
 }
-function renderBookingStep2(){var svc=servicesCache.find(function(s){return s._id===appState.bookingData.serviceId});if(!svc){document.getElementById('bookCaregiverList').innerHTML='<p style="text-align:center;padding:24px;color:var(--muted)">No service.</p>';return}var fl=caregiversCache.filter(function(c){return specialtyMatches(c,svc.name)});if(!fl.length)fl=caregiversCache.filter(function(c){return c.available});if(!fl.length){document.getElementById('bookCaregiverList').innerHTML='<p style="text-align:center;padding:32px;color:var(--muted)">No caregivers.</p>';return}var h='';for(var i=0;i<fl.length;i++){var c=fl[i],sel=appState.bookingData.caregiverId===c._id,photo=resolvePhoto(c.photo,80);h+='<label style="display:flex;align-items:center;gap:14px;padding:14px;border-radius:10px;border:1.5px solid '+(sel?'var(--pri)':'var(--border)')+';cursor:pointer;background:'+(sel?'var(--pri-light)':'#fff')+'"><input type="radio" name="bookCg" value="'+c._id+'" '+(sel?'checked':'')+' onchange="appState.bookingData.caregiverId=\''+c._id+'\';renderBookingStep2()" style="accent-color:var(--pri);width:18px;height:18px"><img src="'+photo+'" style="width:44px;height:44px;border-radius:50%;object-fit:cover;flex-shrink:0"><div style="flex:1;min-width:0"><p style="font-weight:600;font-size:.9rem">'+c.name+'</p><p style="font-size:.75rem;color:var(--muted)">'+c.specialty+' &bull; '+c.experience+'yrs</p></div><div style="text-align:right;flex-shrink:0"><i class="fa-solid fa-star star" style="font-size:.7rem"></i><span style="font-size:.85rem;font-weight:600"> '+c.rating+'</span><p style="font-size:.75rem;font-weight:600;color:var(--pri);margin-top:2px">Rs.'+c.hourlyRate+'/hr</p></div></label>'}document.getElementById('bookCaregiverList').innerHTML=h;if(appState.bookingData.caregiverId){if(!fl.find(function(c){return c._id===appState.bookingData.caregiverId}))appState.bookingData.caregiverId=null}}
+
+function renderBookingStep2(){
+  var svc=servicesCache.find(function(s){return s._id===appState.bookingData.serviceId});
+  if(!svc){document.getElementById('bookCaregiverList').innerHTML='<p style="text-align:center;padding:24px;color:var(--muted)">No service selected.</p>';return}
+  var fl=caregiversCache.filter(function(c){return specialtyMatches(c,svc.name)});
+  if(!fl.length)fl=caregiversCache.filter(function(c){return c.available});
+  if(!fl.length){document.getElementById('bookCaregiverList').innerHTML='<p style="text-align:center;padding:32px;color:var(--muted)">No caregivers available.</p>';return}
+  var h='';
+  for(var i=0;i<fl.length;i++){
+    var c=fl[i],sel=appState.bookingData.caregiverId===c._id,photo=resolvePhoto(c.photo,80);
+    h+='<label style="display:flex;align-items:center;gap:14px;padding:14px;border-radius:10px;border:1.5px solid '+(sel?'var(--pri)':'var(--border)')+';cursor:pointer;background:'+(sel?'var(--pri-light)':'#fff')+'"><input type="radio" name="bookCg" value="'+c._id+'" '+(sel?'checked':'')+' onchange="appState.bookingData.caregiverId=\''+c._id+'\';renderBookingStep2()" style="accent-color:var(--pri);width:18px;height:18px"><img src="'+photo+'" style="width:44px;height:44px;border-radius:50%;object-fit:cover;flex-shrink:0"><div style="flex:1;min-width:0"><p style="font-weight:600;font-size:.9rem">'+c.name+'</p><p style="font-size:.75rem;color:var(--muted)">'+c.specialty+' &bull; '+c.experience+'yrs</p></div><div style="text-align:right;flex-shrink:0"><i class="fa-solid fa-star star" style="font-size:.7rem"></i><span style="font-size:.85rem;font-weight:600"> '+c.rating+'</span><p style="font-size:.75rem;font-weight:600;color:var(--pri);margin-top:2px">Rs.'+c.hourlyRate+'/hr</p></div></label>';
+  }
+  document.getElementById('bookCaregiverList').innerHTML=h;
+}
+
+/* ========== FIX: Completely rewrote renderBookingStep3 with proper content ========== */
 function renderBookingStep3(){
-
   var today = new Date().toISOString().split('T')[0];
-
-  var ph = '';
-  for(var i=0;i<patientCache.length;i++){
-    ph += '<option value="'+patientCache[i]._id+'">'
-      + patientCache[i].name + ' (' + patientCache[i].age + 'y)'
-      + '</option>';
-  }
-
+  var container = document.getElementById('bookStep3Content');
+  
   var ps = '';
-
   if(patientCache.length > 0){
-
-    ps =
-    '<div class="form-group">' +
-      '<label>Patient</label>' +
-      '<div style="display:flex;gap:8px;align-items:end">' +
-        '<select id="bookPatient" style="flex:1">' + ph + '</select>' +
-        '<button type="button" onclick="openPatientFromBooking()" class="btn-outline btn-sm" style="height:42px">' +
-          '<i class="fa-solid fa-plus"></i> New' +
-        '</button>' +
-      '</div>' +
-    '</div>';
-
-  }else{
-
-    ps =
-    '<div class="form-group">' +
-      '<label>Patient <span style="color:var(--error)">(required)</span></label>' +
-
-      '<div id="quickAddSection">' +
-
-        '<input type="text" id="quickPatName" placeholder="Patient Name" ' +
-        'style="width:100%;margin-bottom:8px;padding:10px;border:1.5px solid var(--border);border-radius:8px">' +
-
-        '<input type="number" id="quickPatAge" placeholder="Age" min="0" max="150" ' +
-        'style="width:100%;margin-bottom:8px;padding:10px;border:1.5px solid var(--border);border-radius:8px">' +
-
-        '<input type="tel" id="quickPatPhone" placeholder="Phone Number" ' +
-        'style="width:100%;margin-bottom:8px;padding:10px;border:1.5px solid var(--border);border-radius:8px">' +
-
-        '<input type="text" id="quickPatConditions" placeholder="Medical Conditions (Diabetes, BP...)" ' +
-        'style="width:100%;margin-bottom:10px;padding:10px;border:1.5px solid var(--border);border-radius:8px">' +
-
-        '<button type="button" onclick="quickAddPatient()" class="btn-pri btn-sm">' +
-          '<i class="fa-solid fa-plus"></i> Add Patient' +
-        '</button>' +
-
-      '</div>' +
-
-    '</div>';
-
+    var ph = '';
+    for(var i=0;i<patientCache.length;i++){
+      ph += '<option value="'+patientCache[i]._id+'">'+patientCache[i].name+' ('+patientCache[i].age+'y)</option>';
+    }
+    ps = '<div class="form-group"><label>Patient</label><div style="display:flex;gap:8px;align-items:end"><select id="bookPatient" style="flex:1">'+ph+'</select><button type="button" onclick="openPatientFromBooking()" class="btn-outline btn-sm" style="height:42px"><i class="fa-solid fa-plus"></i> New</button></div></div>';
+  } else {
+    ps = '<div class="form-group"><label>Patient <span style="color:var(--error)">(required)</span></label><div id="quickAddSection"><input type="text" id="quickPatName" placeholder="Patient Name" style="width:100%;margin-bottom:8px;padding:10px;border:1.5px solid var(--border);border-radius:8px"><input type="number" id="quickPatAge" placeholder="Age" min="0" max="150" style="width:100%;margin-bottom:10px;padding:10px;border:1.5px solid var(--border);border-radius:8px"><button type="button" onclick="quickAddPatient()" class="btn-pri btn-sm"><i class="fa-solid fa-plus"></i> Add Patient</button></div></div>';
   }
 
-  document.getElementById('bookStep3').innerHTML =
-
-  '<h4 style="font-weight:700;margin-bottom:16px">Schedule Details</h4>' +
-
-  '<div class="form-row">' +
-
-    '<div class="form-group">' +
-      '<label>Date</label>' +
-      '<input type="date" id="bookDate" value="'+today+'" min="'+today+'">' +
+  container.innerHTML = 
+    '<div class="form-row">' +
+      '<div class="form-group"><label>Date</label><input type="date" id="bookDate" value="'+today+'" min="'+today+'"></div>' +
+      '<div class="form-group"><label>Time</label><input type="time" id="bookTime"></div>' +
     '</div>' +
-
-    '<div class="form-group">' +
-      '<label>Time</label>' +
-      '<input type="time" id="bookTime">' +
-    '</div>' +
-
-  '</div>' +
-
-  ps +
-
-  '<div class="form-group">' +
-    '<label>Duration</label>' +
-    '<select id="bookDuration" onchange="updateBookingCost()">' +
-      '<option value="hourly">Hourly (4 hrs)</option>' +
-      '<option value="daily">Daily (10 hrs)</option>' +
-      '<option value="weekly">Weekly (7 days)</option>' +
-      '<option value="monthly" selected>Monthly (30 days)</option>' +
-    '</select>' +
-  '</div>' +
-
-  '<div style="background:var(--pri-light);padding:14px;border-radius:8px;margin-bottom:16px;display:flex;justify-content:space-between">' +
-    '<span style="font-weight:600">Estimated Cost</span>' +
-    '<span style="font-weight:800;color:var(--pri);font-size:1.1rem" id="bookEstCost">Rs. 0</span>' +
-  '</div>' +
-
-  '<div style="display:flex;gap:8px">' +
-    '<button class="btn-outline" style="flex:1" onclick="goToStep(2)">' +
-      '<i class="fa-solid fa-arrow-left"></i> Back' +
-    '</button>' +
-    '<button class="btn-pri" style="flex:1" onclick="goToStep(4)">' +
-      'Review <i class="fa-solid fa-arrow-right"></i>' +
-    '</button>' +
-  '</div>';
+    ps +
+    '<div class="form-group"><label>Duration</label><select id="bookDuration" onchange="updateBookingCost()"><option value="hourly">Hourly (4 hrs)</option><option value="daily">Daily (10 hrs)</option><option value="weekly">Weekly (7 days)</option><option value="monthly" selected>Monthly (30 days)</option></select></div>' +
+    '<div style="background:var(--pri-light);padding:14px;border-radius:8px;margin-bottom:16px;display:flex;justify-content:space-between"><span style="font-weight:600">Estimated Cost</span><span style="font-weight:800;color:var(--pri);font-size:1.1rem" id="bookEstCost">Rs. 0</span></div>' +
+    '<div style="display:flex;gap:8px"><button class="btn-outline" style="flex:1" onclick="goToStep('+(appState.bookingFromCaregiver?'1':'2')+')"><i class="fa-solid fa-arrow-left"></i> Back</button><button class="btn-pri" style="flex:1" onclick="goToStep(4)">Review <i class="fa-solid fa-arrow-right"></i></button></div>';
 
   updateBookingCost();
 }
-function updateBookingCost(){var svc=servicesCache.find(function(s){return s._id===appState.bookingData.serviceId});if(!svc)return;var d=document.getElementById('bookDuration');if(!d)return;var costs={hourly:svc.price*4,daily:svc.price*10,weekly:svc.price*70,monthly:svc.price*300};document.getElementById('bookEstCost').textContent='Rs. '+(costs[d.value]||0).toLocaleString('en-IN')}
-function renderBookingStep4(){var svc=servicesCache.find(function(s){return s._id===appState.bookingData.serviceId}),cg=caregiversCache.find(function(c){return c._id===appState.bookingData.caregiverId}),pe=document.getElementById('bookPatient'),pat=pe?patientCache.find(function(p){return p._id===pe.value}):null,dt=document.getElementById('bookDate').value,tm=document.getElementById('bookTime').value||'--',dur=document.getElementById('bookDuration').value,dl={hourly:'Hourly (4 hrs)',daily:'Daily (10 hrs)',weekly:'Weekly (7 days)',monthly:'Monthly (30 days)'},costs={hourly:svc.price*4,daily:svc.price*10,weekly:svc.price*70,monthly:svc.price*300};document.getElementById('bookSummary').innerHTML='<div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">Service</span><span style="font-weight:600">'+(svc?svc.name:'N/A')+'</span></div><div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">Caregiver</span><span style="font-weight:600">'+(cg?cg.name:'N/A')+'</span></div><div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">Patient</span><span style="font-weight:600">'+(pat?pat.name:'N/A')+'</span></div><div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">Schedule</span><span style="font-weight:600">'+dt+' '+tm+'</span></div><div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">Duration</span><span style="font-weight:600">'+dl[dur]+'</span></div><div style="display:flex;justify-content:space-between;font-size:.9rem;padding-top:8px;border-top:1px dashed var(--border)"><span style="color:var(--accent);font-weight:600"><i class="fa-solid fa-clock" style="margin-right:4px"></i>Awaiting caregiver confirmation</span></div><div style="border-top:1px solid var(--border);padding-top:10px;margin-top:4px;display:flex;justify-content:space-between;font-size:1.1rem"><span style="font-weight:700">Total</span><span style="font-weight:800;color:var(--pri)">Rs. '+costs[dur].toLocaleString('en-IN')+'</span></div>'}
+
+function updateBookingCost(){
+  var svc=servicesCache.find(function(s){return s._id===appState.bookingData.serviceId});
+  if(!svc)return;
+  var d=document.getElementById('bookDuration');
+  if(!d)return;
+  var costs={hourly:svc.price*4,daily:svc.price*10,weekly:svc.price*70,monthly:svc.price*300};
+  var el=document.getElementById('bookEstCost');
+  if(el) el.textContent='Rs. '+(costs[d.value]||0).toLocaleString('en-IN');
+}
+
+function renderBookingStep4(){
+  var svc=servicesCache.find(function(s){return s._id===appState.bookingData.serviceId}),cg=caregiversCache.find(function(c){return c._id===appState.bookingData.caregiverId}),pe=document.getElementById('bookPatient'),pat=pe?patientCache.find(function(p){return p._id===pe.value}):null,dtEl=document.getElementById('bookDate'),dt=dtEl?dtEl.value:'',tmEl=document.getElementById('bookTime'),tm=tmEl?tmEl.value:'--',durEl=document.getElementById('bookDuration'),dur=durEl?durEl.value:'monthly',dl={hourly:'Hourly (4 hrs)',daily:'Daily (10 hrs)',weekly:'Weekly (7 days)',monthly:'Monthly (30 days)'},costs={hourly:svc.price*4,daily:svc.price*10,weekly:svc.price*70,monthly:svc.price*300};
+  document.getElementById('bookSummary').innerHTML='<div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">Service</span><span style="font-weight:600">'+(svc?svc.name:'N/A')+'</span></div><div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">Caregiver</span><span style="font-weight:600">'+(cg?cg.name:'N/A')+'</span></div><div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">Patient</span><span style="font-weight:600">'+(pat?pat.name:'N/A')+'</span></div><div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">Schedule</span><span style="font-weight:600">'+dt+' '+tm+'</span></div><div style="display:flex;justify-content:space-between"><span style="color:var(--muted)">Duration</span><span style="font-weight:600">'+dl[dur]+'</span></div><div style="display:flex;justify-content:space-between;font-size:.9rem;padding-top:8px;border-top:1px dashed var(--border)"><span style="color:var(--accent);font-weight:600"><i class="fa-solid fa-clock" style="margin-right:4px"></i>Awaiting caregiver confirmation</span></div><div style="border-top:1px solid var(--border);padding-top:10px;margin-top:4px;display:flex;justify-content:space-between;font-size:1.1rem"><span style="font-weight:700">Total</span><span style="font-weight:800;color:var(--pri)">Rs. '+costs[dur].toLocaleString('en-IN')+'</span></div>';
+}
 
 function updateTabVisibility(){var r=appState.currentRole;var tabs=document.querySelectorAll('#dashTabBar .tab-btn');for(var i=0;i<tabs.length;i++)tabs[i].style.display=canAccessTab(r,tabs[i].getAttribute('data-dtab'))?'':'none';document.getElementById('addPatientDashBtn').style.display=(r==='user'||r==='admin')?'':'none';document.getElementById('sosCardDash').style.display=(r==='user')?'':'none';document.getElementById('pendingCardDash').style.display=(r==='caregiver'||r==='admin')?'':'none';var t={user:'My Dashboard',caregiver:'Caregiver Dashboard',admin:'Admin Dashboard'},s={user:'Manage your care journey',caregiver:'Manage your assignments',admin:'System overview and management'};document.getElementById('dashTitle').textContent=t[r]||t.user;document.getElementById('dashSubtitle').textContent=s[r]||s.user}
 function switchDashTab(tab){if(!canAccessTab(appState.currentRole,tab))tab=getDefaultTab(appState.currentRole);var tabs=document.querySelectorAll('.tab-btn');for(var i=0;i<tabs.length;i++)tabs[i].classList.remove('active');var at=document.querySelector('[data-dtab="'+tab+'"]');if(at)at.classList.add('active');var panels=document.querySelectorAll('.dash-panel');for(var i=0;i<panels.length;i++)panels[i].classList.add('hidden');var ap=document.getElementById('dash-'+tab);if(ap)ap.classList.remove('hidden');renderDashboard()}
 function switchRole(r){if(appState.loggedIn){showToast('Role is set by your account.','warning');return}appState.currentRole=r;appState.caregiverId=null;var btns=document.querySelectorAll('.role-btn');for(var i=0;i<btns.length;i++){if(btns[i].getAttribute('data-role')===r)btns[i].classList.add('active');else btns[i].classList.remove('active')}if(appState.currentPage==='dashboard'){updateTabVisibility();switchDashTab(getDefaultTab(r))}}
 
-/* ========== THE MAIN FIX: renderDashboard filters caregiver requests by profile ID ========== */
 function renderDashboard(){
   var role=appState.currentRole;
   document.getElementById('patCountDash').textContent=patientCache.length;
@@ -780,7 +752,6 @@ function renderDashboard(){
     ubH+='</tbody>';document.getElementById('userBookingsTable').innerHTML=ubH;
   }
 
-  /* ===== THE KEY FIX: Filter requests by logged-in caregiver's profile ID ===== */
   if(role==='caregiver'||role==='admin'){
     var selectorEl=document.getElementById('cgProfileSelector'),activeEl=document.getElementById('cgProfileActive'),noProfileEl=document.getElementById('cgNoProfile'),emptyEl=document.getElementById('cgRequestsEmpty'),listEl=document.getElementById('cgRequestsList');
 
@@ -790,46 +761,29 @@ function renderDashboard(){
         selectorEl.style.display='none';activeEl.style.display='block';noProfileEl.style.display='none';
         var activeCg=caregiversCache.find(function(c){return c._id===appState.caregiverId});
         if(activeCg){document.getElementById('cgActiveAvatar').src=resolvePhoto(activeCg.photo,80);document.getElementById('cgActiveName').textContent=activeCg.name;document.getElementById('cgActiveMeta').textContent=activeCg.specialty+' \u2022 '+activeCg.city+' \u2022 '+activeCg.experience+'yrs exp'}
-        /* FILTER: Only show requests where caregiverId matches the selected profile */
         var myReqs=cgRequests.filter(function(r){return r.caregiverId===appState.caregiverId});
         if(!myReqs.length){emptyEl.style.display='block';listEl.innerHTML=''}else{emptyEl.style.display='none';var rH='';for(var i=0;i<myReqs.length;i++){var r=myReqs[i];rH+='<div class="req-card"><div class="req-card-header"><div style="display:flex;align-items:center;gap:8px;flex:1;min-width:0"><div class="req-pending-dot"></div><div><h4 style="font-weight:700;font-size:.95rem">New Booking Request</h4><p style="font-size:.75rem;color:var(--muted)">'+r.bookedAt+'</p></div></div></div><div class="req-card-body"><div class="req-card-details"><div class="req-card-detail"><div class="rcd-label">Patient</div><div class="rcd-value">'+r.patientName+'</div></div><div class="req-card-detail"><div class="rcd-label">Age / Gender</div><div class="rcd-value">'+r.patientAge+'y, '+(r.patientGender||'--')+'</div></div><div class="req-card-detail"><div class="rcd-label">Service</div><div class="rcd-value"><i class="fa-solid '+r.serviceIcon+'" style="color:'+r.serviceColor+';margin-right:4px;font-size:.75rem"></i>'+r.serviceName+'</div></div><div class="req-card-detail"><div class="rcd-label">Date</div><div class="rcd-value">'+r.date+(r.time&&r.time!=='--'?' at '+r.time:'')+'</div></div><div class="req-card-detail"><div class="rcd-label">Duration</div><div class="rcd-value">'+r.durationLabel+'</div></div><div class="req-card-detail"><div class="rcd-label">Est. Cost</div><div class="rcd-value" style="color:var(--pri);font-weight:700">Rs. '+(r.cost||0).toLocaleString('en-IN')+'</div></div></div>'+(r.patientConditions&&r.patientConditions!=='None'?'<p style="font-size:.8rem;color:var(--muted);margin-bottom:12px"><i class="fa-solid fa-notes-medical" style="margin-right:4px"></i><b>Conditions:</b> '+r.patientConditions+'</p>':'')+(r.patientPhone&&r.patientPhone!=='--'?'<p style="font-size:.8rem;color:var(--muted);margin-bottom:12px"><i class="fa-solid fa-phone" style="margin-right:4px"></i><b>Patient Phone:</b> '+r.patientPhone+'</p>':'')+'<div class="req-card-actions"><button class="btn-success" onclick="handleCgRequest(\''+r._id+'\',true)"><i class="fa-solid fa-check"></i> Accept</button><button class="btn-danger" onclick="handleCgRequest(\''+r._id+'\',false)"><i class="fa-solid fa-xmark"></i> Decline</button></div></div></div>'}listEl.innerHTML=rH}
       }else{
         selectorEl.style.display='block';activeEl.style.display='none';noProfileEl.style.display='block';emptyEl.style.display='none';listEl.innerHTML='';
       }
     }else{
-      /* Admin sees ALL requests unfiltered */
       selectorEl.style.display='none';activeEl.style.display='none';noProfileEl.style.display='none';
       if(!cgRequests.length){emptyEl.style.display='block';listEl.innerHTML=''}else{emptyEl.style.display='none';var rH='';for(var i=0;i<cgRequests.length;i++){var r=cgRequests[i];rH+='<div class="req-card"><div class="req-card-header"><div style="display:flex;align-items:center;gap:8px;flex:1;min-width:0"><div class="req-pending-dot"></div><div><h4 style="font-weight:700;font-size:.95rem">Booking for '+(r.caregiverName||'Unknown Caregiver')+'</h4><p style="font-size:.75rem;color:var(--muted)">'+r.bookedAt+'</p></div></div></div><div class="req-card-body"><div class="req-card-details"><div class="req-card-detail"><div class="rcd-label">Patient</div><div class="rcd-value">'+r.patientName+'</div></div><div class="req-card-detail"><div class="rcd-label">Service</div><div class="rcd-value">'+r.serviceName+'</div></div><div class="req-card-detail"><div class="rcd-label">Date</div><div class="rcd-value">'+r.date+'</div></div><div class="req-card-detail"><div class="rcd-label">Cost</div><div class="rcd-value" style="color:var(--pri);font-weight:700">Rs. '+(r.cost||0).toLocaleString('en-IN')+'</div></div></div><div class="req-card-actions"><button class="btn-success" onclick="handleCgRequest(\''+r._id+'\',true)"><i class="fa-solid fa-check"></i> Accept</button><button class="btn-danger" onclick="handleCgRequest(\''+r._id+'\',false)"><i class="fa-solid fa-xmark"></i> Decline</button></div></div></div>'}listEl.innerHTML=rH}
     }
   }
 
- if(role==='caregiver'||role==='admin'){
-
-  var history = getCgWorkHistory(appState.caregiverId);
-
-  var whH = '<thead><tr><th>Patient</th><th>Service</th><th>Date</th><th>Duration</th><th>Rating</th><th>Earnings</th></tr></thead><tbody>';
-
-  for(var i=0;i<history.length;i++){
-
-    var w = history[i];
-
-    whH += '<tr>'
-      + '<td>'+w.patient+'</td>'
-      + '<td>'+w.service+'</td>'
-      + '<td>'+w.date+'</td>'
-      + '<td>'+w.duration+'</td>'
-      + '<td><i class="fa-solid fa-star star" style="font-size:.7rem"></i> '+w.rating+'</td>'
-      + '<td style="font-weight:600;color:var(--success)">Rs. '
-      + w.earned.toLocaleString('en-IN')
-      + '</td>'
-      + '</tr>';
-
+  if(role==='caregiver'||role==='admin'){
+    var history = getCgWorkHistory(appState.caregiverId);
+    var whH = '<thead><tr><th>Patient</th><th>Service</th><th>Date</th><th>Duration</th><th>Rating</th><th>Earnings</th></tr></thead><tbody>';
+    for(var i=0;i<history.length;i++){
+      var w = history[i];
+      whH += '<tr><td>'+w.patient+'</td><td>'+w.service+'</td><td>'+w.date+'</td><td>'+w.duration+'</td><td><i class="fa-solid fa-star star" style="font-size:.7rem"></i> '+w.rating+'</td><td style="font-weight:600;color:var(--success)">Rs. '+w.earned.toLocaleString('en-IN')+'</td></tr>';
+    }
+    if(!history.length) whH += '<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:24px">No completed work history.</td></tr>';
+    whH += '</tbody>';
+    document.getElementById('cgWorkTable').innerHTML = whH;
   }
 
-  whH += '</tbody>';
-
-  document.getElementById('cgWorkTable').innerHTML = whH;
-}
   if(role==='admin'){
     document.getElementById('adminUsers').textContent=adminDashboard.users||0;document.getElementById('adminCGs').textContent=adminDashboard.caregivers||0;document.getElementById('adminPending').textContent=adminDashboard.pendingVerifications||0;document.getElementById('adminBookings').textContent=adminDashboard.totalBookings||0;
     if(adminPendingVerify.length){var avH='<thead><tr><th>Name</th><th>Qualification</th><th>Exp.</th><th>City</th><th>Action</th></tr></thead><tbody>';for(var i=0;i<adminPendingVerify.length;i++){var v=adminPendingVerify[i];avH+='<tr><td style="font-weight:600">'+v.name+'</td><td>'+v.qualification+'</td><td>'+v.experience+'y</td><td>'+v.city+'</td><td><div style="display:flex;gap:6px"><button onclick="handleVerify(\''+v._id+'\',true)" class="btn-pri btn-sm"><i class="fa-solid fa-check"></i></button><button onclick="handleVerify(\''+v._id+'\',false)" class="btn-ghost btn-sm" style="color:var(--error)"><i class="fa-solid fa-xmark"></i></button></div></td></tr>'}avH+='</tbody>';document.getElementById('adminVerifyTable').innerHTML=avH}
