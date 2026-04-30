@@ -457,9 +457,12 @@ function loadFallbackData(){
     {_id:'c8',name:'Deepak Singh',photo:'https://randomuser.me/api/portraits/men/22.jpg',specialty:'Nursing',city:'Delhi',rating:4.5,reviews:43,experience:3,hourlyRate:399,available:true,about:'Injection therapy and wound-care specialist.',qualification:'GNM',languages:'Hindi, English',email:'deepak@care24.com'},
     {_id:'c9',name:'Lakshmi Iyer',photo:'https://randomuser.me/api/portraits/women/90.jpg',specialty:'Palliative Care',city:'Bangalore',rating:4.9,reviews:89,experience:15,hourlyRate:749,available:true,about:'Pain-management and hospice-care expert with deep empathy.',qualification:'Palliative Specialist',languages:'Hindi, English, Kannada, Tamil',email:'lakshmi@care24.com'}
   ];
-
-  // ✅ ADD THIS LINE (VERY IMPORTANT)
-  renderCaregiversPage();
+  // ✅ FIX: auto-render caregivers after fallback data loads
+if(appState.currentPage === "caregivers"){
+  setTimeout(function(){
+    renderCaregiversPage();
+  }, 50);
+}
 }
 
 async function loadPatients(){try{patientCache=await api('GET','/patients')}catch(e){}}
@@ -1137,48 +1140,42 @@ var bCI=null,sdCI=null;
 function renderAdminCharts(){if(appState.currentRole!=='admin')return;if(document.getElementById('dash-admin').classList.contains('hidden'))return;var c1=document.getElementById('bookingsChart').getContext('2d');if(bCI)bCI.destroy();bCI=new Chart(c1,{type:'bar',data:{labels:['Jul','Aug','Sep','Oct','Nov','Dec','Jan'],datasets:[{label:'Bookings',data:[4200,4800,5100,5600,6200,6800,7400],backgroundColor:'rgba(15,118,110,0.8)',borderRadius:6,borderSkipped:false,barThickness:28}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,grid:{color:'#F3EDE4'},ticks:{font:{family:'DM Sans',size:11},color:'#94A3B8'}},x:{grid:{display:false},ticks:{font:{family:'DM Sans',size:11},color:'#64748B'}}}}});var c2=document.getElementById('serviceDistChart').getContext('2d');if(sdCI)sdCI.destroy();sdCI=new Chart(c2,{type:'doughnut',data:{labels:['Nursing','Attendant','Physio','Post-Hosp','Dementia','Palliative'],datasets:[{data:[35,25,18,12,6,4],backgroundColor:['#0F766E','#D97706','#059669','#7C3AED','#DC2626','#1E40AF'],borderWidth:0,spacing:2}]},options:{responsive:true,maintainAspectRatio:false,cutout:'65%',plugins:{legend:{position:'bottom',labels:{font:{family:'DM Sans',size:10},color:'#64748B',padding:10,usePointStyle:true,pointStyleWidth:8}}}}});}
 
 function navigate(page){
+
   appState.currentPage = page;
 
   var pages = document.querySelectorAll('.page');
-  for(var i=0;i<pages.length;i++)
+  for(var i=0;i<pages.length;i++){
     pages[i].classList.remove('active');
+  }
 
   var target = document.getElementById('page-' + page);
-  if(target)
-    setTimeout(function(){
-      target.classList.add('active');
-    },30);
+  if(target){
+    target.classList.add('active');
+  }
 
   var navLinks = document.querySelectorAll('[data-nav]');
-  for(var i=0;i<navLinks.length;i++)
+  for(var i=0;i<navLinks.length;i++){
     navLinks[i].classList.remove('active');
+  }
 
   var al = document.querySelector('[data-nav="'+page+'"]');
-  if(al)
-    al.classList.add('active');
+  if(al) al.classList.add('active');
 
   window.scrollTo({top:0,behavior:'smooth'});
 
   setTimeout(initReveal,100);
 
-  if(page === 'dashboard'){
+  if(page==='dashboard'){
     updateTabVisibility();
     switchDashTab(getDefaultTab(appState.currentRole));
   }
 
-  /* Caregivers page loads instantly */
-  if(page === 'caregivers'){
+  // ✅ FIX: caregivers load instantly first time
+  if(page==='caregivers'){
+    if(caregiversCache.length === 0){
+      loadFallbackData();
+    }
     renderCaregiversPage();
-  }
-
-  /* Services page keeps selected filter */
-  if(page === 'services'){
-    var activeBtn = document.querySelector('.svc-filter.btn-pri');
-    var filter = activeBtn
-      ? activeBtn.getAttribute('data-filter')
-      : 'all';
-
-    renderServicesPage(filter);
   }
 }
 function toggleMobileMenu(){document.getElementById('mobileMenu').classList.toggle('open')}
