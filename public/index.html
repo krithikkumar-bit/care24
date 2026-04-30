@@ -560,7 +560,34 @@ function startBooking(id){
 
   goToStep(1);
 }
-function goToStep(step){if(step===2&&!appState.bookingData.serviceId){showToast('Select a service.','warning');return}if(step===3&&!appState.bookingData.caregiverId){showToast('Choose a caregiver.','warning');return}if(step===1)renderBookingStep1();if(step===2)renderBookingStep2();if(step===3)renderBookingStep3();if(step===4)renderBookingStep4();var steps=document.querySelectorAll('.booking-step');for(var i=0;i<steps.length;i++)steps[i].classList.add('hidden');document.getElementById('bookStep'+step).classList.remove('hidden');var dots=document.querySelectorAll('.step-dot');for(var i=0;i<dots.length;i++){var s=parseInt(dots[i].getAttribute('data-step'));dots[i].classList.remove('active','done');if(s<step)dots[i].classList.add('done');if(s===step)dots[i].classList.add('active')}}
+function goToStep(step){
+
+  // If caregiver already selected → skip Step 2
+  if(step === 2 && appState.bookingData.caregiverId){
+    step = 3;
+  }
+
+  // If both service + caregiver already selected → skip Step 1 also
+  if(step === 1 && appState.bookingData.caregiverId){
+    step = 3;
+  }
+
+  var steps = document.querySelectorAll('.booking-step');
+  var dots = document.querySelectorAll('.step-dot');
+
+  for(var i=0;i<steps.length;i++){
+    steps[i].classList.add('hidden');
+  }
+
+  document.getElementById('bookStep'+step).classList.remove('hidden');
+
+  for(var j=0;j<dots.length;j++){
+    dots[j].classList.remove('active');
+    if(j < step) dots[j].classList.add('done');
+  }
+
+  document.querySelector('.step-dot[data-step="'+step+'"]').classList.add('active');
+}
 function renderBookingStep1(){
 
   var list = document.getElementById('bookServiceList');
