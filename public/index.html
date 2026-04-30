@@ -355,6 +355,11 @@ async function handleLogin(e){
 
     var emailInput = document.getElementById('loginEmail').value.toLowerCase();
 
+    // ✅ Ensure caregiver data exists before validation
+    if(!caregiversCache || caregiversCache.length === 0){
+      loadFallbackData();
+    }
+
     var d = await api('POST','/auth/login',{
       email: emailInput,
       password: document.getElementById('loginPass').value
@@ -362,7 +367,7 @@ async function handleLogin(e){
 
     var role = d.user.role || 'user';
 
-    // ✅ Restrict caregiver login ONLY to registered caregiver emails
+    // ✅ Restrict caregiver login ONLY to valid caregiver emails
     if(role === 'caregiver'){
 
       var caregiverMatch = caregiversCache.find(function(c){
