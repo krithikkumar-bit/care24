@@ -251,6 +251,45 @@ function toast(m,t){
 function showModal(h){$('#modal-root').innerHTML='<div class="mod-ov" onclick="if(event.target===this)closeMod()"><div class="mod-bx">'+h+'</div></div>'}
 function closeMod(){$('#modal-root').innerHTML=''}
 
+function openCaregiverList(){
+
+    var h = '<div class="p-6">';
+
+    h += '<div class="flex items-center justify-between mb-6">';
+    h += '<h2 class="font-display text-2xl font-black text-chr">All Caregivers</h2>';
+    h += '<button onclick="closeMod()" class="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 hover:bg-gray-200">';
+    h += '<i class="fa-solid fa-xmark"></i></button></div>';
+
+    h += '<div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">';
+
+    for(var i=0;i<CGS.length;i++){
+
+        var c = CGS[i];
+
+        h += '<div class="dc">';
+
+        h += '<div class="flex items-center gap-3 mb-3">';
+        h += '<img src="'+c.img+'" class="w-14 h-14 rounded-full object-cover">';
+        h += '<div>';
+        h += '<p class="font-black text-chr">'+c.name+'</p>';
+        h += '<p class="text-gray-400 text-sm">'+c.role+' • '+c.exp+' yrs exp</p>';
+        h += '</div></div>';
+
+        h += '<p class="text-gray-500 text-sm mb-3">'+c.bio+'</p>';
+
+        h += '<div class="flex justify-between items-center">';
+        h += '<span class="font-bold text-pri">₹'+c.pr+'/hr</span>';
+
+        /* LOGIN REQUIRED ONLY WHEN BOOKING */
+        h += '<button onclick="showAuth(\'login\')" class="bo bxs">Book</button>';
+
+        h += '</div></div>';
+    }
+
+    h += '</div></div>';
+
+    showModal(h);
+}
 /* ===== NAV ===== */
 function nav(v,s){S.view=v;S.sub=s||'overview';S.sbOpen=false;render();window.scrollTo(0,0)}
 
@@ -333,7 +372,7 @@ function buildLanding(){
         h+='</div><div class="p-4"><p class="text-gray-500 text-xs leading-relaxed mb-3" style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">'+c.bio+'</p>';
         h+='<div class="flex items-center justify-between"><div>'+sh(c.rt)+'</div><span class="font-black text-chr text-sm">'+fp(c.pr)+'/hr</span></div></div></div>';
     }
-    h+='</div><div class="text-center mt-10 anim-up"><button onclick="showAuth(\'register\')" class="bp text-lg px-10 py-4">View All Caregivers <i class="fa-solid fa-arrow-right"></i></button></div></div></section>';
+    h+='</div><div class="text-center mt-10 anim-up"><button onclick="openCaregiverList()" class="bp text-lg px-10 py-4">View All Caregivers <i class="fa-solid fa-arrow-right"></i></button></div></div></section>';
 
     /* Testimonials */
     h+='<section id="testimonials" class="py-24 bg-white"><div class="max-w-7xl mx-auto px-6"><div class="text-center mb-16 anim-up"><span class="text-sec font-black text-sm tracking-[3px] uppercase">Testimonials</span><h2 class="font-display text-4xl font-black text-chr mt-3 mb-4">What Families Say</h2><div class="sdv mx-auto"></div></div>';
