@@ -114,6 +114,21 @@ h1,h2,h3,h4{font-family:'Playfair Display',serif;line-height:1.2}
 <script>
 /* ===== STATE ===== */
 var S={view:'landing',sub:'overview',user:null,bs:0,selSvc:null,selCg:null,sbOpen:false,bf:{date:'',time:'',dur:'hourly',notes:''},am:'login',ar:'user',at:'all'};
+/* RESTORE LOGIN SESSION AFTER REFRESH */
+
+var savedUser = localStorage.getItem("LOGGED_USER");
+
+if(savedUser){
+
+    S.user = JSON.parse(savedUser);
+
+    /* AUTO-OPEN CORRECT DASHBOARD */
+
+    if(S.user.rl){
+        S.view = S.user.rl;
+    }
+
+}
 
 /* ===== DATA ===== */
 var CGS=[
@@ -150,9 +165,7 @@ var PTS=[{id:'p1',uid:'u1',name:'Ramesh Gupta',age:72,g:'Male',cd:'Diabetes, Hyp
 
 var USRS=[
 
-/* USERS */
-{id:'u1',name:'Ankit Gupta',em:'ankit@gmail.com',pw:'1234',rl:'user'},
-{id:'u2',name:'Sneha Reddy',em:'sneha@gmail.com',pw:'1234',rl:'user'},
+
 
 /* CAREGIVERS */
 {id:'c1u',name:'Priya Sharma',em:'priya@gmail.com',pw:'1234',rl:'caregiver',cid:'c1'},
@@ -190,7 +203,24 @@ var EMCS=[
 {name:'Ambulance - 108',rel:'Emergency',ph:'108',ic:'fa-truck-medical'},
 {name:'Neeraj Gupta',rel:'Brother',ph:'+91 99001 22333',ic:'fa-user'}
 ];
-var ACTIVITY_LOG = [];
+/* ===== LOCAL STORAGE INIT ===== */
+
+function loadData(key, defaultValue){
+    var data = localStorage.getItem(key);
+    return data ? JSON.parse(data) : defaultValue;
+}
+
+function saveData(key, value){
+    localStorage.setItem(key, JSON.stringify(value));
+}
+
+/* LOAD SAVED DATA OR DEFAULT DATA */
+
+var USRS = loadData("USRS", USRS || []);
+var BKS = loadData("BKS", BKS || []);
+var NOTES = loadData("NOTES", NOTES || []);
+var CMPS = loadData("CMPS", CMPS || []);
+var ACTIVITY_LOG = loadData("ACTIVITY_LOG", []);
 
 /* ===== HELPERS ===== */
 function $(s){return document.querySelector(s)}
@@ -445,20 +475,95 @@ function renderAuth(){
     showModal(h);
 }
 function handleAuth(e){
+
     e.preventDefault();
-    var em=$('#a-em').value.trim(), pw=$('#a-pw').value;
-    if(S.am==='login'){
-        var u=USRS.find(function(x){return x.em===em&&x.pw===pw});
-        if(u){S.user=u;closeMod();nav(u.rl);toast('Welcome back, '+u.name+'!','ok')}
-        else toast('Invalid email or password.','er');
-    } else {
-        var nm=$('#a-nm').value.trim();
-        var rlEl=document.querySelector('input[name="a-rl"]:checked');
-        var rl=rlEl?rlEl.value:'user';
-        var nu={id:'u'+Date.now(),name:nm,em:em,pw:pw,rl:rl};
+
+    var em = $('#a-em').value.trim(),
+        pw = $('#a-pw').value;
+
+    /* LOGIN */
+
+    if(S.am === 'login'){
+
+        var u = USRS.find(function(x){
+            return x.em === em && x.pw === pw;
+        });
+
+        if(u){
+
+            S.user = u;
+
+            /* SAVE LOGIN SESSION */
+            localStorage.setItem("LOGGED_USER", JSON.stringify(u));
+
+            closeMod();
+            nav(u.rl);
+
+            toast('Welcome back, ' + u.name + '!', 'ok');
+
+        } 
+        else{
+
+            toast('Invalid email or password.', 'er');
+
+        }
+
+    } 
+    
+    /* REGISTER */
+
+    else{
+
+        var nm = $('#a-nm').value.trim();
+
+        var rlEl = document.querySelector('input[name="a-rl"]:checked');
+
+        var rl = rlEl ? rlEl.value : 'user';
+
+        var nu = {
+            id: 'u' + Date.now(),
+            name: nm,
+            em: em,
+            pw: pw,
+            rl: rl
+        };
+
+        /* ADD USER */
         USRS.push(nu);
-        if(rl==='user') PTS.push({id:'p'+Date.now(),uid:nu.id,name:'',age:'',g:'Male',cd:'',ad:'',ph:''});
-        S.user=nu; closeMod(); nav(rl); toast('Account created!','ok');
+
+        /* ✅ STEP 2 ADDED HERE */
+        localStorage.setItem("USRS", JSON.stringify(USRS));
+
+        /* CREATE PATIENT PROFILE IF USER */
+
+        if(rl === 'user'){
+
+            PTS.push({
+                id: 'p' + Date.now(),
+                uid: nu.id,
+                name: '',
+                age: '',
+                g: 'Male',
+                cd: '',
+                ad: '',
+                ph: ''
+            });
+
+            localStorage.setItem("PTS", JSON.stringify(PTS));
+        }
+
+        /* AUTO LOGIN AFTER REGISTER */
+
+        S.user = nu;
+
+        localStorage.setItem("LOGGED_USER", JSON.stringify(nu));
+
+        closeMod();
+
+        nav(rl);
+
+        toast('Account created!', 'ok');
+
     }
 }
 
@@ -487,7 +592,7 @@ function buildDash(){
         if(m[0]==='requests'&&pendR>0) h+='<span class="ml-auto bg-sec text-white text-[10px] font-black px-2 py-0.5 rounded-full">'+pendR+'</span>';
         h+='</div>';
     }
-    h+='</nav><div class="absolute bottom-0 left-0 right-0 p-4 border-t border-white/10"><div class="sbl" onclick="S.user=null;nav(\'landing\')"><i class="fa-solid fa-right-from-bracket w-5 text-center"></i><span>Log Out</span></div></div></aside>';
+    h+='</nav><div class="absolute bottom-0 left-0 right-0 p-4 border-t border-white/10"><div class="sbl" onclick="S.user=null;localStorage.removeItem(\'LOGGED_USER\');nav(\'landing\')"><i class="fa-solid fa-right-from-bracket w-5 text-center"></i><span>Log Out</span></div></div></aside>';
 
     h+='<div class="mw"><div class="topbar"><div class="flex items-center gap-4"><button class="lg:hidden w-10 h-10 rounded-xl bg-crm flex items-center justify-center" onclick="S.sbOpen=true;render()"><i class="fa-solid fa-bars text-chr"></i></button>';
     var subLabel='Dashboard';
@@ -721,7 +826,22 @@ function confirmBk(){
     var ptEl=$('#bk-pt');
     var ptName=ptEl?ptEl.value:'Patient';
     var dt=S.bf.date||new Date().toISOString().split('T')[0];
-    BKS.push({id:'b'+Date.now().toString(36),uid:S.user.id,cid:S.selCg,sid:S.selSvc,pn:ptName,st:'requested',dt:dt,tm:S.bf.time||'09:00',dur:S.bf.dur,nt:S.bf.notes,ca:new Date().toISOString().split('T')[0]});
+    BKS.push({
+    id:'b'+Date.now().toString(36),
+    uid:S.user.id,
+    cid:S.selCg,
+    sid:S.selSvc,
+    pn:ptName,
+    st:'requested',
+    dt:dt,
+    tm:S.bf.time || '09:00',
+    dur:S.bf.dur,
+    nt:S.bf.notes,
+    ca:new Date().toISOString().split('T')[0]
+});
+
+/* STEP 4: SAVE BOOKING TO LOCAL STORAGE */
+localStorage.setItem("BKS", JSON.stringify(BKS));
     S.bs=0; S.selSvc=null; S.selCg=null; S.bf={date:'',time:'',dur:'hourly',notes:''};
     toast('Booking request sent!','ok');
     S.sub='tracking'; render();
@@ -962,6 +1082,9 @@ function upBkSt(id, st){
     /* UPDATE BOOKING STATUS */
     b.st = st;
 
+    /* ✅ STEP 3 ADDED HERE (SAVE BOOKING STATUS) */
+    localStorage.setItem("BKS", JSON.stringify(BKS));
+
 
     /* CREATE ACTIVITY LOG FOR ADMIN */
     if(typeof ACTIVITY_LOG !== "undefined"){
@@ -974,6 +1097,8 @@ function upBkSt(id, st){
             time: new Date().toLocaleString()
         });
 
+        /* ✅ SAVE ACTIVITY LOG ALSO */
+        localStorage.setItem("ACTIVITY_LOG", JSON.stringify(ACTIVITY_LOG));
     }
 
 
