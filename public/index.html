@@ -253,14 +253,18 @@ function closeMod(){$('#modal-root').innerHTML=''}
 
 function openCaregiverList(){
 
-    var h = '<div class="p-6">';
+    var h = '<div class="max-w-7xl mx-auto px-6 py-16">';
 
-    h += '<div class="flex items-center justify-between mb-6">';
-    h += '<h2 class="font-display text-2xl font-black text-chr">All Caregivers</h2>';
-    h += '<button onclick="closeMod()" class="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 hover:bg-gray-200">';
-    h += '<i class="fa-solid fa-xmark"></i></button></div>';
+    h += '<div class="flex items-center justify-between mb-10">';
+    h += '<h2 class="font-display text-3xl font-black text-chr">All Caregivers</h2>';
 
-    h += '<div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">';
+    h += '<button onclick="nav(\'landing\')" class="bo">';
+    h += '<i class="fa-solid fa-arrow-left"></i> Back';
+    h += '</button>';
+
+    h += '</div>';
+
+    h += '<div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">';
 
     for(var i=0;i<CGS.length;i++){
 
@@ -280,7 +284,7 @@ function openCaregiverList(){
         h += '<div class="flex justify-between items-center">';
         h += '<span class="font-bold text-pri">₹'+c.pr+'/hr</span>';
 
-        /* LOGIN REQUIRED ONLY WHEN BOOKING */
+        /* LOGIN ONLY WHEN BOOKING */
         h += '<button onclick="showAuth(\'login\')" class="bo bxs">Book</button>';
 
         h += '</div></div>';
@@ -288,7 +292,10 @@ function openCaregiverList(){
 
     h += '</div></div>';
 
-    showModal(h);
+    /* RENDER FULL PAGE INSTEAD OF MODAL */
+    document.getElementById("app").innerHTML = h;
+
+    window.scrollTo(0,0);
 }
 /* ===== NAV ===== */
 function nav(v,s){S.view=v;S.sub=s||'overview';S.sbOpen=false;render();window.scrollTo(0,0)}
