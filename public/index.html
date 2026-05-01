@@ -346,26 +346,102 @@ function showAuth(m,r){
     renderAuth();
 }
 function renderAuth(){
-    var isL=S.am==='login';
-    var h='<div class="p-8"><div class="flex items-center justify-between mb-6"><h2 class="font-display text-2xl font-black text-chr">'+(isL?'Welcome Back':'Create Account')+'</h2><button onclick="closeMod()" class="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 hover:bg-gray-200"><i class="fa-solid fa-xmark"></i></button></div>';
-    h+='<div class="flex gap-2 mb-6 bg-crm rounded-xl p-1"><button onclick="S.am=\'login\';renderAuth()" class="flex-1 py-2.5 rounded-lg font-black text-sm transition-all '+(isL?'bg-white shadow text-pri':'text-gray-500')+'">Log In</button>';
-    h+='<button onclick="S.am=\'register\';renderAuth()" class="flex-1 py-2.5 rounded-lg font-black text-sm transition-all '+(!isL?'bg-white shadow text-pri':'text-gray-500')+'">Register</button></div>';
-    h+='<form onsubmit="handleAuth(event)" class="space-y-4">';
-    if(!isL) h+='<div><label class="fl">Full Name</label><input type="text" id="a-nm" class="fi" placeholder="Enter your name" required></div>';
-    var demEm=isL?(S.ar==='caregiver'?'caregiver@demo.com':S.ar==='admin'?'admin@demo.com':'user@demo.com'):'';
-    h+='<div><label class="fl">Email Address</label><input type="email" id="a-em" class="fi" placeholder="you@example.com" value="'+demEm+'" required></div>';
-    h+='<div><label class="fl">Password</label><input type="password" id="a-pw" class="fi" placeholder="Enter password" value="'+(isL?'demo123':'')+'" required></div>';
+
+    var isL = S.am === 'login';
+
+    var h = '<div class="p-8">';
+
+    h += '<div class="flex items-center justify-between mb-6">';
+    h += '<h2 class="font-display text-2xl font-black text-chr">'
+        + (isL ? 'Welcome Back' : 'Create Account') +
+        '</h2>';
+    h += '<button onclick="closeMod()" class="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 hover:bg-gray-200">';
+    h += '<i class="fa-solid fa-xmark"></i></button></div>';
+
+    /* LOGIN / REGISTER TOGGLE */
+
+    h += '<div class="flex gap-2 mb-6 bg-crm rounded-xl p-1">';
+
+    h += '<button onclick="S.am=\'login\';renderAuth()" class="flex-1 py-2.5 rounded-lg font-black text-sm transition-all '
+        + (isL ? 'bg-white shadow text-pri' : 'text-gray-500')
+        + '">Log In</button>';
+
+    h += '<button onclick="S.am=\'register\';renderAuth()" class="flex-1 py-2.5 rounded-lg font-black text-sm transition-all '
+        + (!isL ? 'bg-white shadow text-pri' : 'text-gray-500')
+        + '">Register</button>';
+
+    h += '</div>';
+
+    /* FORM START */
+
+    h += '<form onsubmit="handleAuth(event)" class="space-y-4">';
+
+    /* NAME FIELD (REGISTER ONLY) */
+
     if(!isL){
-        h+='<div><label class="fl">I am a</label><div class="grid grid-cols-3 gap-2">';
-        var roles=['user','caregiver','admin'];
-        for(var ri=0;ri<roles.length;ri++){
-            h+='<label class="cursor-pointer"><input type="radio" name="a-rl" value="'+roles[ri]+'" '+(roles[ri]===S.ar?'checked':'')+' class="sr-only peer"><div class="text-center py-2.5 rounded-xl border-2 border-gray-200 font-bold text-sm text-gray-500 peer-checked:border-pri peer-checked:bg-pri-50 peer-checked:text-pri transition-all" style="text-transform:capitalize">'+roles[ri]+'</div></label>';
-        }
-        h+='</div></div>';
+
+        h += '<div>';
+        h += '<label class="fl">Full Name</label>';
+        h += '<input type="text" id="a-nm" class="fi" placeholder="Enter your name" required>';
+        h += '</div>';
+
     }
-    h+='<button type="submit" class="bp w-full justify-center py-3.5 text-lg">'+(isL?'Log In':'Create Account')+'</button></form>';
-    if(isL) h+='<div class="mt-5 p-4 bg-crm rounded-xl text-xs text-gray-500 space-y-1"><p class="font-black text-chr mb-1">Quick Demo Login:</p><p><strong>Family User:</strong> user@demo.com</p><p><strong>Caregiver:</strong> caregiver@demo.com</p><p><strong>Admin:</strong> admin@demo.com</p><p class="text-gray-400 mt-1">Password: demo123</p></div>';
-    h+='</div>';
+
+    /* EMAIL FIELD (NO AUTO-FILL) */
+
+    h += '<div>';
+    h += '<label class="fl">Email Address</label>';
+    h += '<input type="email" id="a-em" class="fi" placeholder="you@example.com" value="" required>';
+    h += '</div>';
+
+    /* PASSWORD FIELD (NO AUTO-FILL) */
+
+    h += '<div>';
+    h += '<label class="fl">Password</label>';
+    h += '<input type="password" id="a-pw" class="fi" placeholder="Enter password" value="" required>';
+    h += '</div>';
+
+    /* ROLE SELECTION (REGISTER ONLY) */
+
+    if(!isL){
+
+        h += '<div>';
+        h += '<label class="fl">I am a</label>';
+        h += '<div class="grid grid-cols-3 gap-2">';
+
+        var roles = ['user','caregiver','admin'];
+
+        for(var i=0;i<roles.length;i++){
+
+            h += '<label class="cursor-pointer">';
+            h += '<input type="radio" name="a-rl" value="'+roles[i]+'" '
+                + (roles[i] === S.ar ? 'checked' : '')
+                + ' class="sr-only peer">';
+
+            h += '<div class="text-center py-2.5 rounded-xl border-2 border-gray-200 font-bold text-sm text-gray-500 '
+                + 'peer-checked:border-pri peer-checked:bg-pri-50 peer-checked:text-pri transition-all" '
+                + 'style="text-transform:capitalize">'
+                + roles[i] +
+                '</div>';
+
+            h += '</label>';
+
+        }
+
+        h += '</div>';
+        h += '</div>';
+    }
+
+    /* SUBMIT BUTTON */
+
+    h += '<button type="submit" class="bp w-full justify-center py-3.5 text-lg">'
+        + (isL ? 'Log In' : 'Create Account')
+        + '</button>';
+
+    h += '</form>';
+
+    h += '</div>';
+
     showModal(h);
 }
 function handleAuth(e){
