@@ -251,11 +251,18 @@ function toast(m,t){
 function showModal(h){$('#modal-root').innerHTML='<div class="mod-ov" onclick="if(event.target===this)closeMod()"><div class="mod-bx">'+h+'</div></div>'}
 function closeMod(){$('#modal-root').innerHTML=''}
 
-function openCaregiverList(){
+function openCaregiverList(minRating, city){
+
+    /* DEFAULT FILTERS */
+
+    if(!minRating) minRating = 0;
+    if(!city) city = "all";
 
     var h = '<div class="max-w-7xl mx-auto px-6 py-16">';
 
-    h += '<div class="flex items-center justify-between mb-10">';
+    /* HEADER */
+
+    h += '<div class="flex flex-wrap items-center justify-between mb-8">';
     h += '<h2 class="font-display text-3xl font-black text-chr">All Caregivers</h2>';
 
     h += '<button onclick="nav(\'landing\')" class="bo">';
@@ -264,35 +271,85 @@ function openCaregiverList(){
 
     h += '</div>';
 
+    /* RATING FILTERS */
+
+    h += '<div class="flex flex-wrap gap-3 mb-4">';
+
+    h += '<button onclick="openCaregiverList(0,\''+city+'\')" class="bo bsm">All Ratings</button>';
+    h += '<button onclick="openCaregiverList(4,\''+city+'\')" class="bo bsm">4★ & above</button>';
+    h += '<button onclick="openCaregiverList(3,\''+city+'\')" class="bo bsm">3★ & above</button>';
+
+    h += '</div>';
+
+    /* CITY FILTERS */
+
+    h += '<div class="flex flex-wrap gap-3 mb-8">';
+
+    var cities = ["all","Mumbai","Delhi","Bangalore","Chennai","Hyderabad","Pune"];
+
+    for(var c=0;c<cities.length;c++){
+
+        h += '<button onclick="openCaregiverList('+minRating+',\''+cities[c]+'\')" class="bo bsm">'
+            + cities[c] +
+            '</button>';
+
+    }
+
+    h += '</div>';
+
+    /* GRID START */
+
     h += '<div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">';
 
     for(var i=0;i<CGS.length;i++){
 
-        var c = CGS[i];
+        var cg = CGS[i];
+
+        /* APPLY RATING FILTER */
+
+        if(cg.rt < minRating) continue;
+
+        /* APPLY CITY FILTER */
+
+        if(city !== "all" && !cg.areas.includes(city)) continue;
 
         h += '<div class="dc">';
 
-        h += '<div class="flex items-center gap-3 mb-3">';
-        h += '<img src="'+c.img+'" class="w-14 h-14 rounded-full object-cover">';
+        /* PROFILE HEADER */
+
+        h += '<div class="flex items-center gap-3 mb-2">';
+        h += '<img src="'+cg.img+'" class="w-14 h-14 rounded-full object-cover">';
         h += '<div>';
-        h += '<p class="font-black text-chr">'+c.name+'</p>';
-        h += '<p class="text-gray-400 text-sm">'+c.role+' • '+c.exp+' yrs exp</p>';
+        h += '<p class="font-black text-chr">'+cg.name+'</p>';
+        h += '<p class="text-gray-400 text-sm">'+cg.role+' • '+cg.exp+' yrs exp</p>';
         h += '</div></div>';
 
-        h += '<p class="text-gray-500 text-sm mb-3">'+c.bio+'</p>';
+        /* RATING */
+
+        h += '<div class="mb-2">'+sh(cg.rt)+'</div>';
+
+        /* BIO */
+
+        h += '<p class="text-gray-500 text-sm mb-3">'+cg.bio+'</p>';
+
+        /* LOCATION */
+
+        h += '<p class="text-gray-400 text-xs mb-3"><i class="fa-solid fa-location-dot mr-1"></i>'+cg.areas+'</p>';
+
+        /* PRICE + BOOK */
 
         h += '<div class="flex justify-between items-center">';
-        h += '<span class="font-bold text-pri">₹'+c.pr+'/hr</span>';
+        h += '<span class="font-bold text-pri">₹'+cg.pr+'/hr</span>';
 
-        /* LOGIN ONLY WHEN BOOKING */
         h += '<button onclick="showAuth(\'login\')" class="bo bxs">Book</button>';
 
-        h += '</div></div>';
+        h += '</div>';
+
+        h += '</div>';
     }
 
     h += '</div></div>';
 
-    /* RENDER FULL PAGE INSTEAD OF MODAL */
     document.getElementById("app").innerHTML = h;
 
     window.scrollTo(0,0);
