@@ -172,6 +172,7 @@ var EMCS=[
 {name:'Ambulance - 108',rel:'Emergency',ph:'108',ic:'fa-truck-medical'},
 {name:'Neeraj Gupta',rel:'Brother',ph:'+91 99001 22333',ic:'fa-user'}
 ];
+var ACTIVITY_LOG = [];
 
 /* ===== HELPERS ===== */
 function $(s){return document.querySelector(s)}
@@ -750,31 +751,148 @@ function cgOverview(cg){
 /* ===== CAREGIVER: REQUESTS ===== */
 function cgRequests(cg){
     if(!cg) return '';
-    var my=BKS.filter(function(b){return b.cid===cg.id}).sort(function(a,b){return b.ca.localeCompare(a.ca)});
-    if(!my.length) return '<div class="dc text-center py-16"><i class="fa-solid fa-inbox text-6xl text-gray-200 mb-5"></i><h3 class="font-display text-xl font-black text-chr mb-2">No Requests</h3></div>';
 
-    var h='<div class="space-y-4">';
-    for(var i=0;i<my.length;i++){
-        var b=my[i], svc=sid(b.sid), usr=uid(b.uid);
-        h+='<div class="dc"><div class="flex flex-wrap items-start gap-4 mb-4"><div class="w-12 h-12 rounded-xl bg-crm flex items-center justify-center"><i class="fa-solid '+(svc?svc.icon:'fa-heart-pulse')+' text-pri text-xl"></i></div>';
-        h+='<div class="flex-1 min-w-0"><div class="flex flex-wrap items-center gap-2 mb-1"><h3 class="font-black text-chr">'+(svc?svc.name:'')+'</h3><span class="bdg '+sc(b.st)+'">'+sl(b.st)+'</span></div>';
-        h+='<p class="text-gray-500 text-sm">Patient: '+b.pn+' &middot; '+(usr?usr.name:'User')+' &middot; '+fd(b.dt)+' at '+b.tm+'</p>';
-        if(b.nt) h+='<p class="text-gray-400 text-xs mt-1"><i class="fa-solid fa-note-sticky mr-1"></i>'+b.nt+'</p>';
-        h+='</div></div>';
+    var my = BKS
+        .filter(function(b){ return b.cid === cg.id })
+        .sort(function(a,b){ return b.ca.localeCompare(a.ca) });
 
-        if(b.st==='requested') h+='<div class="flex gap-3"><button onclick="upBkSt(\''+b.id+'\',\'accepted\')" class="bp bsm"><i class="fa-solid fa-check"></i> Accept</button><button onclick="upBkSt(\''+b.id+'\',\'rejected\')" class="bo bsm border-red-300 text-red-500 hover:bg-red-500 hover:text-white"><i class="fa-solid fa-xmark"></i> Reject</button></div>';
-        else if(b.st==='accepted') h+='<button onclick="upBkSt(\''+b.id+'\',\'in-progress\')" class="bp bsm"><i class="fa-solid fa-play"></i> Start Service</button>';
-        else if(b.st==='in-progress') h+='<button onclick="upBkSt(\''+b.id+'\',\'completed\')" class="bs bsm"><i class="fa-solid fa-flag-checkered"></i> Complete</button>';
-        else h+='<p class="text-gray-400 text-sm font-bold">Booking '+b.st+'.</p>';
-        h+='</div>';
+    if(!my.length){
+        return `
+        <div class="dc text-center py-16">
+            <i class="fa-solid fa-inbox text-6xl text-gray-200 mb-5"></i>
+            <h3 class="font-display text-xl font-black text-chr mb-2">
+                No Requests
+            </h3>
+        </div>`;
     }
-    return h+'</div>';
-}
-function upBkSt(id,st){
-    var b=BKS.find(function(x){return x.id===id});
-    if(b){b.st=st; toast('Booking '+sl(st).toLowerCase()+'.', st==='rejected'?'er':'ok'); render();}
-}
 
+    var h = '<div class="space-y-4">';
+
+    for(var i=0;i<my.length;i++){
+
+        var b = my[i],
+            svc = sid(b.sid),
+            usr = uid(b.uid);
+
+        h += `
+        <div class="dc">
+            <div class="flex flex-wrap items-start gap-4 mb-4">
+
+                <div class="w-12 h-12 rounded-xl bg-crm flex items-center justify-center">
+                    <i class="fa-solid ${svc?svc.icon:'fa-heart-pulse'} text-pri text-xl"></i>
+                </div>
+
+                <div class="flex-1 min-w-0">
+
+                    <div class="flex flex-wrap items-center gap-2 mb-1">
+                        <h3 class="font-black text-chr">${svc?svc.name:''}</h3>
+                        <span class="bdg ${sc(b.st)}">${sl(b.st)}</span>
+                    </div>
+
+                    <p class="text-gray-500 text-sm">
+                        Patient: ${b.pn} · ${usr?usr.name:'User'} · ${fd(b.dt)} at ${b.tm}
+                    </p>
+
+                    ${b.nt ? `
+                    <p class="text-gray-400 text-xs mt-1">
+                        <i class="fa-solid fa-note-sticky mr-1"></i>${b.nt}
+                    </p>` : ''}
+
+                </div>
+            </div>
+        `;
+
+        /* STATUS BUTTONS */
+
+        if(b.st === 'requested'){
+
+            h += `
+            <div class="flex gap-3">
+
+                <button onclick="upBkSt('${b.id}','accepted')" 
+                class="bp bsm">
+                    <i class="fa-solid fa-check"></i> Accept
+                </button>
+
+                <button onclick="upBkSt('${b.id}','rejected')" 
+                class="bo bsm border-red-300 text-red-500 hover:bg-red-500 hover:text-white">
+                    <i class="fa-solid fa-xmark"></i> Reject
+                </button>
+
+            </div>`;
+
+        }
+
+        else if(b.st === 'accepted'){
+
+            h += `
+            <button onclick="upBkSt('${b.id}','in-progress')" 
+            class="bp bsm">
+                <i class="fa-solid fa-play"></i> Start Service
+            </button>`;
+
+        }
+
+        else if(b.st === 'in-progress'){
+
+            h += `
+            <button onclick="upBkSt('${b.id}','completed')" 
+            class="bs bsm">
+                <i class="fa-solid fa-flag-checkered"></i> Complete
+            </button>`;
+
+        }
+
+        else{
+
+            h += `
+            <p class="text-gray-400 text-sm font-bold">
+                Booking ${b.st}.
+            </p>`;
+
+        }
+
+        h += `</div>`;
+    }
+
+    return h + '</div>';
+}
+function upBkSt(id, st){
+
+    var b = BKS.find(function(x){
+        return x.id === id;
+    });
+
+    if(!b) return;
+
+    /* UPDATE BOOKING STATUS */
+    b.st = st;
+
+
+    /* CREATE ACTIVITY LOG FOR ADMIN */
+    if(typeof ACTIVITY_LOG !== "undefined"){
+
+        ACTIVITY_LOG.push({
+            bookingId: id,
+            caregiverId: S.user.id,
+            caregiverName: S.user.name,
+            action: st,
+            time: new Date().toLocaleString()
+        });
+
+    }
+
+
+    /* SHOW STATUS MESSAGE */
+    toast(
+        "Booking " + sl(st).toLowerCase() + ".",
+        st === "rejected" ? "er" : "ok"
+    );
+
+
+    /* REFRESH DASHBOARD */
+    render();
+}
 /* ===== CAREGIVER: AVAILABILITY ===== */
 function cgAvail(cg){
     if(!cg) return '';
