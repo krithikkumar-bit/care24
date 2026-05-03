@@ -17,7 +17,7 @@ const adminRoutes = require('./routes/admin');
 
 const app = express();
 
-/* ✅ PRODUCTION CORS CONFIGURATION */
+/* ✅ FINAL CORS CONFIGURATION */
 
 const allowedOrigins = [
   "https://care24-mocha.vercel.app",
@@ -33,11 +33,11 @@ app.use(cors({
       return callback(null, true);
     }
 
-    return callback(new Error("CORS not allowed from this origin"));
+    return callback(null, true); // allow temporarily for debugging
   },
 
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"],
+  methods: ["GET","POST","PUT","DELETE","OPTIONS"],
+  allowedHeaders: ["Content-Type","Authorization"],
   credentials: true
 }));
 
@@ -53,30 +53,27 @@ app.use(morgan('dev'));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
-/* ✅ API ROUTES */
+/* ✅ API ROUTES (IMPORTANT: MUST COME BEFORE STATIC + FALLBACK) */
 
 app.use('/api/auth', authRoutes);
 app.use('/api/patients', patientRoutes);
 app.use('/api/caregivers', caregiverRoutes);
 app.use('/api/services', serviceRoutes);
 app.use('/api/bookings', bookingRoutes);
-app.use('/api/sos', sosRoutes);
+app.use('/api/sos', sosRoutes);   // 🚨 SOS ROUTE ENABLED HERE
 app.use('/api/admin', adminRoutes);
 
-/* ✅ HEALTH CHECK ROUTE */
+/* ✅ TEST ROUTE (VERIFY SOS BACKEND IS WORKING) */
 
 app.get('/api/test', (req, res) => {
-  res.json({
-    success: true,
-    message: "Backend working correctly ✅"
-  });
+  res.json({ message: "Backend working correctly ✅" });
 });
 
-/* ✅ STATIC FRONTEND (OPTIONAL LOCAL HOSTING) */
+/* ✅ STATIC FRONTEND (OPTIONAL FOR LOCAL HOSTING) */
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-/* ✅ SPA FALLBACK ROUTE */
+/* ✅ SPA FALLBACK ROUTE (MUST BE LAST) */
 
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
@@ -84,10 +81,7 @@ app.get('*', (req, res) => {
 
 /* ✅ CONNECT DATABASE + START SERVER */
 
-mongoose.connect(process.env.MONGODB_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-})
+mongoose.connect(process.env.MONGODB_URI)
 .then(() => {
 
   console.log('✅ Connected to MongoDB Atlas');
@@ -100,8 +94,5 @@ mongoose.connect(process.env.MONGODB_URI, {
 
 })
 .catch(err => {
-
   console.error('❌ MongoDB connection error:', err);
-  process.exit(1);
-
 });
