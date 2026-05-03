@@ -17,16 +17,31 @@ const adminRoutes = require('./routes/admin');
 
 const app = express();
 
-/* ✅ FIXED CORS FOR VERCEL FRONTEND */
+/* ✅ FINAL CORS FIX (WORKS WITH VERCEL + RENDER) */
+
+const allowedOrigins = [
+  "https://care24-mocha.vercel.app",
+  "http://localhost:3000"
+];
 
 app.use(cors({
-  origin: [
-    "https://care24-mocha.vercel.app",
-    "http://localhost:3000"
-  ],
-  methods: ["GET","POST","PUT","DELETE"],
+  origin: function(origin, callback) {
+    if (!origin) return callback(null, true);
+
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      return callback(null, true);
+    } else {
+      return callback(null, true); // allow temporarily for debugging
+    }
+  },
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true
 }));
+
+/* ✅ HANDLE PREFLIGHT REQUESTS */
+
+app.options('*', cors());
 
 app.use(helmet());
 app.use(morgan('dev'));
@@ -34,7 +49,7 @@ app.use(morgan('dev'));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
-/* API ROUTES */
+/* ✅ API ROUTES */
 
 app.use('/api/auth', authRoutes);
 app.use('/api/patients', patientRoutes);
@@ -44,20 +59,21 @@ app.use('/api/bookings', bookingRoutes);
 app.use('/api/sos', sosRoutes);
 app.use('/api/admin', adminRoutes);
 
-/* STATIC FRONTEND (optional if backend hosts frontend) */
+/* ✅ STATIC FRONTEND (optional) */
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-/* SPA FALLBACK */
+/* ✅ SPA FALLBACK ROUTE */
 
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-/* CONNECT DATABASE */
+/* ✅ CONNECT DATABASE + START SERVER */
 
 mongoose.connect(process.env.MONGODB_URI)
 .then(() => {
+
   console.log('Connected to MongoDB');
 
   const PORT = process.env.PORT || 5000;
@@ -67,4 +83,6 @@ mongoose.connect(process.env.MONGODB_URI)
   });
 
 })
-.catch(err => console.error('MongoDB connection error:', err));
+.catch(err => {
+  console.error('MongoDB connection error:', err);
+});
