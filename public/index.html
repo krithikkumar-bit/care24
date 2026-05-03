@@ -637,7 +637,6 @@ async function loadPatientProfile(){
 async function loadPatientCount(){
 
   const user = JSON.parse(localStorage.getItem("LOGGED_USER"));
-
   if(!user) return;
 
   try{
@@ -649,9 +648,16 @@ async function loadPatientCount(){
     const data = await res.json();
 
     if(data){
-      PTS = [data];
+
+      PTS = [{
+        uid: user.id,   // ✅ REQUIRED FIX
+        ...data
+      }];
+
     }else{
+
       PTS = [];
+
     }
 
     saveData("PTS", PTS);
