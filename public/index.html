@@ -561,9 +561,9 @@ async function savePatientProfile(){
 
   const patientData = {
 
-    userId: user.id,
+    userId: String(user.id),   // ✅ FIXED
     name: document.getElementById("pt-nm").value,
-    age: document.getElementById("pt-ag").value,
+    age: Number(document.getElementById("pt-ag").value), // ✅ FIXED
     gender: document.getElementById("pt-gn").value,
     phone: document.getElementById("pt-ph").value,
     conditions: document.getElementById("pt-cd").value,
@@ -587,11 +587,13 @@ async function savePatientProfile(){
 
     const data = await res.json();
 
+    console.log("Saved response:", data); // ✅ DEBUG
+
     if(data.success){
 
       toast("Patient profile saved successfully","ok");
 
-      await loadPatientCount(); // ✅ refresh dashboard count instantly
+      await loadPatientCount();
 
     }else{
 
