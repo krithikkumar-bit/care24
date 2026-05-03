@@ -1,41 +1,121 @@
 const express = require('express');
 const router = express.Router();
 const Patient = require('../models/Patient');
-const auth = require('../middleware/auth');
 
-router.get('/', auth(['user','admin']), async (req, res) => {
-  try {
-    const patients = await Patient.find({ userId: req.user._id }).sort({ createdAt: -1 });
-    res.json(patients);
-  } catch (err) {
-    res.status(500).json({ message: 'Server error', error: err.message });
-  }
-});
 
-router.post('/', auth(['user','admin']), async (req, res) => {
+/* =====================================
+   GET PATIENT PROFILE BY USER ID
+===================================== */
+
+router.get('/:userId', async (req, res) => {
+
   try {
-    const { name, age, gender, bloodGroup, conditions, specialRequirements, address, emergencyName, emergencyPhone } = req.body;
-    if (!name || !age || !address || !emergencyName || !emergencyPhone) {
-      return res.status(400).json({ message: 'Required fields: name, age, address, emergency contact' });
-    }
-    const patient = new Patient({
-      userId: req.user._id, name, age, gender, bloodGroup, conditions, specialRequirements, address, emergencyName, emergencyPhone
+
+    const patient = await Patient.findOne({
+      userId: req.params.userId
     });
-    await patient.save();
-    res.status(201).json({ message: 'Patient created', patient });
+
+    if (!patient) {
+      return res.json(null);
+    }
+
+    res.json(patient);
+
   } catch (err) {
-    res.status(500).json({ message: 'Server error', error: err.message });
+
+    console.error(err);
+
+    res.status(500).json({
+      success: false,
+      message: "Server error loading patient"
+    });
+
   }
+
 });
 
-router.delete('/:id', auth(['user','admin']), async (req, res) => {
+
+/* =====================================
+   CREATE OR UPDATE PATIENT PROFILE
+===================================== */
+
+router.post('/:userId', async (req, res) => {
+
   try {
-    const deleted = await Patient.findOneAndDelete({ _id: req.params.id, userId: req.user._id });
-    if (!deleted) return res.status(404).json({ message: 'Patient not found' });
-    res.json({ message: 'Patient deleted' });
+
+    const userId = req.params.userId;
+
+    const existingPatient = await Patient.findOne({ userId });
+
+    if (existingPatient) {
+
+      await Patient.updateOne(
+        { userId },
+        req.body
+      );
+
+      return res.json({
+        success: true,
+        message: "Patient profile updated"
+      });
+
+    }
+
+    const newPatient = new Patient({
+      ...req.body,
+      userId
+    });
+
+    await newPatient.save();
+
+    res.json({
+      success: true,
+      message: "Patient profile created"
+    });
+
   } catch (err) {
-    res.status(500).json({ message: 'Server error', error: err.message });
+
+    console.error(err);
+
+    res.status(500).json({
+      success: false,
+      message: "Server error saving patient"
+    });
+
   }
+
 });
+
+
+/* =====================================
+   DELETE PATIENT PROFILE
+===================================== */
+
+router.delete('/:userId', async (req, res) => {
+
+  try {
+
+    await Patient.deleteOne({
+      userId: req.params.userId
+    });
+
+    res.json({
+      success: true,
+      message: "Patient deleted"
+    });
+
+  } catch (err) {
+
+    console.error(err);
+
+    res.status(500).json({
+      success: false,
+      message: "Server error deleting patient"
+    });
+
+  }
+
+});
+
 
 module.exports = router;
