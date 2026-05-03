@@ -561,19 +561,30 @@ async function savePatientProfile(){
     return;
   }
 
-  const patientData = {
+  const name = document.getElementById("pt-nm").value.trim();
+  const age = Number(document.getElementById("pt-ag").value);
+  const gender = document.getElementById("pt-gn").value;
+  const address = document.getElementById("pt-ad").value.trim();
+  const emergencyName = document.getElementById("pt-ename").value.trim();
+  const emergencyPhone = document.getElementById("pt-ephone").value.trim();
 
-    userId: String(user.id),   // ✅ FIXED
-    name: document.getElementById("pt-nm").value,
-    age: Number(document.getElementById("pt-ag").value), // ✅ FIXED
-    gender: document.getElementById("pt-gn").value,
-    phone: document.getElementById("pt-ph").value,
-    conditions: document.getElementById("pt-cd").value,
+  // 🚨 VALIDATION (VERY IMPORTANT)
+  if(!name || !age || !gender || !address || !emergencyName || !emergencyPhone){
+    toast("Please fill all required fields","er");
+    return;
+  }
+
+  const patientData = {
+    userId: String(user.id),
+    name,
+    age,
+    gender,
     bloodGroup: document.getElementById("pt-blood")?.value || "",
+    conditions: document.getElementById("pt-cd").value || "",
     specialRequirements: document.getElementById("pt-special")?.value || "",
-    address: document.getElementById("pt-ad").value,
-    emergencyName: document.getElementById("pt-ename").value,
-    emergencyPhone: document.getElementById("pt-ephone").value
+    address,
+    emergencyName,
+    emergencyPhone
   };
 
   try{
@@ -589,7 +600,7 @@ async function savePatientProfile(){
 
     const data = await res.json();
 
-    console.log("Saved response:", data); // ✅ DEBUG
+    console.log("🔥 Saved response:", data);
 
     if(data.success){
 
@@ -599,13 +610,13 @@ async function savePatientProfile(){
 
     }else{
 
-      toast("Failed to save profile","er");
+      toast(data.message || "Failed to save profile","er");
 
     }
 
   }catch(err){
 
-    console.error(err);
+    console.error("❌ ERROR:", err);
 
     toast("Server error","er");
 
