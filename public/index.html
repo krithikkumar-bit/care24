@@ -437,11 +437,11 @@ async function sendSOSAlert(){
         headers:{
           "Content-Type":"application/json"
         },
-        body:JSON.stringify({
-          userId:user.id,
-          latitude:position.coords.latitude,
-          longitude:position.coords.longitude
-        })
+        body: JSON.stringify({
+  userId: user._id || user.id,
+  latitude: position.coords.latitude,
+  longitude: position.coords.longitude
+})
       }
     );
 
@@ -475,12 +475,12 @@ async function addEmergencyContact(){
       headers:{
         "Content-Type":"application/json"
       },
-      body:JSON.stringify({
-        userId:user._id,
-        name:name,
-        relation:relation,
-        phone:phone
-      })
+      body: JSON.stringify({
+  userId: user._id || user.id,
+  name: name,
+  relation: relation,
+  phone: phone
+})
     }
   );
 
