@@ -161,7 +161,7 @@ var BKS=[
 {id:'b5',uid:'u2',cid:'c8',sid:'s1',pn:'Kamla Devi',st:'completed',dt:'2025-01-05',tm:'10:00',dur:'hourly',nt:'Blood sugar check and insulin administration',ca:'2025-01-04'}
 ];
 
-var PTS=[{id:'p1',uid:'u1',name:'Ramesh Gupta',age:72,g:'Male',cd:'Diabetes, Hypertension, Mild Arthritis, Post-Angioplasty',ad:'14, Green Park Avenue, Mumbai 400016',ph:'+91 98765 43210'}];
+var PTS = loadData("PTS", []);
 
 var USRS=[
 
@@ -541,6 +541,48 @@ async function addEmergencyContact(){
 
     toast("Server error while adding contact","er");
 
+  }
+}
+async function savePatientProfile(){
+
+  const user = JSON.parse(localStorage.getItem("LOGGED_USER"));
+
+  if(!user){
+    toast("Please login first","er");
+    return;
+  }
+
+  const patientData = {
+
+    userId: user.id,
+    name: document.getElementById("pt-nm").value,
+    age: document.getElementById("pt-ag").value,
+    gender: document.getElementById("pt-gn").value,
+    phone: document.getElementById("pt-ph").value,
+    conditions: document.getElementById("pt-cd").value,
+    bloodGroup: document.getElementById("pt-blood")?.value || "",
+    specialRequirements: document.getElementById("pt-special")?.value || "",
+    address: document.getElementById("pt-ad").value,
+    emergencyName: document.getElementById("pt-ename").value,
+    emergencyPhone: document.getElementById("pt-ephone").value
+
+  };
+
+  const res = await fetch(
+    "https://care24.onrender.com/api/patient/add",
+    {
+      method:"POST",
+      headers:{ "Content-Type":"application/json" },
+      body: JSON.stringify(patientData)
+    }
+  );
+
+  const data = await res.json();
+
+  if(data.success){
+    toast("Patient profile saved successfully","ok");
+  }else{
+    toast("Failed to save profile","er");
   }
 }
 /* ===== NAV ===== */
@@ -1198,17 +1240,85 @@ function uHistory(){
 
 /* ===== USER: PATIENT ===== */
 function uPatient(){
-    var p=pid(S.user.id);
-    var h='<div class="dc max-w-2xl"><h3 class="font-display text-xl font-black text-chr mb-6">'+(p&&p.name?'Edit Patient Profile':'Add Patient Profile')+'</h3>';
-    h+='<form onsubmit="savePat(event)" class="space-y-5"><div class="grid sm:grid-cols-2 gap-5">';
-    h+='<div><label class="fl">Patient Name</label><input type="text" id="pt-nm" class="fi" value="'+(p?p.name:'')+'" placeholder="Full name" required></div>';
-    h+='<div><label class="fl">Age</label><input type="number" id="pt-ag" class="fi" value="'+(p?p.age:'')+'" placeholder="Age" min="1" max="120"></div>';
-    h+='<div><label class="fl">Gender</label><select id="pt-gn" class="fi"><option '+(p&&p.g==='Male'?'selected':'')+'>Male</option><option '+(p&&p.g==='Female'?'selected':'')+'>Female</option><option '+(p&&p.g==='Other'?'selected':'')+'>Other</option></select></div>';
-    h+='<div><label class="fl">Phone</label><input type="tel" id="pt-ph" class="fi" value="'+(p?p.ph:'')+'" placeholder="+91 XXXXX XXXXX"></div>';
-    h+='</div>';
-    h+='<div><label class="fl">Medical Conditions</label><textarea id="pt-cd" class="fi" rows="2" placeholder="Diabetes, Hypertension, Arthritis...">'+(p?p.cd:'')+'</textarea></div>';
-    h+='<div><label class="fl">Address</label><textarea id="pt-ad" class="fi" rows="2" placeholder="Full address for home visits">'+(p?p.ad:'')+'</textarea></div>';
-    h+='<button type="submit" class="bp"><i class="fa-solid fa-floppy-disk"></i> Save Profile</button></form></div>';
+
+    var p = pid(S.user.id);
+
+    var h = '<div class="dc max-w-2xl">';
+
+    h += '<h3 class="font-display text-xl font-black text-chr mb-6">'
+        + (p && p.name ? 'Edit Patient Profile' : 'Add Patient Profile')
+        + '</h3>';
+
+    h += '<form onsubmit="savePat(event)" class="space-y-5">';
+
+    /* BASIC DETAILS */
+
+    h += '<div class="grid sm:grid-cols-2 gap-5">';
+
+    h += '<div><label class="fl">Patient Name</label>'
+        + '<input type="text" id="pt-nm" class="fi" value="'+(p?p.name:'')+'" placeholder="Full name" required></div>';
+
+    h += '<div><label class="fl">Age</label>'
+        + '<input type="number" id="pt-ag" class="fi" value="'+(p?p.age:'')+'" placeholder="Age" min="1" max="120" required></div>';
+
+    h += '<div><label class="fl">Gender</label>'
+        + '<select id="pt-gn" class="fi">'
+        + '<option '+(p&&p.g==='Male'?'selected':'')+'>Male</option>'
+        + '<option '+(p&&p.g==='Female'?'selected':'')+'>Female</option>'
+        + '<option '+(p&&p.g==='Other'?'selected':'')+'>Other</option>'
+        + '</select></div>';
+
+    h += '<div><label class="fl">Phone</label>'
+        + '<input type="tel" id="pt-ph" class="fi" value="'+(p?p.ph:'')+'" placeholder="+91 XXXXX XXXXX"></div>';
+
+    h += '</div>';
+
+    /* MEDICAL DETAILS */
+
+    h += '<div><label class="fl">Medical Conditions</label>'
+        + '<textarea id="pt-cd" class="fi" rows="2" placeholder="Diabetes, Hypertension, Arthritis...">'
+        + (p?p.cd:'') +
+        '</textarea></div>';
+
+    /* NEW FIELD: BLOOD GROUP */
+
+    h += '<div><label class="fl">Blood Group</label>'
+        + '<input type="text" id="pt-blood" class="fi" value="'+(p?p.bloodGroup:'')+'" placeholder="Example: O+"></div>';
+
+    /* NEW FIELD: SPECIAL REQUIREMENTS */
+
+    h += '<div><label class="fl">Special Requirements</label>'
+        + '<textarea id="pt-special" class="fi" rows="2" placeholder="Wheelchair support, oxygen support, etc.">'
+        + (p?p.specialRequirements:'') +
+        '</textarea></div>';
+
+    /* ADDRESS */
+
+    h += '<div><label class="fl">Address</label>'
+        + '<textarea id="pt-ad" class="fi" rows="2" placeholder="Full address for home visits" required>'
+        + (p?p.ad:'') +
+        '</textarea></div>';
+
+    /* NEW REQUIRED EMERGENCY CONTACT */
+
+    h += '<div class="grid sm:grid-cols-2 gap-5">';
+
+    h += '<div><label class="fl">Emergency Contact Name</label>'
+        + '<input type="text" id="pt-ename" class="fi" value="'+(p?p.emergencyName:'')+'" placeholder="Emergency contact name" required></div>';
+
+    h += '<div><label class="fl">Emergency Contact Phone</label>'
+        + '<input type="tel" id="pt-ephone" class="fi" value="'+(p?p.emergencyPhone:'')+'" placeholder="+91 XXXXX XXXXX" required></div>';
+
+    h += '</div>';
+
+    /* SAVE BUTTON */
+
+    h += '<button type="submit" class="bp">'
+        + '<i class="fa-solid fa-floppy-disk"></i> Save Profile'
+        + '</button>';
+
+    h += '</form></div>';
+
     return h;
 }
 function savePat(e){
