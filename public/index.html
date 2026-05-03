@@ -126,9 +126,10 @@ if(savedUser){
     S.view = S.user.rl;
   }
 
-  /* LOAD PATIENT PROFILE FROM DATABASE */
-
-      loadPatientProfile();
+  // ✅ load patient BEFORE dashboard renders
+  setTimeout(function(){
+      loadPatientCount();
+  },200);
 
 }
 
@@ -660,8 +661,11 @@ async function loadPatientCount(){
 
     const data = await res.json();
 
+    console.log("Patient loaded:", data);
+
     if(data){
 
+      // ✅ store patient properly
       PTS = [{
         uid: user.id,
         name: data.name,
@@ -676,11 +680,15 @@ async function loadPatientCount(){
         emergencyPhone: data.emergencyPhone
       }];
 
+    }else{
+
+      // ✅ clear if no patient exists
+      PTS = [];
+
     }
 
     saveData("PTS", PTS);
 
-    // ✅ Always refresh dashboard after loading
     render();
 
   }catch(err){
