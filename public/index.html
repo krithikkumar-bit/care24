@@ -553,7 +553,9 @@ async function addEmergencyContact(){
   }
 }
 async function savePatientProfile(){
-    console.log("🔥 SAVE CLICKED");   // ✅ ADD THIS LINE HERE
+
+  console.log("🔥 SAVE CLICKED");
+
   const user = JSON.parse(localStorage.getItem("LOGGED_USER"));
 
   if(!user){
@@ -564,11 +566,12 @@ async function savePatientProfile(){
   const name = document.getElementById("pt-nm").value.trim();
   const age = Number(document.getElementById("pt-ag").value);
   const gender = document.getElementById("pt-gn").value;
+  const phone = document.getElementById("pt-ph").value.trim();   // ✅ FIX ADDED
   const address = document.getElementById("pt-ad").value.trim();
   const emergencyName = document.getElementById("pt-ename").value.trim();
   const emergencyPhone = document.getElementById("pt-ephone").value.trim();
 
-  // 🚨 VALIDATION (VERY IMPORTANT)
+  // 🚨 VALIDATION
   if(!name || !age || !gender || !address || !emergencyName || !emergencyPhone){
     toast("Please fill all required fields","er");
     return;
@@ -579,6 +582,7 @@ async function savePatientProfile(){
     name,
     age,
     gender,
+    phone: phone || "",   // ✅ THIS IS THE MAIN FIX
     bloodGroup: document.getElementById("pt-blood")?.value || "",
     conditions: document.getElementById("pt-cd").value || "",
     specialRequirements: document.getElementById("pt-special")?.value || "",
@@ -586,6 +590,8 @@ async function savePatientProfile(){
     emergencyName,
     emergencyPhone
   };
+
+  console.log("📤 Sending data:", patientData); // ✅ DEBUG
 
   try{
 
