@@ -567,26 +567,39 @@ async function savePatientProfile(){
     address: document.getElementById("pt-ad").value,
     emergencyName: document.getElementById("pt-ename").value,
     emergencyPhone: document.getElementById("pt-ephone").value
-
   };
 
-  const res = await fetch(
-        `https://care24.onrender.com/api/patients/${user.id}`,
+  try{
 
-    {
-      method:"POST",
-      headers:{ "Content-Type":"application/json" },
-      body: JSON.stringify(patientData)
+    const res = await fetch(
+      `https://care24.onrender.com/api/patients/${user.id}`,
+      {
+        method:"POST",
+        headers:{ "Content-Type":"application/json" },
+        body: JSON.stringify(patientData)
+      }
+    );
+
+    const data = await res.json();
+
+    if(data.success){
+
+      toast("Patient profile saved successfully","ok");
+
+      await loadPatientCount(); // ✅ refresh dashboard count instantly
+
+    }else{
+
+      toast("Failed to save profile","er");
+
     }
-  );
 
-  const data = await res.json();
+  }catch(err){
 
-  if(data.success){
-    toast("Patient profile saved successfully","ok");
-        loadPatientCount();   // ✅ ADD THIS
-  }else{
-    toast("Failed to save profile","er");
+    console.error(err);
+
+    toast("Server error","er");
+
   }
 }
 async function loadPatientProfile(){
@@ -645,7 +658,10 @@ async function loadPatientCount(){
       `https://care24.onrender.com/api/patients/${user.id}`
     );
 
-    if(!res.ok) return;
+    if(!res.ok){
+      console.error("Server error:", res.status);
+      return;
+    }
 
     const data = await res.json();
 
@@ -673,10 +689,8 @@ async function loadPatientCount(){
 
     saveData("PTS", PTS);
 
-    // ✅ Only refresh overview dashboard
-    if(S.sub === "overview"){
-      render();
-    }
+    // ✅ Always refresh dashboard after loading
+    render();
 
   }catch(err){
 
@@ -700,9 +714,6 @@ function render(){
     else{
   app.innerHTML = buildDash();
 
-  if(S.user && S.user.rl === "user"){
-    loadPatientCount();
-  }
 }
     initSA();
     if(S.view==='admin'&&S.sub==='overview') setTimeout(initCharts,150);
@@ -1062,43 +1073,172 @@ function buildSub(role){
 
 /* ===== USER: OVERVIEW ===== */
 function uOverview(){
-    var my=BKS.filter(function(b){return b.uid===S.user.id});
-    var active=my.filter(function(b){return!['completed','rejected','cancelled'].indexOf(b.st)>=0});
-    var done=my.filter(function(b){return b.st==='completed'});
-    var pat=pid(S.user.id);
 
-    var h='<div class="mb-8"><h2 class="font-display text-2xl font-black text-chr mb-1">Welcome back, '+S.user.name.split(' ')[0]+'</h2><p class="text-gray-500">Here\'s an overview of your care services.</p></div>';
-    h+='<div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">';
-    var sts=[
-  {n:active.length,l:'Active Bookings',i:'fa-calendar-check',bg:'bg-pri-50',ic:'text-pri'},
-  {n:done.length,l:'Completed',i:'fa-check-double',bg:'bg-green-50',ic:'text-green-600'},
-  {n:pid(S.user.id)?1:0,l:'Patient Profiles',i:'fa-user-group',bg:'bg-orange-50',ic:'text-sec'},
-  {n:'4.8',l:'Avg Rating',i:'fa-star',bg:'bg-yellow-50',ic:'text-acc'}
-];
-    for(var i=0;i<sts.length;i++){
-        var st=sts[i];
-        h+='<div class="dc sc"><div class="sbg" style="background:#0A6E72"></div><div class="w-11 h-11 rounded-xl '+st.bg+' flex items-center justify-center mb-3"><i class="fa-solid '+st.i+' '+st.ic+'"></i></div><p class="text-3xl font-black text-chr">'+st.n+'</p><p class="text-gray-500 text-sm font-bold">'+st.l+'</p></div>';
-    }
-    h+='</div>';
+    var my = BKS.filter(function(b){
+        return b.uid === S.user.id;
+    });
 
-    h+='<div class="grid lg:grid-cols-3 gap-6"><div class="lg:col-span-2 dc"><div class="flex items-center justify-between mb-5"><h3 class="font-display text-lg font-black text-chr">Recent Bookings</h3><button onclick="S.sub=\'history\';render()" class="text-pri font-bold text-sm hover:underline">View All</button></div>';
-    if(my.length===0){
-        h+='<p class="text-gray-400 text-center py-8">No bookings yet. <span class="text-pri font-bold cursor-pointer" onclick="S.sub=\'booking\';S.bs=0;render()">Book a service</span></p>';
-    } else {
-        for(var j=0;j<Math.min(4,my.length);j++){
-            var b=my[j], cg=gid(b.cid), svc=sid(b.sid);
-            h+='<div class="flex items-center gap-4 py-4 border-b border-gray-100 last:border-0">';
-            if(cg) h+=avImg(cg); else h+=avInit('?','#999');
-            h+='<div class="flex-1 min-w-0"><p class="font-black text-chr text-sm">'+(svc?svc.name:'Service')+' — '+b.pn+'</p><p class="text-gray-400 text-xs">'+(cg?cg.name:'N/A')+' &middot; '+fd(b.dt)+' &middot; '+b.tm+'</p></div>';
-            h+='<span class="bdg '+sc(b.st)+'">'+sl(b.st)+'</span></div>';
+    var active = my.filter(function(b){
+        return ['completed','rejected','cancelled'].indexOf(b.st) === -1;
+    });
+
+    var done = my.filter(function(b){
+        return b.st === 'completed';
+    });
+
+    var patCount = PTS.length; // ✅ FIXED (uses MongoDB-loaded patient data)
+
+    var h = '<div class="mb-8">';
+    h += '<h2 class="font-display text-2xl font-black text-chr mb-1">';
+    h += 'Welcome back, ' + S.user.name.split(' ')[0] + '</h2>';
+    h += '<p class="text-gray-500">Here\'s an overview of your care services.</p>';
+    h += '</div>';
+
+    h += '<div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">';
+
+    var sts = [
+
+        {
+            n: active.length,
+            l: 'Active Bookings',
+            i: 'fa-calendar-check',
+            bg: 'bg-pri-50',
+            ic: 'text-pri'
+        },
+
+        {
+            n: done.length,
+            l: 'Completed',
+            i: 'fa-check-double',
+            bg: 'bg-green-50',
+            ic: 'text-green-600'
+        },
+
+        {
+            n: patCount, // ✅ FIXED HERE
+            l: 'Patient Profiles',
+            i: 'fa-user-group',
+            bg: 'bg-orange-50',
+            ic: 'text-sec'
+        },
+
+        {
+            n: '4.8',
+            l: 'Avg Rating',
+            i: 'fa-star',
+            bg: 'bg-yellow-50',
+            ic: 'text-acc'
         }
+
+    ];
+
+    for(var i = 0; i < sts.length; i++){
+
+        var st = sts[i];
+
+        h += '<div class="dc sc">';
+        h += '<div class="sbg" style="background:#0A6E72"></div>';
+        h += '<div class="w-11 h-11 rounded-xl ' + st.bg + ' flex items-center justify-center mb-3">';
+        h += '<i class="fa-solid ' + st.i + ' ' + st.ic + '"></i>';
+        h += '</div>';
+        h += '<p class="text-3xl font-black text-chr">' + st.n + '</p>';
+        h += '<p class="text-gray-500 text-sm font-bold">' + st.l + '</p>';
+        h += '</div>';
+
     }
-    h+='</div><div><div class="dc mb-5"><h3 class="font-display text-lg font-black text-chr mb-4">Quick Actions</h3><div class="space-y-3">';
-    h+='<button onclick="S.sub=\'booking\';S.bs=0;render()" class="bp w-full justify-center"><i class="fa-solid fa-plus"></i> Book New Service</button>';
-    h+='<button onclick="S.sub=\'patient\';render()" class="bo w-full justify-center"><i class="fa-solid fa-user-pen"></i> '+(pat&&pat.name?'Edit Patient':'Add Patient')+'</button>';
-    h+='<button onclick="S.sub=\'tracking\';render()" class="bo w-full justify-center border-sec text-sec hover:bg-sec hover:text-white"><i class="fa-solid fa-location-dot"></i> Track Service</button>';
-    h+='<button onclick="openSOS()" class="w-full py-3 rounded-xl font-black text-sm border-2 border-red-400 text-red-500 hover:bg-red-500 hover:text-white transition-all flex items-center justify-center gap-2"><i class="fa-solid fa-phone-volume"></i> Emergency SOS</button>';
-    h+='</div></div><div class="dc"><h3 class="font-display text-lg font-black text-chr mb-3">Need Help?</h3><p class="text-gray-500 text-sm mb-4">Our support team is available 24/7.</p><a href="#" class="text-pri font-bold text-sm hover:underline"><i class="fa-solid fa-phone mr-1"></i> 1800-XXX-XXXX</a></div></div></div>';
+
+    h += '</div>';
+
+    h += '<div class="grid lg:grid-cols-3 gap-6">';
+    h += '<div class="lg:col-span-2 dc">';
+
+    h += '<div class="flex items-center justify-between mb-5">';
+    h += '<h3 class="font-display text-lg font-black text-chr">';
+    h += 'Recent Bookings</h3>';
+
+    h += '<button onclick="S.sub=\'history\';render()" ';
+    h += 'class="text-pri font-bold text-sm hover:underline">';
+    h += 'View All</button></div>';
+
+    if(my.length === 0){
+
+        h += '<p class="text-gray-400 text-center py-8">';
+        h += 'No bookings yet. ';
+        h += '<span class="text-pri font-bold cursor-pointer" ';
+        h += 'onclick="S.sub=\'booking\';S.bs=0;render()">';
+        h += 'Book a service</span></p>';
+
+    } else {
+
+        for(var j = 0; j < Math.min(4, my.length); j++){
+
+            var b = my[j];
+            var cg = gid(b.cid);
+            var svc = sid(b.sid);
+
+            h += '<div class="flex items-center gap-4 py-4 border-b border-gray-100 last:border-0">';
+
+            if(cg) h += avImg(cg);
+            else h += avInit('?', '#999');
+
+            h += '<div class="flex-1 min-w-0">';
+            h += '<p class="font-black text-chr text-sm">';
+            h += (svc ? svc.name : 'Service') + ' — ' + b.pn + '</p>';
+
+            h += '<p class="text-gray-400 text-xs">';
+            h += (cg ? cg.name : 'N/A') + ' &middot; ';
+            h += fd(b.dt) + ' &middot; ' + b.tm + '</p>';
+            h += '</div>';
+
+            h += '<span class="bdg ' + sc(b.st) + '">';
+            h += sl(b.st) + '</span></div>';
+
+        }
+
+    }
+
+    h += '</div>';
+
+    h += '<div>';
+
+    h += '<div class="dc mb-5">';
+    h += '<h3 class="font-display text-lg font-black text-chr mb-4">';
+    h += 'Quick Actions</h3>';
+
+    h += '<div class="space-y-3">';
+
+    h += '<button onclick="S.sub=\'booking\';S.bs=0;render()" ';
+    h += 'class="bp w-full justify-center">';
+    h += '<i class="fa-solid fa-plus"></i> Book New Service</button>';
+
+    h += '<button onclick="S.sub=\'patient\';render()" ';
+    h += 'class="bo w-full justify-center">';
+    h += '<i class="fa-solid fa-user-pen"></i> ';
+    h += (patCount ? 'Edit Patient' : 'Add Patient');
+    h += '</button>';
+
+    h += '<button onclick="S.sub=\'tracking\';render()" ';
+    h += 'class="bo w-full justify-center border-sec text-sec hover:bg-sec hover:text-white">';
+    h += '<i class="fa-solid fa-location-dot"></i> Track Service</button>';
+
+    h += '<button onclick="openSOS()" ';
+    h += 'class="w-full py-3 rounded-xl font-black text-sm border-2 border-red-400 text-red-500 hover:bg-red-500 hover:text-white transition-all flex items-center justify-center gap-2">';
+    h += '<i class="fa-solid fa-phone-volume"></i> Emergency SOS</button>';
+
+    h += '</div></div>';
+
+    h += '<div class="dc">';
+    h += '<h3 class="font-display text-lg font-black text-chr mb-3">';
+    h += 'Need Help?</h3>';
+
+    h += '<p class="text-gray-500 text-sm mb-4">';
+    h += 'Our support team is available 24/7.</p>';
+
+    h += '<a href="#" class="text-pri font-bold text-sm hover:underline">';
+    h += '<i class="fa-solid fa-phone mr-1"></i> 1800-XXX-XXXX</a>';
+
+    h += '</div></div></div>';
+
     return h;
 }
 
