@@ -128,7 +128,7 @@ if(savedUser){
 
   /* LOAD PATIENT PROFILE FROM DATABASE */
 
-  loadPatientProfile();
+    loadPatientCount();   // ✅ ADD THIS
 
 }
 
@@ -583,7 +583,7 @@ async function savePatientProfile(){
 
   if(data.success){
     toast("Patient profile saved successfully","ok");
-      loadPatientProfile();   
+        loadPatientCount();   // ✅ ADD THIS
   }else{
     toast("Failed to save profile","er");
   }
@@ -629,6 +629,37 @@ async function loadPatientProfile(){
   }catch(err){
 
     console.error("Patient load error:", err);
+
+  }
+
+}
+async function loadPatientCount(){
+
+  const user = JSON.parse(localStorage.getItem("LOGGED_USER"));
+
+  if(!user) return;
+
+  try{
+
+    const res = await fetch(
+      `https://care24.onrender.com/api/patient/${user.id}`
+    );
+
+    const data = await res.json();
+
+    if(data){
+      PTS = [data];
+    }else{
+      PTS = [];
+    }
+
+    saveData("PTS", PTS);
+
+    render();
+
+  }catch(err){
+
+    console.error("Patient count error:", err);
 
   }
 
