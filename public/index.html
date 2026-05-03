@@ -483,6 +483,66 @@ async function loadEmergencyContacts(){
 
   }
 }
+async function addEmergencyContact(){
+
+  const user = JSON.parse(localStorage.getItem("LOGGED_USER"));
+
+  if(!user){
+    toast("Please login first","er");
+    return;
+  }
+
+  const name = prompt("Enter contact name:");
+  if(!name) return;
+
+  const relation = prompt("Enter relation:");
+  if(!relation) return;
+
+  const phone = prompt("Enter phone number:");
+  if(!phone) return;
+
+  try{
+
+    const res = await fetch(
+      "https://care24.onrender.com/api/sos/add-contact",
+      {
+        method:"POST",
+        headers:{
+          "Content-Type":"application/json"
+        },
+        body: JSON.stringify({
+          userId: user.id,
+          name,
+          relation,
+          phone
+        })
+      }
+    );
+
+    const data = await res.json();
+
+    if(data.success){
+
+      toast("Emergency contact added successfully","ok");
+
+      await loadEmergencyContacts();
+
+      openSOS();
+
+    }else{
+
+      toast("Failed to add contact","er");
+
+    }
+
+  }catch(err){
+
+    console.error(err);
+
+    toast("Server error while adding contact","er");
+
+  }
+}
 /* ===== NAV ===== */
 function nav(v,s){S.view=v;S.sub=s||'overview';S.sbOpen=false;render();window.scrollTo(0,0)}
 
@@ -1593,6 +1653,15 @@ async function openSOS(){
   }
 
   h += '</div>';
+
+  /* ✅ ADD CONTACT BUTTON (NEW FEATURE) */
+
+  h += `
+    <button onclick="addEmergencyContact()" 
+            class="bp w-full justify-center mt-4">
+      <i class="fa-solid fa-user-plus"></i> Add Emergency Contact
+    </button>
+  `;
 
   /* QUICK ACTIONS */
 
