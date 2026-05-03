@@ -593,7 +593,7 @@ async function savePatientProfile(){
 
       toast("Patient profile saved successfully","ok");
 
-      await loadPatientCount();
+      await loadPatientProfile();
 
     }else{
 
@@ -952,7 +952,7 @@ function handleAuth(e){
 
             // ✅ load patient after login
             setTimeout(function(){
-                loadPatientCount();
+                    loadPatientProfile();
             }, 300);
 
             toast('Welcome back, ' + u.name + '!', 'ok');
