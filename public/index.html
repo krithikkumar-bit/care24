@@ -438,7 +438,7 @@ function sendSOSAlert(){
   var phone = prompt("Phone number:");
   if(!phone) return;
 
-  await fetch("/api/sos/add-contact",{
+ await fetch("https://care24-backend.onrender.com/api/sos/add-contact",{
 
     method:"POST",
 
@@ -460,13 +460,14 @@ function sendSOSAlert(){
 }
 async function loadEmergencyContacts(){
 
-  const res = await fetch("/api/sos/contacts",{
-
-    headers:{
-      "Authorization":"Bearer "+localStorage.getItem("TOKEN")
+  const res = await fetch(
+    "https://care24-backend.onrender.com/api/sos/contacts",
+    {
+      headers:{
+        "Authorization":"Bearer "+localStorage.getItem("TOKEN")
+      }
     }
-
-  });
+  );
 
   EMCS = await res.json();
 
