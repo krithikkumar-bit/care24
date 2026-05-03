@@ -17,7 +17,7 @@ const adminRoutes = require('./routes/admin');
 
 const app = express();
 
-/* ✅ FINAL CORS CONFIGURATION */
+/* ✅ CORS CONFIG */
 
 const allowedOrigins = [
   "https://care24-mocha.vercel.app",
@@ -33,15 +33,13 @@ app.use(cors({
       return callback(null, true);
     }
 
-    return callback(null, true); // allow temporarily for debugging
+    return callback(null, true); // debug mode allow all
   },
 
   methods: ["GET","POST","PUT","DELETE","OPTIONS"],
   allowedHeaders: ["Content-Type","Authorization"],
   credentials: true
 }));
-
-/* ✅ HANDLE PREFLIGHT REQUESTS */
 
 app.options('*', cors());
 
@@ -53,33 +51,33 @@ app.use(morgan('dev'));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
-/* ✅ API ROUTES (IMPORTANT: MUST COME BEFORE STATIC + FALLBACK) */
+/* ✅ API ROUTES */
 
 app.use('/api/auth', authRoutes);
-app.use('/api/patients', patientRoutes);
+app.use('/api/patients', patientRoutes);   // ✅ IMPORTANT
 app.use('/api/caregivers', caregiverRoutes);
 app.use('/api/services', serviceRoutes);
 app.use('/api/bookings', bookingRoutes);
-app.use('/api/sos', sosRoutes);   // 🚨 SOS ROUTE ENABLED HERE
+app.use('/api/sos', sosRoutes);
 app.use('/api/admin', adminRoutes);
 
-/* ✅ TEST ROUTE (VERIFY SOS BACKEND IS WORKING) */
+/* ✅ TEST ROUTE */
 
 app.get('/api/test', (req, res) => {
   res.json({ message: "Backend working correctly ✅" });
 });
 
-/* ✅ STATIC FRONTEND (OPTIONAL FOR LOCAL HOSTING) */
+/* ✅ STATIC FRONTEND */
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-/* ✅ SPA FALLBACK ROUTE (MUST BE LAST) */
+/* ✅ SPA FALLBACK (MUST BE LAST) */
 
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-/* ✅ CONNECT DATABASE + START SERVER */
+/* ✅ DATABASE CONNECTION */
 
 mongoose.connect(process.env.MONGODB_URI)
 .then(() => {
