@@ -650,26 +650,29 @@ async function loadPatientCount(){
     if(data){
 
       PTS = [{
-        uid: user.id,   // ✅ REQUIRED FIX
+        uid: user.id,
         ...data
       }];
+
+      console.log("Patient loaded:", PTS); // ✅ debug confirmation
 
     }else{
 
       PTS = [];
 
+      console.log("No patient found");
+
     }
 
     saveData("PTS", PTS);
 
-    render();
+    render();   // ✅ IMPORTANT: refresh UI AFTER loading data
 
   }catch(err){
 
     console.error("Patient count error:", err);
 
   }
-
 }
 /* ===== NAV ===== */
 function nav(v,s){S.view=v;S.sub=s||'overview';S.sbOpen=false;render();window.scrollTo(0,0)}
@@ -684,7 +687,13 @@ function initSA(){
 function render(){
     var app=$('#app');
     if(S.view==='landing') app.innerHTML=buildLanding();
-    else app.innerHTML=buildDash();
+    else{
+  app.innerHTML = buildDash();
+
+  if(S.user && S.user.rl === "user"){
+    loadPatientCount();
+  }
+}
     initSA();
     if(S.view==='admin'&&S.sub==='overview') setTimeout(initCharts,150);
 }
@@ -918,7 +927,10 @@ function handleAuth(e){
 
             closeMod();
             nav(u.rl);
-            loadPatientCount();
+
+         setTimeout(function(){
+         loadPatientCount();
+         }, 300);
 
             toast('Welcome back, ' + u.name + '!', 'ok');
 
