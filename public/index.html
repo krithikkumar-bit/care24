@@ -645,17 +645,14 @@ async function loadPatientCount(){
       `https://care24.onrender.com/api/patients/${user.id}`
     );
 
-    if(!res.ok){
-      console.log("Patient fetch failed");
-      return;
-    }
+    if(!res.ok) return;
 
     const data = await res.json();
 
     if(data){
 
       PTS = [{
-        uid: user.id,              // ✅ required for pid()
+        uid: user.id,
         name: data.name,
         age: data.age,
         g: data.gender,
@@ -668,18 +665,18 @@ async function loadPatientCount(){
         emergencyPhone: data.emergencyPhone
       }];
 
-      console.log("Patient loaded:", PTS);
-
     }else{
 
       PTS = [];
-      console.log("No patient found");
 
     }
 
     saveData("PTS", PTS);
 
-    render();
+    // ✅ Only refresh overview dashboard
+    if(S.sub === "overview"){
+      render();
+    }
 
   }catch(err){
 
