@@ -450,81 +450,59 @@ async function sendSOSAlert(){
   });
 
 }
-function addEmergencyContact(){
+async function addEmergencyContact(){
 
-  const modalHTML = `
-    <div class="p-6">
-      <h2 class="text-xl font-bold mb-4">Add Emergency Contact</h2>
+  const user = JSON.parse(localStorage.getItem("LOGGED_USER"));
 
-      <label class="fl">Contact Name</label>
-      <input id="ec-name" class="fi mb-3" placeholder="Enter name">
+  if(!user){
+    alert("Please login first");
+    return;
+  }
 
-      <label class="fl">Relation</label>
-      <input id="ec-relation" class="fi mb-3" placeholder="Father / Friend / Doctor">
+  const name = prompt("Enter contact name:");
+  if(!name) return;
 
-      <label class="fl">Phone Number</label>
-      <input id="ec-phone" class="fi mb-4" placeholder="Enter phone number">
+  const relation = prompt("Relation:");
+  if(!relation) return;
 
-      <div class="flex justify-end gap-2">
-        <button onclick="closeMod()" class="bo">Cancel</button>
-        <button onclick="saveEmergencyContact()" class="bp">
-          Save Contact
-        </button>
-      </div>
-    </div>
-  `;
+  const phone = prompt("Phone number:");
+  if(!phone) return;
 
-  showModal(modalHTML);
+  const res = await fetch(
+    "https://care24.onrender.com/api/sos/add-contact",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        userId: user._id,
+        name,
+        relation,
+        phone
+      })
+    }
+  );
+
+  const data = await res.json();
+
+  console.log(data);
+
+  loadEmergencyContacts();
 }
 async function loadEmergencyContacts(){
 
-  try{
+  const user = JSON.parse(localStorage.getItem("LOGGED_USER"));
 
-    const res = await fetch(
-      "https://care24.onrender.com/api/sos/contacts"
-    );
+  if(!user) return;
 
-    const text = await res.text();
+  const res = await fetch(
+    `https://care24.onrender.com/api/sos/contacts/${user._id}`
+  );
 
-    try{
-      EMCS = JSON.parse(text);
-    }
-    catch(err){
-      console.error("API did not return JSON:", text);
-      toast("Backend connection error","er");
-      return;
-    }
+  const data = await res.json();
 
-    console.log("Loaded contacts:", EMCS);
-
-    const container = document.getElementById("emergency-contacts-list");
-
-    if(container){
-
-      container.innerHTML = "";
-
-      EMCS.forEach(c => {
-
-        container.innerHTML += `
-          <div style="margin-bottom:8px">
-            <strong>${c.name}</strong> (${c.relation})
-            <br>
-            📞 ${c.phone}
-          </div>
-        `;
-
-      });
-
-    }
-
-  }
-  catch(err){
-
-    console.error(err);
-    toast("Server not reachable","er");
-
-  }
-
+  console.log("Loaded contacts:", data.contacts);
 }
 /* ===== NAV ===== */
 function nav(v,s){S.view=v;S.sub=s||'overview';S.sbOpen=false;render();window.scrollTo(0,0)}
