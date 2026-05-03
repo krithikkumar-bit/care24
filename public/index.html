@@ -197,12 +197,8 @@ var CMPS=[
 {id:'cm2',bid:'b2',fr:'u1',ab:'c3',msg:'Excellent physiotherapy session. Suggestion: bring portable exercise resistance bands next time.',st:'resolved',dt:'2025-01-11'}
 ];
 
-var EMCS=[
-{name:'Ankit Gupta',rel:'Son',ph:'+91 99887 76655',ic:'fa-user'},
-{name:'Dr. Suresh Mehta',rel:'Family Doctor',ph:'+91 98111 22334',ic:'fa-user-doctor'},
-{name:'Ambulance - 108',rel:'Emergency',ph:'108',ic:'fa-truck-medical'},
-{name:'Neeraj Gupta',rel:'Brother',ph:'+91 99001 22333',ic:'fa-user'}
-];
+var EMCS=[];
+
 /* ===== LOCAL STORAGE INIT ===== */
 
 function loadData(key, defaultValue){
@@ -425,9 +421,54 @@ function shareLocation(){
 
 function sendSOSAlert(){
 
+
     shareLocation();
 
     toast("SOS alert triggered successfully!","ok");
+
+}
+  async function addEmergencyContact(){
+
+  var name = prompt("Enter contact name:");
+  if(!name) return;
+
+  var relation = prompt("Relation:");
+  if(!relation) return;
+
+  var phone = prompt("Phone number:");
+  if(!phone) return;
+
+  await fetch("/api/sos/add-contact",{
+
+    method:"POST",
+
+    headers:{
+      "Content-Type":"application/json",
+      "Authorization":"Bearer "+localStorage.getItem("TOKEN")
+    },
+
+    body:JSON.stringify({
+      name,
+      relation,
+      phone
+    })
+
+  });
+
+  toast("Emergency contact saved successfully","ok");
+
+}
+async function loadEmergencyContacts(){
+
+  const res = await fetch("/api/sos/contacts",{
+
+    headers:{
+      "Authorization":"Bearer "+localStorage.getItem("TOKEN")
+    }
+
+  });
+
+  EMCS = await res.json();
 
 }
 /* ===== NAV ===== */
@@ -1488,7 +1529,8 @@ function adServices(){
 }
 
 /* ===== EMERGENCY SOS ===== */
-function openSOS(){
+async function openSOS(){
+  await loadEmergencyContacts();
 
     var pat = pid(S.user ? S.user.id : '');
 
