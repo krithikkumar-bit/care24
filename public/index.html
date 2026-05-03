@@ -940,9 +940,10 @@ function handleAuth(e){
             closeMod();
             nav(u.rl);
 
-         setTimeout(function(){
-         loadPatientCount();
-         }, 300);
+            // ✅ load patient after login
+            setTimeout(function(){
+                loadPatientCount();
+            }, 300);
 
             toast('Welcome back, ' + u.name + '!', 'ok');
 
@@ -965,8 +966,19 @@ function handleAuth(e){
 
         var rl = rlEl ? rlEl.value : 'user';
 
+        // check if user already exists
+        var existingUser = USRS.find(function(u){
+            return u.em === em;
+        });
+
+        if(existingUser){
+            toast("User already exists. Please login instead.","er");
+            return;
+        }
+
+        // create stable user id
         var nu = {
-            id: 'u' + Date.now(),
+            id: "u_" + Math.random().toString(36).substring(2,9),
             name: nm,
             em: em,
             pw: pw,
@@ -976,11 +988,10 @@ function handleAuth(e){
         /* ADD USER */
         USRS.push(nu);
 
-        /* ✅ STEP 2 ADDED HERE */
-        localStorage.setItem("USRS", JSON.stringify(USRS));
+        /* SAVE USERS PERMANENTLY */
+        saveData("USRS", USRS);
 
         /* AUTO LOGIN AFTER REGISTER */
-
         S.user = nu;
 
         localStorage.setItem("LOGGED_USER", JSON.stringify(nu));
@@ -988,6 +999,11 @@ function handleAuth(e){
         closeMod();
 
         nav(rl);
+
+        // ✅ load patient profile immediately after register
+        setTimeout(function(){
+            loadPatientCount();
+        }, 300);
 
         toast('Account created!', 'ok');
 
