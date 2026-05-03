@@ -431,7 +431,7 @@ async function sendSOSAlert(){
   navigator.geolocation.getCurrentPosition(async function(position){
 
     await fetch(
-      "https://care24-backend.onrender.com/api/sos/trigger",
+      "https://care24.onrender.com/api/sos/trigger",
       {
         method:"POST",
         headers:{
@@ -469,7 +469,7 @@ async function addEmergencyContact(){
   if(!phone) return;
 
   await fetch(
-    "https://care24-backend.onrender.com/api/sos/add-contact",
+    "https://care24.onrender.com/api/sos/add-contact",
     {
       method:"POST",
       headers:{
@@ -498,7 +498,7 @@ async function loadEmergencyContacts(){
   }
 
   const res = await fetch(
-    "https://care24-backend.onrender.com/api/sos/contacts/" + user.id
+    "https://care24.onrender.com/api/sos/contacts/" + user.id
   );
 
   EMCS = await res.json();
