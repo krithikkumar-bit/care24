@@ -1,35 +1,31 @@
 const express = require("express");
 const router = express.Router();
+const mongoose = require("mongoose");
 
-const EmergencyContact = require("../models/EmergencyContact");
+/* Emergency Contact Schema */
 
+const EmergencyContact = mongoose.model(
+  "EmergencyContact",
+  new mongoose.Schema({
+    name: String,
+    relation: String,
+    phone: String
+  })
+);
 
-/* GET CONTACTS OF LOGGED-IN USER */
+/* GET CONTACTS */
 
-router.get("/contacts/:userId", async (req, res) => {
+router.get("/contacts", async (req, res) => {
 
   try {
 
-    const { userId } = req.params;
+    const contacts = await EmergencyContact.find();
 
-    if (!userId) {
-      return res.status(400).json({
-        success: false,
-        message: "User ID is required"
-      });
-    }
-
-    const contacts = await EmergencyContact.find({ userId });
-
-    res.json({
-      success: true,
-      contacts
-    });
+    res.json(contacts);
 
   } catch (err) {
 
     res.status(500).json({
-      success: false,
       error: err.message
     });
 
@@ -37,45 +33,26 @@ router.get("/contacts/:userId", async (req, res) => {
 
 });
 
-
-/* ADD CONTACT FOR LOGGED-IN USER */
+/* ADD CONTACT */
 
 router.post("/add-contact", async (req, res) => {
 
   try {
 
-    const { userId, name, relation, phone } = req.body;
+    const contact = new EmergencyContact(req.body);
 
-    if (!userId || !name || !phone) {
-      return res.status(400).json({
-        success: false,
-        message: "userId, name and phone are required"
-      });
-    }
+    await contact.save();
 
-    const contact = await EmergencyContact.create({
-      userId,
-      name,
-      relation,
-      phone
-    });
-
-    res.json({
-      success: true,
-      message: "Emergency contact added successfully",
-      contact
-    });
+    res.json({ success: true });
 
   } catch (err) {
 
     res.status(500).json({
-      success: false,
-      error: err.message
+      success: false
     });
 
   }
 
 });
-
 
 module.exports = router;
