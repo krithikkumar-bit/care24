@@ -1,29 +1,40 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
+const mongoose = require("mongoose");
 
-const SOSLog = require('../models/SosLog');
-const EmergencyContact = require('../models/EmergencyContact');
+const SOSLog = require("../models/SosLog");
+const EmergencyContact = require("../models/EmergencyContact");
+
 
 /* ===============================
    TRIGGER SOS ALERT
 =============================== */
 
-router.post('/trigger', async (req, res) => {
-
+router.post("/trigger", async (req, res) => {
   try {
 
     const { userId, patientId, latitude, longitude } = req.body;
 
+    // Validate userId
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({
+        message: "Invalid userId"
+      });
+    }
+
+    // Load emergency contacts
     const contacts = await EmergencyContact.find({ userId });
 
     const sos = new SOSLog({
       userId,
-      patientId: patientId || undefined,
+      patientId: mongoose.Types.ObjectId.isValid(patientId)
+        ? patientId
+        : undefined,
       latitude,
       longitude,
-      contactsNotified: contacts.map(c => ({
-        name: c.name,
-        phone: c.phone,
+      contactsNotified: contacts.map(contact => ({
+        name: contact.name,
+        phone: contact.phone,
         status: "pending"
       }))
     });
@@ -37,12 +48,13 @@ router.post('/trigger', async (req, res) => {
 
   } catch (err) {
 
+    console.error("SOS trigger error:", err.message);
+
     res.status(500).json({
-      message: err.message
+      message: "Failed to trigger SOS alert"
     });
 
   }
-
 });
 
 
@@ -50,11 +62,18 @@ router.post('/trigger', async (req, res) => {
    ADD EMERGENCY CONTACT
 =============================== */
 
-router.post('/add-contact', async (req, res) => {
+router.post("/add-contact", async (req, res) => {
 
   try {
 
     const { userId, name, relation, phone } = req.body;
+
+    // Validate userId
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({
+        message: "Invalid userId"
+      });
+    }
 
     const contact = new EmergencyContact({
       userId,
@@ -72,9 +91,12 @@ router.post('/add-contact', async (req, res) => {
 
   } catch (err) {
 
+    console.error("Add contact error:", err.message);
+
     res.status(500).json({
-      message: err.message
+      message: "Failed to add emergency contact"
     });
+
   }
 });
 
@@ -83,20 +105,27 @@ router.post('/add-contact', async (req, res) => {
    GET CONTACTS BY USER ID
 =============================== */
 
-router.get('/contacts/:userId', async (req, res) => {
+router.get("/contacts/:userId", async (req, res) => {
 
   try {
 
-    const contacts = await EmergencyContact.find({
-      userId: req.params.userId
-    });
+    const { userId } = req.params;
+
+    // Prevent crash if invalid ID
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return res.json([]);
+    }
+
+    const contacts = await EmergencyContact.find({ userId });
 
     res.json(contacts);
 
   } catch (err) {
 
+    console.error("Fetch contacts error:", err.message);
+
     res.status(500).json({
-      message: err.message
+      message: "Failed to fetch emergency contacts"
     });
 
   }
@@ -108,7 +137,7 @@ router.get('/contacts/:userId', async (req, res) => {
    ADMIN: VIEW SOS LOGS
 =============================== */
 
-router.get('/logs', async (req, res) => {
+router.get("/logs", async (req, res) => {
 
   try {
 
@@ -120,12 +149,15 @@ router.get('/logs', async (req, res) => {
 
   } catch (err) {
 
+    console.error("Fetch logs error:", err.message);
+
     res.status(500).json({
-      message: err.message
+      message: "Failed to fetch SOS logs"
     });
 
   }
 
 });
+
 
 module.exports = router;
