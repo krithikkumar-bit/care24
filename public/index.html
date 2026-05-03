@@ -438,7 +438,7 @@ async function sendSOSAlert(){
           "Content-Type":"application/json"
         },
         body: JSON.stringify({
-  userId: user._id || user.id,
+  userId: user.name,
   latitude: position.coords.latitude,
   longitude: position.coords.longitude
 })
@@ -502,7 +502,6 @@ async function saveEmergencyContact(){
         "Content-Type":"application/json"
       },
       body: JSON.stringify({
-        userId: user._id || user.id,
         name,
         relation,
         phone
@@ -528,7 +527,7 @@ async function loadEmergencyContacts(){
   if(!user) return;
 
   const res = await fetch(
-    "https://care24.onrender.com/api/sos/contacts/" + (user._id || user.id)
+    "https://care24.onrender.com/api/sos/contacts/"
   );
 
   EMCS = await res.json();
