@@ -1,13 +1,13 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const Patient = require('../models/Patient');
+const Patient = require("../models/Patient");
 
 
 /* =====================================
    GET PATIENT PROFILE BY USER ID
 ===================================== */
 
-router.get('/:userId', async (req, res) => {
+router.get("/:userId", async (req, res) => {
 
   try {
 
@@ -23,7 +23,7 @@ router.get('/:userId', async (req, res) => {
 
   } catch (err) {
 
-    console.error(err);
+    console.error("Patient fetch error:", err);
 
     res.status(500).json({
       success: false,
@@ -39,43 +39,66 @@ router.get('/:userId', async (req, res) => {
    CREATE OR UPDATE PATIENT PROFILE
 ===================================== */
 
-router.post('/:userId', async (req, res) => {
+router.post("/:userId", async (req, res) => {
 
   try {
 
     const userId = req.params.userId;
 
-    const existingPatient = await Patient.findOne({ userId });
+    const {
+      name,
+      age,
+      gender,
+      bloodGroup,
+      conditions,
+      specialRequirements,
+      address,
+      emergencyName,
+      emergencyPhone
+    } = req.body;
 
-    if (existingPatient) {
-
-      await Patient.updateOne(
-        { userId },
-        req.body
-      );
-
+    if (
+      !name ||
+      !age ||
+      !gender ||
+      !address ||
+      !emergencyName ||
+      !emergencyPhone
+    ) {
       return res.json({
-        success: true,
-        message: "Patient profile updated"
+        success: false,
+        message: "Missing required fields"
       });
-
     }
 
-    const newPatient = new Patient({
-      ...req.body,
-      userId
-    });
-
-    await newPatient.save();
+    const patient = await Patient.findOneAndUpdate(
+      { userId },
+      {
+        userId,
+        name,
+        age,
+        gender,
+        bloodGroup,
+        conditions,
+        specialRequirements,
+        address,
+        emergencyName,
+        emergencyPhone
+      },
+      {
+        new: true,
+        upsert: true
+      }
+    );
 
     res.json({
       success: true,
-      message: "Patient profile created"
+      patient
     });
 
   } catch (err) {
 
-    console.error(err);
+    console.error("Patient save error:", err);
 
     res.status(500).json({
       success: false,
@@ -91,7 +114,7 @@ router.post('/:userId', async (req, res) => {
    DELETE PATIENT PROFILE
 ===================================== */
 
-router.delete('/:userId', async (req, res) => {
+router.delete("/:userId", async (req, res) => {
 
   try {
 
@@ -106,7 +129,7 @@ router.delete('/:userId', async (req, res) => {
 
   } catch (err) {
 
-    console.error(err);
+    console.error("Patient delete error:", err);
 
     res.status(500).json({
       success: false,
