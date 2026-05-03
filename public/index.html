@@ -498,7 +498,7 @@ async function loadEmergencyContacts(){
   }
 
   const res = await fetch(
-    "https://care24.onrender.com/api/sos/contacts/" + user.id
+    "https://care24.onrender.com/api/sos/contacts/" + user._id
   );
 
   EMCS = await res.json();
