@@ -553,7 +553,7 @@ async function addEmergencyContact(){
   }
 }
 async function savePatientProfile(){
-
+    console.log("🔥 SAVE CLICKED");   // ✅ ADD THIS LINE HERE
   const user = JSON.parse(localStorage.getItem("LOGGED_USER"));
 
   if(!user){
@@ -1543,7 +1543,7 @@ function uPatient(){
 
     /* SAVE BUTTON */
 
-    h += '<button type="button" onclick="savePatientProfile()" class="bp">'
+    h += '<button type="button" onclick="savePatientProfile(); return false;" class="bp">'
      + '<i class="fa-solid fa-floppy-disk"></i> Save Profile'
      + '</button>';
 
