@@ -1486,20 +1486,20 @@ function uPatient(){
     h += '<div class="grid sm:grid-cols-2 gap-5">';
 
     h += '<div><label class="fl">Patient Name</label>'
-        + '<input type="text" id="pt-nm" class="fi" value="'+(p?p.name:'')+'" placeholder="Full name" required></div>';
+        + '<input type="text" id="pt-nm" class="fi" value="'+(p ? p.name || '' : '')+'" placeholder="Full name" required></div>';
 
     h += '<div><label class="fl">Age</label>'
-        + '<input type="number" id="pt-ag" class="fi" value="'+(p?p.age:'')+'" placeholder="Age" min="1" max="120" required></div>';
+        + '<input type="number" id="pt-ag" class="fi" value="'+(p ? p.age || '' : '')+'" placeholder="Age" min="1" max="120" required></div>';
 
     h += '<div><label class="fl">Gender</label>'
         + '<select id="pt-gn" class="fi">'
-        + '<option '+(p&&p.g==='Male'?'selected':'')+'>Male</option>'
-        + '<option '+(p&&p.g==='Female'?'selected':'')+'>Female</option>'
-        + '<option '+(p&&p.g==='Other'?'selected':'')+'>Other</option>'
+        + '<option '+(p && p.gender === 'Male' ? 'selected' : '')+'>Male</option>'
+        + '<option '+(p && p.gender === 'Female' ? 'selected' : '')+'>Female</option>'
+        + '<option '+(p && p.gender === 'Other' ? 'selected' : '')+'>Other</option>'
         + '</select></div>';
 
     h += '<div><label class="fl">Phone</label>'
-        + '<input type="tel" id="pt-ph" class="fi" value="'+(p?p.ph:'')+'" placeholder="+91 XXXXX XXXXX"></div>';
+        + '<input type="tel" id="pt-ph" class="fi" value="'+(p ? p.phone || '' : '')+'" placeholder="+91 XXXXX XXXXX"></div>';
 
     h += '</div>';
 
@@ -1507,37 +1507,37 @@ function uPatient(){
 
     h += '<div><label class="fl">Medical Conditions</label>'
         + '<textarea id="pt-cd" class="fi" rows="2" placeholder="Diabetes, Hypertension, Arthritis...">'
-        + (p?p.cd:'') +
+        + (p ? p.conditions || '' : '') +
         '</textarea></div>';
 
-    /* NEW FIELD: BLOOD GROUP */
+    /* BLOOD GROUP */
 
     h += '<div><label class="fl">Blood Group</label>'
-        + '<input type="text" id="pt-blood" class="fi" value="'+(p?p.bloodGroup:'')+'" placeholder="Example: O+"></div>';
+        + '<input type="text" id="pt-blood" class="fi" value="'+(p ? p.bloodGroup || '' : '')+'" placeholder="Example: O+"></div>';
 
-    /* NEW FIELD: SPECIAL REQUIREMENTS */
+    /* SPECIAL REQUIREMENTS */
 
     h += '<div><label class="fl">Special Requirements</label>'
         + '<textarea id="pt-special" class="fi" rows="2" placeholder="Wheelchair support, oxygen support, etc.">'
-        + (p?p.specialRequirements:'') +
+        + (p ? p.specialRequirements || '' : '') +
         '</textarea></div>';
 
     /* ADDRESS */
 
     h += '<div><label class="fl">Address</label>'
         + '<textarea id="pt-ad" class="fi" rows="2" placeholder="Full address for home visits" required>'
-        + (p?p.ad:'') +
+        + (p ? p.address || '' : '') +
         '</textarea></div>';
 
-    /* NEW REQUIRED EMERGENCY CONTACT */
+    /* EMERGENCY CONTACT */
 
     h += '<div class="grid sm:grid-cols-2 gap-5">';
 
     h += '<div><label class="fl">Emergency Contact Name</label>'
-        + '<input type="text" id="pt-ename" class="fi" value="'+(p?p.emergencyName:'')+'" placeholder="Emergency contact name" required></div>';
+        + '<input type="text" id="pt-ename" class="fi" value="'+(p ? p.emergencyName || '' : '')+'" placeholder="Emergency contact name" required></div>';
 
     h += '<div><label class="fl">Emergency Contact Phone</label>'
-        + '<input type="tel" id="pt-ephone" class="fi" value="'+(p?p.emergencyPhone:'')+'" placeholder="+91 XXXXX XXXXX" required></div>';
+        + '<input type="tel" id="pt-ephone" class="fi" value="'+(p ? p.emergencyPhone || '' : '')+'" placeholder="+91 XXXXX XXXXX" required></div>';
 
     h += '</div>';
 
