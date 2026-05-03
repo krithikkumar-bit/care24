@@ -4,26 +4,30 @@ const router = express.Router();
 const SOSLog = require('../models/SosLog');
 const EmergencyContact = require('../models/EmergencyContact');
 
-const auth = require('../middleware/auth');
-
 
 /* ===============================
    TRIGGER SOS ALERT
 =============================== */
 
-router.post('/trigger', auth(['user']), async (req, res) => {
+router.post('/trigger', async (req, res) => {
 
   try {
 
-    const { patientId, latitude, longitude } = req.body;
+    const { userId, patientId, latitude, longitude } = req.body;
+
+    if (!userId) {
+      return res.status(400).json({
+        message: "User ID is required"
+      });
+    }
 
     // Load user's saved emergency contacts
     const contacts = await EmergencyContact.find({
-      userId: req.user._id
+      userId: userId
     });
 
     const sos = new SOSLog({
-      userId: req.user._id,
+      userId: userId,
       patientId: patientId || undefined,
       latitude,
       longitude,
@@ -57,15 +61,23 @@ router.post('/trigger', auth(['user']), async (req, res) => {
    ADD EMERGENCY CONTACT
 =============================== */
 
-router.post('/add-contact', auth(['user']), async (req, res) => {
+router.post('/add-contact', async (req, res) => {
 
   try {
 
+    const { userId, name, relation, phone } = req.body;
+
+    if (!userId || !name || !phone) {
+      return res.status(400).json({
+        message: "Missing required fields"
+      });
+    }
+
     const contact = new EmergencyContact({
-      userId: req.user._id,
-      name: req.body.name,
-      relation: req.body.relation,
-      phone: req.body.phone
+      userId,
+      name,
+      relation,
+      phone
     });
 
     await contact.save();
@@ -90,12 +102,12 @@ router.post('/add-contact', auth(['user']), async (req, res) => {
    GET USER CONTACTS
 =============================== */
 
-router.get('/contacts', auth(['user']), async (req, res) => {
+router.get('/contacts/:userId', async (req, res) => {
 
   try {
 
     const contacts = await EmergencyContact.find({
-      userId: req.user._id
+      userId: req.params.userId
     });
 
     res.json(contacts);
@@ -115,7 +127,7 @@ router.get('/contacts', auth(['user']), async (req, res) => {
    ADMIN: VIEW SOS LOGS
 =============================== */
 
-router.get('/logs', auth(['admin']), async (req, res) => {
+router.get('/logs', async (req, res) => {
 
   try {
 
