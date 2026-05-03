@@ -17,7 +17,7 @@ const adminRoutes = require('./routes/admin');
 
 const app = express();
 
-/* ✅ FINAL CORS FIX (WORKS WITH VERCEL + RENDER) */
+/* ✅ FINAL CORS CONFIGURATION */
 
 const allowedOrigins = [
   "https://care24-mocha.vercel.app",
@@ -26,16 +26,18 @@ const allowedOrigins = [
 
 app.use(cors({
   origin: function(origin, callback) {
+
     if (!origin) return callback(null, true);
 
-    if (allowedOrigins.indexOf(origin) !== -1) {
+    if (allowedOrigins.includes(origin)) {
       return callback(null, true);
-    } else {
-      return callback(null, true); // allow temporarily for debugging
     }
+
+    return callback(null, true); // allow temporarily for debugging
   },
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"],
+
+  methods: ["GET","POST","PUT","DELETE","OPTIONS"],
+  allowedHeaders: ["Content-Type","Authorization"],
   credentials: true
 }));
 
@@ -46,24 +48,32 @@ app.options('*', cors());
 app.use(helmet());
 app.use(morgan('dev'));
 
+/* ✅ BODY PARSER */
+
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
-/* ✅ API ROUTES */
+/* ✅ API ROUTES (IMPORTANT: MUST COME BEFORE STATIC + FALLBACK) */
 
 app.use('/api/auth', authRoutes);
 app.use('/api/patients', patientRoutes);
 app.use('/api/caregivers', caregiverRoutes);
 app.use('/api/services', serviceRoutes);
 app.use('/api/bookings', bookingRoutes);
-app.use('/api/sos', sosRoutes);
+app.use('/api/sos', sosRoutes);   // 🚨 SOS ROUTE ENABLED HERE
 app.use('/api/admin', adminRoutes);
 
-/* ✅ STATIC FRONTEND (optional) */
+/* ✅ TEST ROUTE (VERIFY SOS BACKEND IS WORKING) */
+
+app.get('/api/test', (req, res) => {
+  res.json({ message: "Backend working correctly ✅" });
+});
+
+/* ✅ STATIC FRONTEND (OPTIONAL FOR LOCAL HOSTING) */
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-/* ✅ SPA FALLBACK ROUTE */
+/* ✅ SPA FALLBACK ROUTE (MUST BE LAST) */
 
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
@@ -74,15 +84,15 @@ app.get('*', (req, res) => {
 mongoose.connect(process.env.MONGODB_URI)
 .then(() => {
 
-  console.log('Connected to MongoDB');
+  console.log('✅ Connected to MongoDB Atlas');
 
   const PORT = process.env.PORT || 5000;
 
   app.listen(PORT, () => {
-    console.log(`Care24 server running on port ${PORT}`);
+    console.log(`🚀 Care24 server running on port ${PORT}`);
   });
 
 })
 .catch(err => {
-  console.error('MongoDB connection error:', err);
+  console.error('❌ MongoDB connection error:', err);
 });

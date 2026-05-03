@@ -476,82 +476,55 @@ function addEmergencyContact(){
 
   showModal(modalHTML);
 }
-async function saveEmergencyContact(){
-
-  const user = JSON.parse(localStorage.getItem("LOGGED_USER"));
-
-  if(!user){
-    toast("Please login first","er");
-    return;
-  }
-
-  const name = document.getElementById("ec-name").value.trim();
-  const relation = document.getElementById("ec-relation").value.trim();
-  const phone = document.getElementById("ec-phone").value.trim();
-
-  if(!name || !relation || !phone){
-    toast("Please fill all fields","er");
-    return;
-  }
-
-  const res = await fetch(
-    "https://care24.onrender.com/api/sos/add-contact",
-    {
-      method:"POST",
-      headers:{
-        "Content-Type":"application/json"
-      },
-      body: JSON.stringify({
-        name,
-        relation,
-        phone
-      })
-    }
-  );
-
-  const data = await res.json();
-
-  if(data.success){
-    toast("Emergency contact saved successfully ✅","ok");
-    closeMod();
-    loadEmergencyContacts();
-  }
-  else{
-    toast("Failed to save contact","er");
-  }
-}
 async function loadEmergencyContacts(){
 
-  const user = JSON.parse(localStorage.getItem("LOGGED_USER"));
+  try{
 
-  if(!user) return;
+    const res = await fetch(
+      "https://care24.onrender.com/api/sos/contacts"
+    );
 
-  const res = await fetch(
-    "https://care24.onrender.com/api/sos/contacts/"
-  );
+    const text = await res.text();
 
-  EMCS = await res.json();
+    try{
+      EMCS = JSON.parse(text);
+    }
+    catch(err){
+      console.error("API did not return JSON:", text);
+      toast("Backend connection error","er");
+      return;
+    }
 
-  console.log("Loaded contacts:", EMCS);
-  const container = document.getElementById("emergency-contacts-list");
+    console.log("Loaded contacts:", EMCS);
 
-if(container){
+    const container = document.getElementById("emergency-contacts-list");
 
-  container.innerHTML = "";
+    if(container){
 
-  EMCS.forEach(c => {
+      container.innerHTML = "";
 
-    container.innerHTML += `
-      <div style="margin-bottom:8px">
-        <strong>${c.name}</strong> (${c.relation})
-        <br>
-        📞 ${c.phone}
-      </div>
-    `;
+      EMCS.forEach(c => {
 
-  });
+        container.innerHTML += `
+          <div style="margin-bottom:8px">
+            <strong>${c.name}</strong> (${c.relation})
+            <br>
+            📞 ${c.phone}
+          </div>
+        `;
 
-}
+      });
+
+    }
+
+  }
+  catch(err){
+
+    console.error(err);
+    toast("Server not reachable","er");
+
+  }
+
 }
 /* ===== NAV ===== */
 function nav(v,s){S.view=v;S.sub=s||'overview';S.sbOpen=false;render();window.scrollTo(0,0)}
