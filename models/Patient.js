@@ -18,6 +18,10 @@ const patientSchema = new mongoose.Schema({
     min: 1,
     max: 120
   },
+  phone: {
+  type: String,
+  default: ""
+},
 
   gender: {
     type: String,
