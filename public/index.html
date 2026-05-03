@@ -419,15 +419,45 @@ function shareLocation(){
     );
 }
 
-function sendSOSAlert(){
+async function sendSOSAlert(){
 
+  const user = JSON.parse(localStorage.getItem("LOGGED_USER"));
 
-    shareLocation();
+  if(!user){
+    toast("Please login first","er");
+    return;
+  }
+
+  navigator.geolocation.getCurrentPosition(async function(position){
+
+    await fetch(
+      "https://care24-backend.onrender.com/api/sos/trigger",
+      {
+        method:"POST",
+        headers:{
+          "Content-Type":"application/json"
+        },
+        body:JSON.stringify({
+          userId:user.id,
+          latitude:position.coords.latitude,
+          longitude:position.coords.longitude
+        })
+      }
+    );
 
     toast("SOS alert triggered successfully!","ok");
 
+  });
+
 }
-  async function addEmergencyContact(){
+async function addEmergencyContact(){
+
+  const user = JSON.parse(localStorage.getItem("LOGGED_USER"));
+
+  if(!user){
+    toast("Please login first","er");
+    return;
+  }
 
   var name = prompt("Enter contact name:");
   if(!name) return;
@@ -438,35 +468,37 @@ function sendSOSAlert(){
   var phone = prompt("Phone number:");
   if(!phone) return;
 
- await fetch("https://care24-backend.onrender.com/api/sos/add-contact",{
-
-    method:"POST",
-
-    headers:{
-      "Content-Type":"application/json",
-      "Authorization":"Bearer "+localStorage.getItem("TOKEN")
-    },
-
-    body:JSON.stringify({
-      name,
-      relation,
-      phone
-    })
-
-  });
+  await fetch(
+    "https://care24-backend.onrender.com/api/sos/add-contact",
+    {
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json"
+      },
+      body:JSON.stringify({
+        userId:user.id,
+        name:name,
+        relation:relation,
+        phone:phone
+      })
+    }
+  );
 
   toast("Emergency contact saved successfully","ok");
 
+  await loadEmergencyContacts(); // refresh list instantly
 }
 async function loadEmergencyContacts(){
 
+  const user = JSON.parse(localStorage.getItem("LOGGED_USER"));
+
+  if(!user){
+    toast("Please login first","er");
+    return;
+  }
+
   const res = await fetch(
-    "https://care24-backend.onrender.com/api/sos/contacts",
-    {
-      headers:{
-        "Authorization":"Bearer "+localStorage.getItem("TOKEN")
-      }
-    }
+    "https://care24-backend.onrender.com/api/sos/contacts/" + user.id
   );
 
   EMCS = await res.json();
