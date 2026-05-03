@@ -10,14 +10,19 @@ const emergencyContactSchema = new mongoose.Schema({
 
   name: {
     type: String,
-    required: true
+    required: true,
+    trim: true
   },
 
-  relation: String,
+  relation: {
+    type: String,
+    trim: true
+  },
 
   phone: {
     type: String,
-    required: true
+    required: true,
+    match: /^[0-9]{10}$/   // ensures valid 10-digit number
   }
 
 }, { timestamps: true });
