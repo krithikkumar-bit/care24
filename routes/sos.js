@@ -62,18 +62,18 @@ router.post("/trigger", async (req, res) => {
    ADD EMERGENCY CONTACT
 =============================== */
 
-router.post("/add-contact", async (req, res) => {
+router.post('/add-contact', async (req, res) => {
 
   try {
 
-    const { userId, name, relation, phone } = req.body;
+    let { userId, name, relation, phone } = req.body;
 
-    // Validate userId
-    if (!mongoose.Types.ObjectId.isValid(userId)) {
-      return res.status(400).json({
-        message: "Invalid userId"
-      });
+    if (!userId || !name || !phone) {
+      return res.status(400).json({ message: "Missing required fields" });
     }
+
+    // allow both MongoDB _id AND website id
+    userId = String(userId);
 
     const contact = new EmergencyContact({
       userId,
@@ -91,13 +91,12 @@ router.post("/add-contact", async (req, res) => {
 
   } catch (err) {
 
-    console.error("Add contact error:", err.message);
-
     res.status(500).json({
-      message: "Failed to add emergency contact"
+      message: err.message
     });
 
   }
+
 });
 
 

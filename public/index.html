@@ -459,13 +459,13 @@ async function addEmergencyContact(){
     return;
   }
 
-  var name = prompt("Enter contact name:");
+  const name = prompt("Enter contact name:");
   if(!name) return;
 
-  var relation = prompt("Relation:");
+  const relation = prompt("Relation:");
   if(!relation) return;
 
-  var phone = prompt("Phone number:");
+  const phone = prompt("Phone number:");
   if(!phone) return;
 
   await fetch(
@@ -475,34 +475,32 @@ async function addEmergencyContact(){
       headers:{
         "Content-Type":"application/json"
       },
-      body: JSON.stringify({
-  userId: user._id || user.id,
-  name: name,
-  relation: relation,
-  phone: phone
-})
+      body:JSON.stringify({
+        userId:user.id,   // website user id
+        name,
+        relation,
+        phone
+      })
     }
   );
 
-  toast("Emergency contact saved successfully","ok");
+  toast("Emergency contact saved successfully ✅","ok");
 
-  await loadEmergencyContacts(); // refresh list instantly
+  loadEmergencyContacts();
 }
 async function loadEmergencyContacts(){
 
   const user = JSON.parse(localStorage.getItem("LOGGED_USER"));
 
-  if(!user){
-    toast("Please login first","er");
-    return;
-  }
+  if(!user) return;
 
   const res = await fetch(
-    "https://care24.onrender.com/api/sos/contacts/" + user._id
+    "https://care24.onrender.com/api/sos/contacts/" + user.id
   );
 
   EMCS = await res.json();
 
+  console.log("Loaded contacts:", EMCS);
 }
 /* ===== NAV ===== */
 function nav(v,s){S.view=v;S.sub=s||'overview';S.sbOpen=false;render();window.scrollTo(0,0)}
