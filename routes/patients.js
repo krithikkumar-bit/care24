@@ -11,15 +11,21 @@ router.get("/:userId", async (req, res) => {
 
   try {
 
-    const patient = await Patient.findOne({
-      userId: req.params.userId
-    });
+    const userId = String(req.params.userId).trim();
 
-    if (!patient) {
-      return res.json(null);
+    if (!userId) {
+      return res.status(400).json({
+        success: false,
+        message: "User ID required"
+      });
     }
 
-    res.json(patient);
+    const patient = await Patient.findOne({ userId });
+
+    console.log("Fetching patient for userId:", userId);
+    console.log("Patient found:", patient);
+
+    return res.json(patient || null);
 
   } catch (err) {
 
@@ -43,7 +49,14 @@ router.post("/:userId", async (req, res) => {
 
   try {
 
-    const userId = req.params.userId;
+    const userId = String(req.params.userId).trim();
+
+    if (!userId) {
+      return res.status(400).json({
+        success: false,
+        message: "User ID missing"
+      });
+    }
 
     const {
       name,
@@ -65,7 +78,7 @@ router.post("/:userId", async (req, res) => {
       !emergencyName ||
       !emergencyPhone
     ) {
-      return res.json({
+      return res.status(400).json({
         success: false,
         message: "Missing required fields"
       });
@@ -78,18 +91,21 @@ router.post("/:userId", async (req, res) => {
         name,
         age,
         gender,
-        bloodGroup,
-        conditions,
-        specialRequirements,
+        bloodGroup: bloodGroup || "",
+        conditions: conditions || "",
+        specialRequirements: specialRequirements || "",
         address,
         emergencyName,
         emergencyPhone
       },
       {
         new: true,
-        upsert: true
+        upsert: true,
+        setDefaultsOnInsert: true
       }
     );
+
+    console.log("Patient saved/updated for userId:", userId);
 
     res.json({
       success: true,
@@ -118,13 +134,22 @@ router.delete("/:userId", async (req, res) => {
 
   try {
 
-    await Patient.deleteOne({
-      userId: req.params.userId
-    });
+    const userId = String(req.params.userId).trim();
+
+    if (!userId) {
+      return res.status(400).json({
+        success: false,
+        message: "User ID required"
+      });
+    }
+
+    await Patient.deleteOne({ userId });
+
+    console.log("Patient deleted for userId:", userId);
 
     res.json({
       success: true,
-      message: "Patient deleted"
+      message: "Patient deleted successfully"
     });
 
   } catch (err) {
