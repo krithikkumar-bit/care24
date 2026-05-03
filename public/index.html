@@ -571,7 +571,8 @@ async function savePatientProfile(){
   };
 
   const res = await fetch(
-    "https://care24.onrender.com/api/patient/add",
+        `https://care24.onrender.com/api/patients/${user.id}`,
+
     {
       method:"POST",
       headers:{ "Content-Type":"application/json" },
