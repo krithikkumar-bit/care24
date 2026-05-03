@@ -450,7 +450,33 @@ async function sendSOSAlert(){
   });
 
 }
-async function addEmergencyContact(){
+function addEmergencyContact(){
+
+  const modalHTML = `
+    <div class="p-6">
+      <h2 class="text-xl font-bold mb-4">Add Emergency Contact</h2>
+
+      <label class="fl">Contact Name</label>
+      <input id="ec-name" class="fi mb-3" placeholder="Enter name">
+
+      <label class="fl">Relation</label>
+      <input id="ec-relation" class="fi mb-3" placeholder="Father / Friend / Doctor">
+
+      <label class="fl">Phone Number</label>
+      <input id="ec-phone" class="fi mb-4" placeholder="Enter phone number">
+
+      <div class="flex justify-end gap-2">
+        <button onclick="closeMod()" class="bo">Cancel</button>
+        <button onclick="saveEmergencyContact()" class="bp">
+          Save Contact
+        </button>
+      </div>
+    </div>
+  `;
+
+  showModal(modalHTML);
+}
+async function saveEmergencyContact(){
 
   const user = JSON.parse(localStorage.getItem("LOGGED_USER"));
 
@@ -459,24 +485,24 @@ async function addEmergencyContact(){
     return;
   }
 
-  const name = prompt("Enter contact name:");
-  if(!name) return;
+  const name = document.getElementById("ec-name").value.trim();
+  const relation = document.getElementById("ec-relation").value.trim();
+  const phone = document.getElementById("ec-phone").value.trim();
 
-  const relation = prompt("Relation:");
-  if(!relation) return;
+  if(!name || !relation || !phone){
+    toast("Please fill all fields","er");
+    return;
+  }
 
-  const phone = prompt("Phone number:");
-  if(!phone) return;
-
-  await fetch(
+  const res = await fetch(
     "https://care24.onrender.com/api/sos/add-contact",
     {
       method:"POST",
       headers:{
         "Content-Type":"application/json"
       },
-      body:JSON.stringify({
-        userId: user._id || user.id,   // website user id
+      body: JSON.stringify({
+        userId: user._id || user.id,
         name,
         relation,
         phone
@@ -484,9 +510,16 @@ async function addEmergencyContact(){
     }
   );
 
-  toast("Emergency contact saved successfully ✅","ok");
+  const data = await res.json();
 
-  loadEmergencyContacts();
+  if(data.success){
+    toast("Emergency contact saved successfully ✅","ok");
+    closeMod();
+    loadEmergencyContacts();
+  }
+  else{
+    toast("Failed to save contact","er");
+  }
 }
 async function loadEmergencyContacts(){
 
