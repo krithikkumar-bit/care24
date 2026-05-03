@@ -598,7 +598,7 @@ async function loadPatientProfile(){
   try{
 
     const res = await fetch(
-      `https://care24.onrender.com/api/patient/${user.id}`
+      `https://care24.onrender.com/api/patients/${user.id}`
     );
 
     const data = await res.json();
@@ -643,7 +643,7 @@ async function loadPatientCount(){
   try{
 
     const res = await fetch(
-      `https://care24.onrender.com/api/patient/${user.id}`
+      `https://care24.onrender.com/api/patients/${user.id}`
     );
 
     const data = await res.json();
