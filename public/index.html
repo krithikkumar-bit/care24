@@ -476,7 +476,7 @@ async function addEmergencyContact(){
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        userId: user._id,
+        userId: user.id,   // ✅ FIXED HERE
         name,
         relation,
         phone
@@ -497,12 +497,12 @@ async function loadEmergencyContacts(){
   if(!user) return;
 
   const res = await fetch(
-    `https://care24.onrender.com/api/sos/contacts/${user._id}`
+    `https://care24.onrender.com/api/sos/contacts/${user.id}`
   );
 
   const data = await res.json();
 
-  console.log("Loaded contacts:", data.contacts);
+  console.log("Loaded contacts:", data);
 }
 /* ===== NAV ===== */
 function nav(v,s){S.view=v;S.sub=s||'overview';S.sbOpen=false;render();window.scrollTo(0,0)}
