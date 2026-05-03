@@ -120,13 +120,15 @@ var savedUser = localStorage.getItem("LOGGED_USER");
 
 if(savedUser){
 
-    S.user = JSON.parse(savedUser);
+  S.user = JSON.parse(savedUser);
 
-    /* AUTO-OPEN CORRECT DASHBOARD */
+  if(S.user.rl){
+    S.view = S.user.rl;
+  }
 
-    if(S.user.rl){
-        S.view = S.user.rl;
-    }
+  /* LOAD PATIENT PROFILE FROM DATABASE */
+
+  loadPatientProfile();
 
 }
 
@@ -581,9 +583,55 @@ async function savePatientProfile(){
 
   if(data.success){
     toast("Patient profile saved successfully","ok");
+      loadPatientProfile();   
   }else{
     toast("Failed to save profile","er");
   }
+}
+async function loadPatientProfile(){
+
+  const user = JSON.parse(localStorage.getItem("LOGGED_USER"));
+
+  if(!user) return;
+
+  try{
+
+    const res = await fetch(
+      `https://care24.onrender.com/api/patient/${user.id}`
+    );
+
+    const data = await res.json();
+
+    if(data){
+
+      /* store inside local PTS array */
+
+      PTS = [{
+        uid: user.id,
+        name: data.name,
+        age: data.age,
+        g: data.gender,
+        ph: data.phone,
+        cd: data.conditions,
+        ad: data.address,
+        bloodGroup: data.bloodGroup,
+        specialRequirements: data.specialRequirements,
+        emergencyName: data.emergencyName,
+        emergencyPhone: data.emergencyPhone
+      }];
+
+      saveData("PTS", PTS);
+
+      render(); // refresh UI
+
+    }
+
+  }catch(err){
+
+    console.error("Patient load error:", err);
+
+  }
+
 }
 /* ===== NAV ===== */
 function nav(v,s){S.view=v;S.sub=s||'overview';S.sbOpen=false;render();window.scrollTo(0,0)}
