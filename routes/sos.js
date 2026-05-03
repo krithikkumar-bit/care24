@@ -4,7 +4,6 @@ const router = express.Router();
 const SOSLog = require('../models/SosLog');
 const EmergencyContact = require('../models/EmergencyContact');
 
-
 /* ===============================
    TRIGGER SOS ALERT
 =============================== */
@@ -15,19 +14,10 @@ router.post('/trigger', async (req, res) => {
 
     const { userId, patientId, latitude, longitude } = req.body;
 
-    if (!userId) {
-      return res.status(400).json({
-        message: "User ID is required"
-      });
-    }
-
-    // Load user's saved emergency contacts
-    const contacts = await EmergencyContact.find({
-      userId: userId
-    });
+    const contacts = await EmergencyContact.find({ userId });
 
     const sos = new SOSLog({
-      userId: userId,
+      userId,
       patientId: patientId || undefined,
       latitude,
       longitude,
@@ -41,15 +31,14 @@ router.post('/trigger', async (req, res) => {
     await sos.save();
 
     res.json({
-      message: 'SOS alert triggered successfully',
+      message: "SOS alert triggered successfully",
       sos
     });
 
   } catch (err) {
 
     res.status(500).json({
-      message: 'Server error',
-      error: err.message
+      message: err.message
     });
 
   }
@@ -66,12 +55,6 @@ router.post('/add-contact', async (req, res) => {
   try {
 
     const { userId, name, relation, phone } = req.body;
-
-    if (!userId || !name || !phone) {
-      return res.status(400).json({
-        message: "Missing required fields"
-      });
-    }
 
     const contact = new EmergencyContact({
       userId,
@@ -99,7 +82,7 @@ router.post('/add-contact', async (req, res) => {
 
 
 /* ===============================
-   GET USER CONTACTS
+   GET CONTACTS BY USER ID
 =============================== */
 
 router.get('/contacts/:userId', async (req, res) => {
@@ -132,7 +115,6 @@ router.get('/logs', async (req, res) => {
   try {
 
     const logs = await SOSLog.find()
-      .populate('userId patientId')
       .sort({ triggeredAt: -1 })
       .limit(50);
 
@@ -141,13 +123,11 @@ router.get('/logs', async (req, res) => {
   } catch (err) {
 
     res.status(500).json({
-      message: 'Server error',
-      error: err.message
+      message: err.message
     });
 
   }
 
 });
-
 
 module.exports = router;
