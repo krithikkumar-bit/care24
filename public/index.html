@@ -918,6 +918,7 @@ function handleAuth(e){
 
             closeMod();
             nav(u.rl);
+            loadPatientCount();
 
             toast('Welcome back, ' + u.name + '!', 'ok');
 
@@ -953,24 +954,6 @@ function handleAuth(e){
 
         /* ✅ STEP 2 ADDED HERE */
         localStorage.setItem("USRS", JSON.stringify(USRS));
-
-        /* CREATE PATIENT PROFILE IF USER */
-
-        if(rl === 'user'){
-
-            PTS.push({
-                id: 'p' + Date.now(),
-                uid: nu.id,
-                name: '',
-                age: '',
-                g: 'Male',
-                cd: '',
-                ad: '',
-                ph: ''
-            });
-
-            localStorage.setItem("PTS", JSON.stringify(PTS));
-        }
 
         /* AUTO LOGIN AFTER REGISTER */
 
@@ -1064,7 +1047,12 @@ function uOverview(){
 
     var h='<div class="mb-8"><h2 class="font-display text-2xl font-black text-chr mb-1">Welcome back, '+S.user.name.split(' ')[0]+'</h2><p class="text-gray-500">Here\'s an overview of your care services.</p></div>';
     h+='<div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">';
-    var sts=[{n:active.length,l:'Active Bookings',i:'fa-calendar-check',bg:'bg-pri-50',ic:'text-pri'},{n:done.length,l:'Completed',i:'fa-check-double',bg:'bg-green-50',ic:'text-green-600'},{n:pat&&pat.name?1:0,l:'Patient Profiles',i:'fa-user-group',bg:'bg-orange-50',ic:'text-sec'},{n:'4.8',l:'Avg Rating',i:'fa-star',bg:'bg-yellow-50',ic:'text-acc'}];
+    var sts=[
+  {n:active.length,l:'Active Bookings',i:'fa-calendar-check',bg:'bg-pri-50',ic:'text-pri'},
+  {n:done.length,l:'Completed',i:'fa-check-double',bg:'bg-green-50',ic:'text-green-600'},
+  {n:pid(S.user.id)?1:0,l:'Patient Profiles',i:'fa-user-group',bg:'bg-orange-50',ic:'text-sec'},
+  {n:'4.8',l:'Avg Rating',i:'fa-star',bg:'bg-yellow-50',ic:'text-acc'}
+];
     for(var i=0;i<sts.length;i++){
         var st=sts[i];
         h+='<div class="dc sc"><div class="sbg" style="background:#0A6E72"></div><div class="w-11 h-11 rounded-xl '+st.bg+' flex items-center justify-center mb-3"><i class="fa-solid '+st.i+' '+st.ic+'"></i></div><p class="text-3xl font-black text-chr">'+st.n+'</p><p class="text-gray-500 text-sm font-bold">'+st.l+'</p></div>';
