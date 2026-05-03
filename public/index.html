@@ -128,7 +128,7 @@ if(savedUser){
 
   /* LOAD PATIENT PROFILE FROM DATABASE */
 
-    loadPatientCount();   // ✅ ADD THIS
+      loadPatientProfile();
 
 }
 
@@ -609,7 +609,6 @@ async function savePatientProfile(){
 async function loadPatientProfile(){
 
   const user = JSON.parse(localStorage.getItem("LOGGED_USER"));
-
   if(!user) return;
 
   try{
@@ -618,29 +617,22 @@ async function loadPatientProfile(){
       `https://care24.onrender.com/api/patients/${user.id}`
     );
 
+    if(!res.ok){
+      console.log("Patient fetch failed");
+      return;
+    }
+
     const data = await res.json();
+
+    console.log("Patient loaded:", data);
 
     if(data){
 
-      /* store inside local PTS array */
-
-      PTS = [{
-        uid: user.id,
-        name: data.name,
-        age: data.age,
-        g: data.gender,
-        ph: data.phone,
-        cd: data.conditions,
-        ad: data.address,
-        bloodGroup: data.bloodGroup,
-        specialRequirements: data.specialRequirements,
-        emergencyName: data.emergencyName,
-        emergencyPhone: data.emergencyPhone
-      }];
+      PTS = [data];   // ✅ store MongoDB patient correctly
 
       saveData("PTS", PTS);
 
-      render(); // refresh UI
+      render();       // refresh dashboard
 
     }
 
@@ -649,7 +641,6 @@ async function loadPatientProfile(){
     console.error("Patient load error:", err);
 
   }
-
 }
 async function loadPatientCount(){
 
@@ -684,10 +675,6 @@ async function loadPatientCount(){
         emergencyName: data.emergencyName,
         emergencyPhone: data.emergencyPhone
       }];
-
-    }else{
-
-      PTS = [];
 
     }
 
