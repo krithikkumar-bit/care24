@@ -62,6 +62,7 @@ router.post("/:userId", async (req, res) => {
       name,
       age,
       gender,
+      phone,                // ✅ ADDED
       bloodGroup,
       conditions,
       specialRequirements,
@@ -91,6 +92,7 @@ router.post("/:userId", async (req, res) => {
         name,
         age,
         gender,
+        phone: phone || "",                 // ✅ ADDED
         bloodGroup: bloodGroup || "",
         conditions: conditions || "",
         specialRequirements: specialRequirements || "",
