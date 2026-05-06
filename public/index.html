@@ -15,160 +15,124 @@ tailwind.config={theme:{extend:{colors:{pri:{DEFAULT:'#0A6E72',light:'#12A3A8',d
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
 
-/* 🌈 PREMIUM COLOR SYSTEM */
-:root{
-  --bg:#0f172a;
-  --card:#111827;
-  --glass:rgba(255,255,255,0.06);
-  --primary:#14b8a6;
-  --accent:#f97316;
-  --text:#e5e7eb;
-  --muted:#9ca3af;
-}
-
-/* 🌍 BODY */
+/* 🌿 CLEAN BACKGROUND */
 body{
   font-family:'Nunito',sans-serif;
-  background:linear-gradient(135deg,#0f172a,#020617);
-  color:var(--text);
+  background:#f4f7fb;
+  color:#1f2937;
   overflow-x:hidden;
+  line-height:1.6
 }
 
-/* HEADINGS */
-h1,h2,h3{
-  font-family:'Playfair Display',serif;
-  color:#fff;
+h1,h2,h3,h4{font-family:'Playfair Display',serif;line-height:1.2}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:#e5e7eb}
+::-webkit-scrollbar-thumb{background:#0A6E72;border-radius:3px}
+
+/* PRELOADER */
+#preloader{background:#0f172a}
+.loader-ring{border-top-color:#22c55e}
+
+/* HERO */
+.hero-bg{
+  background:linear-gradient(145deg,#0f172a 0%,#1e293b 40%,#334155 100%)
 }
 
-/* 🌟 GLASS CARD */
-.dc{
-  background:var(--glass);
-  backdrop-filter:blur(18px);
-  border-radius:18px;
-  padding:24px;
-  border:1px solid rgba(255,255,255,.08);
-  box-shadow:0 10px 40px rgba(0,0,0,.4);
-  transition:all .3s;
-}
-.dc:hover{
-  transform:translateY(-6px);
-  box-shadow:0 20px 60px rgba(0,0,0,.6);
-}
+/* GLASS */
+.glass{background:rgba(255,255,255,.08)}
+.glass-w{background:rgba(255,255,255,.6)}
+.glass-c{background:rgba(255,255,255,.3)}
 
-/* 📂 SIDEBAR */
-.sidebar{
-  width:260px;
-  min-height:100vh;
-  background:rgba(15,23,42,.85);
-  backdrop-filter:blur(20px);
-  border-right:1px solid rgba(255,255,255,.08);
-}
-
-.sbl{
-  padding:12px 20px;
-  border-radius:10px;
-  margin:6px 12px;
-  color:var(--muted);
-  font-weight:600;
-}
-.sbl:hover{
-  background:rgba(255,255,255,.08);
-  color:#fff;
-}
-.sbl.act{
-  background:linear-gradient(135deg,var(--primary),#0ea5a4);
-  color:#fff;
-}
-
-/* 🔝 TOPBAR */
-.topbar{
-  background:rgba(15,23,42,.8);
-  backdrop-filter:blur(20px);
-  border-bottom:1px solid rgba(255,255,255,.08);
-  padding:14px 28px;
-}
-
-/* ✨ BUTTONS */
+/* BUTTON PRIMARY */
 .bp{
-  background:linear-gradient(135deg,var(--primary),#0ea5a4);
-  color:#fff;
-  padding:12px 26px;
-  border-radius:12px;
-  font-weight:700;
-  border:none;
-  cursor:pointer;
-  transition:.3s;
-}
-.bp:hover{
-  transform:translateY(-2px);
-  box-shadow:0 10px 30px rgba(20,184,166,.4);
+  background:linear-gradient(135deg,#0A6E72,#14b8a6);
+  color:#ffffff;
 }
 
+/* BUTTON SECONDARY */
 .bs{
-  background:linear-gradient(135deg,var(--accent),#fb923c);
-  color:#fff;
-  padding:12px 26px;
-  border-radius:12px;
-  border:none;
+  background:linear-gradient(135deg,#f97316,#fb923c);
+  color:#ffffff;
 }
 
-/* 🧾 INPUTS */
+/* OUTLINE BUTTON */
+.bo{
+  color:#0A6E72;
+  border:2px solid #0A6E72;
+}
+.bo:hover{
+  background:#0A6E72;
+  color:#ffffff;
+}
+
+/* SIDEBAR */
+.sidebar{
+  background:linear-gradient(180deg,#0f172a 0%,#1e293b 50%,#334155 100%);
+  color:#e5e7eb;
+}
+
+.sbl{color:rgba(255,255,255,.7)}
+.sbl:hover{color:#22c55e}
+.sbl.act{color:#ffffff}
+
+/* TOPBAR */
+.topbar{
+  background:#ffffff;
+  border-bottom:1px solid #e5e7eb;
+}
+
+/* CARDS */
+.dc{
+  background:#ffffff;
+  border:1px solid #e5e7eb;
+}
+
+/* INPUTS */
 .fi{
-  width:100%;
-  padding:12px 14px;
-  border-radius:10px;
-  border:1px solid rgba(255,255,255,.1);
-  background:rgba(255,255,255,.04);
-  color:#fff;
-  transition:.25s;
+  background:#ffffff;
+  color:#1f2937;
+  border:1px solid #d1d5db;
 }
-.fi::placeholder{color:#9ca3af}
-
 .fi:focus{
-  outline:none;
-  border-color:var(--primary);
-  box-shadow:0 0 0 3px rgba(20,184,166,.2);
+  border-color:#0A6E72;
 }
 
 /* LABEL */
-.fl{
-  font-size:.85rem;
-  color:var(--muted);
-  margin-bottom:6px;
-}
+.fl{color:#374151}
 
-/* 🚨 SOS BUTTON */
-#sos-btn{
-  position:fixed;
-  bottom:25px;
-  right:25px;
-  width:60px;
-  height:60px;
-  border-radius:50%;
-  background:linear-gradient(135deg,#ef4444,#dc2626);
-  color:#fff;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-weight:900;
-  box-shadow:0 10px 30px rgba(220,38,38,.5);
-}
-#sos-btn:hover{
-  transform:scale(1.1);
-}
+/* TABS */
+.tb{color:#6B7280}
+.tb.on{color:#0A6E72}
+.tb:hover{color:#0A6E72}
 
-/* ✨ SCROLLBAR */
-::-webkit-scrollbar{width:6px}
-::-webkit-scrollbar-thumb{
-  background:var(--primary);
-  border-radius:3px;
-}
+/* STATUS COLORS */
+.b-ok{background:#dcfce7;color:#166534}
+.b-w{background:#fef3c7;color:#92400e}
+.b-e{background:#fee2e2;color:#991b1b}
+.b-i{background:#e0f2fe;color:#075985}
 
-/* 📱 RESPONSIVE */
-@media(max-width:1024px){
-  .sidebar{transform:translateX(-100%)}
-  .mw{margin-left:0}
-}
+/* PROGRESS */
+.pt{background:#e5e7eb}
+.pf{background:#0A6E72}
+
+/* STEPS */
+.sd{border-color:#e5e7eb;color:#6B7280}
+.sd.on{background:#0A6E72;color:#fff}
+.sd.dn{background:#22c55e;color:#fff}
+
+/* CARDS SELECT */
+.cgs{background:#ffffff}
+.cgs.pk{background:#e0f2fe}
+
+/* MODAL */
+.mod-bx{background:#ffffff}
+
+/* TOAST */
+.t-ok{background:#16a34a}
+.t-er{background:#dc2626}
+.t-in{background:#0A6E72}
 </style>
 </head>
 <body>
