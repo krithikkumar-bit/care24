@@ -112,6 +112,21 @@ h1,h2,h3,h4{font-family:'Playfair Display',serif;line-height:1.2}
 <button id="sos-btn" onclick="openSOS()" aria-label="Emergency SOS"><span class="sr"></span><span class="sr"></span><span class="sr"></span><i class="fa-solid fa-phone-volume"></i></button>
 
 <script>
+  function updateSOSVisibility(){
+
+  const btn = document.getElementById("sos-btn");
+
+  if(!S.user || S.user.rl !== "user"){
+
+    btn.style.display = "none";
+
+  }else{
+
+    btn.style.display = "flex";
+
+  }
+
+}
 /* ===== STATE ===== */
 var S={view:'landing',sub:'overview',user:null,bs:0,selSvc:null,selCg:null,sbOpen:false,bf:{date:'',time:'',dur:'hourly',notes:''},am:'login',ar:'user',at:'all'};
 /* RESTORE LOGIN SESSION AFTER REFRESH */
@@ -121,7 +136,7 @@ var savedUser = localStorage.getItem("LOGGED_USER");
 if(savedUser){
 
   S.user = JSON.parse(savedUser);
-
+updateSOSVisibility();
   if(S.user.rl){
     S.view = S.user.rl;
   }
@@ -924,6 +939,7 @@ function handleAuth(e){
         if(u){
 
             S.user = u;
+            updateSOSVisibility();
 
             /* SAVE LOGIN SESSION */
             localStorage.setItem("LOGGED_USER", JSON.stringify(u));
@@ -1949,6 +1965,16 @@ function adServices(){
 /* ===== EMERGENCY SOS ===== */
 async function openSOS(){
 
+  const user = JSON.parse(localStorage.getItem("LOGGED_USER"));
+
+  // ✅ ONLY NORMAL USERS CAN ACCESS SOS
+  if(!user || user.rl !== "user"){
+
+    toast("Emergency SOS is available only for users","er");
+    return;
+
+  }
+
   // ✅ Load contacts before rendering
   await loadEmergencyContacts();
 
@@ -2000,7 +2026,7 @@ async function openSOS(){
 
   h += '</div>';
 
-  /* ✅ ADD CONTACT BUTTON (NEW FEATURE) */
+  /* ADD CONTACT BUTTON */
 
   h += `
     <button onclick="addEmergencyContact()" 
